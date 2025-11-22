@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoznam Profilov</title>
+</head>
+<body>
+    <h1>Vitajte na Hráčskej Platforme!</h1>
+    
+    <h2>Profily používateľov:</h2>
+    
+    {% for profil in profily %}
+        <h3>{{ profil.nickname }}</h3>
+        <p>Úroveň: {{ profil.uroven }}</p>
+        <p>Rola: {{ profil.rola.nazov_role }}</p>
+        <hr>
+    {% empty %}
+        <p>Zatiaľ nemáme žiadne profily v databáze.</p>
+    {% endfor %}
+
+    <p>Aktuálne dátum a čas: {{ datum_a_cas }}</p>
+
+</body>
+</html>
