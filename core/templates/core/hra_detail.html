@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ hra.nazov }} - Detail</title> 
+</head>
+<body>
+    <a href="{% url 'hra_list' %}">← Späť na Katalóg Hier</a>
+    
+    <h1>Detail Hry: {{ hra.nazov }}</h1>
+    
+    <p><strong>Interné ID:</strong> {{ hra.id }}</p>
+    <p><strong>Žáner:</strong> {{ hra.zaner }}</p>
+    
+    <h2>Popis:</h2>
+    <p style="white-space: pre-wrap;">{{ hra.bio|default:"Popis zatiaľ nebol pridaný." }}</p> 
+    
+    </body>
+</html>

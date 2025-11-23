@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoznam Udalostí</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    {% if user.is_authenticated %}
+        
+        {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
+            
+            <a href="/admin/core/udalost/add/" style="display: inline-block; margin-bottom: 20px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                + Vytvoriť novú udalosť
+            </a>
+            <hr>
+            
+        {% endif %}
+        
+    {% endif %}
+    
+    <h1>Aktuálne Udalosti a Turnaje</h1>
+    
+    {% for udalost in udalosti %}
+        {% empty %}
+        <p>V súčasnosti neplánujeme žiadne udalosti.</p>
+    {% endfor %}
+    
+</body>
+</html>

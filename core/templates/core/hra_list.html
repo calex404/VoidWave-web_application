@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Katalóg Hier</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %} 
+
+    <h1>TEST: Katalóg hier</h1> 
+    
+    {% for hra in hry %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+            <h2>
+                <a href="{% url 'hra_detail' hra.id %}">{{ hra.nazov }}</a>
+            </h2>
+            <p><strong>Žáner:</strong> {{ hra.zaner }}</p>
+            <p>{{ hra.bio|default:"Popis nie je k dispozícii." }}</p>
+        </div>
+    {% empty %}
+        <p>V katalógu zatiaľ nie sú žiadne hry. Pridajte ich v Admin rozhraní!</p>
+    {% endfor %}
+    
+</body>
+</html>

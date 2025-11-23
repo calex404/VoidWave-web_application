@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrácia</title>
+</head>
+<body>
+    <h1>Registrácia nového používateľa</h1>
+
+    <form method="post" action="."> 
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        
+        <button type="submit">Zaregistrovať sa</button>
+    </form>
+    
+    <hr>
+    <p>Už máš účet? <a href="{% url 'login' %}">Prihlás sa</a></p>
+
+</body>
+</html>
