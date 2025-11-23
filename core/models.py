@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 class Rola(models.Model):
     
@@ -14,6 +15,7 @@ class Profil(models.Model):
     bio = models.TextField(null=True, blank=True) 
     uroven = models.IntegerField(default=1)
     datum_registracie = models.DateField(auto_now_add=True) 
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
  
     # vztah N:1
     rola = models.ForeignKey(Rola, on_delete=models.SET_NULL, null=True) 
