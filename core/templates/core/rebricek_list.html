@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rebríčky</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    <h1>Dostupné Rebríčky</h1>
+    
+    {% for rebricek in rebricky %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+            <h2>{{ rebricek.get_typ_display }}</h2>
+            <p>Aktualizované: {{ rebricek.datum_aktualizacie }}</p>
+            </div>
+    {% empty %}
+        <p>Zatiaľ nie sú vytvorené žiadne rebríčky.</p>
+    {% endfor %}
+</body>
+</html>

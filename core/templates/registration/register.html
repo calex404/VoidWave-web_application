@@ -6,10 +6,14 @@
 <body>
     <h1>Registrácia nového používateľa</h1>
 
-    <form method="post" action="."> 
+    <form method="post" action="{% url 'user_register' %}"> 
         {% csrf_token %}
         
         {{ form.as_p }}
+        
+        <input type="checkbox" id="show-password-register"> 
+        <label for="show-password-register">Zobraziť heslá</label>
+        <br>
         
         <button type="submit">Zaregistrovať sa</button>
     </form>
@@ -17,5 +21,20 @@
     <hr>
     <p>Už máš účet? <a href="{% url 'login' %}">Prihlás sa</a></p>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('show-password-register');
+            const passwordField1 = document.getElementById('id_password1'); // ID prvého hesla
+            const passwordField2 = document.getElementById('id_password2'); // ID druhého hesla
+            
+            if (checkbox && passwordField1 && passwordField2) {
+                checkbox.addEventListener('change', function() {
+                    const newType = checkbox.checked ? 'text' : 'password';
+                    passwordField1.type = newType;
+                    passwordField2.type = newType;
+                });
+            }
+        });
+    </script>
 </body>
 </html>

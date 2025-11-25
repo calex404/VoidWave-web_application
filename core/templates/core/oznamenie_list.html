@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oznámenia</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    <h1>Centrum Oznámení</h1>
+    
+    {% for oznamenie in oznamenia %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9;">
+            <h3>{{ oznamenie.nazov }} <small>({{ oznamenie.get_typ_display }})</small></h3>
+            <p>{{ oznamenie.obsah }}</p>
+            <p style="font-size: 0.8em; color: gray;">Dátum: {{ oznamenie.datum_vytvorenia }}</p>
+        </div>
+    {% empty %}
+        <p>Žiadne nové oznámenia.</p>
+    {% endfor %}
+</body>
+</html>

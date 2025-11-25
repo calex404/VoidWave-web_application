@@ -112,6 +112,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 LOGIN_REDIRECT_URL = '/' 
-LOGIN_REDIRECT_URL = 'profil_list' 
-LOGIN_URL = 'login'
-LOGOUT_REDIRECT_URL = 'profil_list'
+LOGOUT_REDIRECT_URL = '/' # Kam presmerovať po odhlásení
+LOGIN_URL = 'login' # Adresa pre prihlásenie

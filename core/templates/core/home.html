@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Domov</title>
+    <style>
+        .form-container {
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            max-width: 300px; 
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+
+    {% if user.is_authenticated %}
+        {% include 'core/navbar.html' %}
+
+        <div style="text-align: center; margin-top: 100px;">
+            <h1>Hi stranger</h1>
+            <p>Vitaj, {{ user.profil.nickname|default:user.username }}! Použi navigáciu hore.</p>
+        </div>
+    
+    {% else %}
+
+        <h1>Vitajte na Hráčskej Platforme!</h1>
+        <p>Pre pokračovanie sa, prosím, prihláste alebo zaregistrujte.</p>
+
+        <div class="form-container" style="border: 1px solid #ccc; padding: 20px; max-width: 300px; margin: 20px auto;">
+            <h2>Prihlásenie:</h2>
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                
+                <input type="checkbox" id="show-password-login"> 
+                <label for="show-password-login">Zobraziť heslo</label>
+                <br>
+                
+                <button type="submit">Prihlásiť sa</button>
+                <input type="hidden" name="next" value="{{ request.path }}">
+            </form>
+            <hr>
+            <p>Nemáš účet? <a href="{% url 'user_register' %}">Zaregistruj sa</a></p>
+        </div>
+
+    {% endif %}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('show-password-login');
+            // ID hesla je defaultne 'id_password'
+            const passwordField = document.getElementById('id_password'); 
+            
+            if (checkbox && passwordField) {
+                checkbox.addEventListener('change', function() {
+                    passwordField.type = checkbox.checked ? 'text' : 'password';
+                });
+            }
+        });
+    </script>
+    
+</body>
+</html>

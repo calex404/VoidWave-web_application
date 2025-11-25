@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ profil.nickname }}</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    <a href="{% url 'profil_list' %}">← Späť na zoznam profilov</a>
+    
+    <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd;">
+        
+        <h1>Profil: {{ profil.nickname }}</h1>
+        
+        <hr>
+        
+        <h2>Informácie</h2>
+        <p><strong>Rola:</strong> {{ profil.rola.nazov_role|default:"Nepriradená" }}</p>
+        <p><strong>Úroveň:</strong> {{ profil.uroven }}</p>
+        <p><strong>Dátum registrácie:</strong> {{ profil.datum_registracie }}</p>
+        
+        <h2>Bio (O mne)</h2>
+        <p>{{ profil.bio|default:"Používateľ ešte nepridal žiadne informácie o sebe." }}</p>
+        
+        </div>
+</body>
+</html>

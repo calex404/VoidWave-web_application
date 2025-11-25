@@ -117,7 +117,7 @@ class Migration(migrations.Migration):
                 ('udalost', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.udalost')),
             ],
             options={
-                'constraints': [models.CheckConstraint(condition=models.Q(models.Q(('hra__isnull', False), ('udalost__isnull', True)), models.Q(('hra__isnull', True), ('udalost__isnull', False)), _connector='OR'), name='jedinecny_objekt_hodnotenia')],
+                'constraints': [models.CheckConstraint(check=models.Q(models.Q(('hra__isnull', False), ('udalost__isnull', True)), models.Q(('hra__isnull', True), ('udalost__isnull', False)), _connector='OR'), name='jedinecny_objekt_hodnotenia')],
             },
         ),
         migrations.CreateModel(

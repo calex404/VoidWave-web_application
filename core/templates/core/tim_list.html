@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoznam Tímov</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    {% if user.is_authenticated %}
+        {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
+            {% if not user_is_member_of_any_team %}
+                <a href="{% url 'tim_create' %}" style="display: inline-block; margin-bottom: 20px; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                    + Založiť vlastný tím
+                </a>
+                <hr>
+            {% else %}
+                 <p style="color: red; font-weight: bold;">Nemôžeš založiť nový tím, pretože si už členom iného tímu.</p>
+                 <hr>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+    
+    <h1>Herné Tímy</h1>
+    
+    {% for tim in timy %}
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            <h2>{{ tim.nazov }}</h2>
+            <p><strong>Úroveň tímu:</strong> {{ tim.uroven }}</p>
+            <p>{{ tim.bio|default:"Bez popisu." }}</p>
+            
+            <p><strong>Počet členov:</strong> {{ tim.clenovia.count }}/5</p>
+            
+            <p style="font-size: 0.9em; color: gray;">
+                Členovia: 
+                {% for clen in tim.clenovia.all %}
+                    {{ clen.nickname }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+
+            {% if user.is_authenticated %}
+                {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
+                    
+                    {% if tim in user.profil.tim_set.all %}
+                         <span style="color: green; font-weight: bold;">✔ Už si členom tohto tímu</span>
+                    {% elif user_is_member_of_any_team %}
+                         <span style="color: red; font-weight: bold;">❌ Si už v inom tíme.</span>
+                    {% elif tim.clenovia.count >= 5 %}
+                         <span style="color: red; font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
+                    {% else %}
+                         <a href="{% url 'tim_join' tim.id %}" style="color: blue; text-decoration: underline;">
+                            👉 Pridať sa do tohto tímu
+                        </a>
+                    {% endif %}
+
+                {% endwith %}
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>Zatiaľ neboli založené žiadne tímy.</p>
+    {% endfor %}
+</body>
+</html>
