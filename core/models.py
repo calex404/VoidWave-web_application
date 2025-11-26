@@ -157,13 +157,15 @@ class Hodnotenie(models.Model):
         objekt_nazov = self.hra.nazov if self.hra else self.udalost.nazov
         return f"Hodnotenie {self.hodnotenie}/10 pre {objekt_nazov}"
 
+# core/models.py (Nahraď len definíciu týchto dvoch tried)
+
 class Oznamenie(models.Model):
-    # Dátumy zmenené na DateTimeField pre presnosť
+    # Dátumy MUSIA BYŤ DateTimeField pre presné ukladanie notifikácií
     nazov = models.CharField(max_length=255, default='Notifikácia') 
     TYP_CHOICES = [('pozvanka', 'Pozvánka'), ('upozornenie', 'Upozornenie'), ('sprava', 'Správa')]
     typ = models.CharField(max_length=15, choices=TYP_CHOICES, default='sprava') 
     obsah = models.TextField()
-    datum_vytvorenia = models.DateTimeField(auto_now_add=True) 
+    datum_vytvorenia = models.DateTimeField(auto_now_add=True) # Zmena z DateField na DateTimeField
     def __str__(self):
         return f"{self.nazov} ({self.typ})"
 
@@ -172,9 +174,9 @@ class Odoslanie(models.Model):
     oznamenie = models.ForeignKey(Oznamenie, on_delete=models.CASCADE)
     prijemca = models.ForeignKey(Profil, on_delete=models.CASCADE, related_name='prijate_oznamenia')
     
-    # 💥 PRIDANÉ KRITICKÉ POLE 💥
+    # Pridávame dáta ako DateTimeField
     datum_odoslania = models.DateTimeField(auto_now_add=True) 
-    datum_precitania = models.DateTimeField(null=True, blank=True) # Zmenené na DateTimeField
+    datum_precitania = models.DateTimeField(null=True, blank=True) # Zmena z DateField na DateTimeField
     
     STAV_CHOICES = [('neprecitane', 'Neprečítané'), ('precitane', 'Prečítané')]
     stav = models.CharField(max_length=64, choices=STAV_CHOICES, default='neprecitane')

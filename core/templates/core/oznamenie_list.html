@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Oznámenia</title>
+    <title>Centrum Oznámení</title>
 </head>
 <body>
-    {% include 'core/navbar.html' %}
+    {% include 'core/navbar.html' %} 
     
-    <h1>Centrum Oznámení</h1>
-    
-    {% for oznamenie in oznamenia %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9;">
-            <h3>{{ oznamenie.nazov }} <small>({{ oznamenie.get_typ_display }})</small></h3>
-            <p>{{ oznamenie.obsah }}</p>
-            <p style="font-size: 0.8em; color: gray;">Dátum: {{ oznamenie.datum_vytvorenia }}</p>
-        </div>
-    {% empty %}
-        <p>Žiadne nové oznámenia.</p>
-    {% endfor %}
+    <div style="max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #ddd;">
+        <h1>📬 Centrum Oznámení</h1>
+        <hr>
+
+        {% if ziadosti_priatelstva %}
+            <h2 style="color: #007bff;">📩 Žiadosti o priateľstvo ({{ ziadosti_priatelstva.count }})</h2>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for ziadost in ziadosti_priatelstva %}
+                    <li style="margin-bottom: 10px; border: 1px solid #ddd; padding: 10px;">
+                        Od: <strong>{{ ziadost.profil1.nickname }}</strong>
+                        <div style="float: right;">
+                            <a href="{% url 'accept_friend_request' ziadost.id %}" style="color: green; font-weight: bold;">[✔ Prijať]</a>
+                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="color: red; margin-left: 5px;">[❌ Zamietnuť]</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <hr>
+        {% endif %}
+
+        <h2 style="color: #666;">História Notifikácií</h2>
+        
+        {% for odoslanie in odoslania_list %}
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 5px; 
+                        border-left: 5px solid {% if odoslanie.datum_precitania %}#aaa{% else %}#007bff{% endif %};">
+                
+                <strong>{{ odoslanie.oznamenie.nazov }}</strong>
+                <span style="font-size: 0.8em; color: gray;">— {{ odoslanie.datum_odoslania|date:"d.m.Y H:i" }}</span>
+                <p style="margin-top: 5px;">
+                    {{ odoslanie.oznamenie.obsah|linebreaksbr }}
+                </p>
+            </div>
+        
+        {% empty %}
+            <p>Žiadna história oznámení.</p>
+        {% endfor %}
+    </div>
+
 </body>
 </html>

@@ -7,17 +7,26 @@
     
     {% include 'core/navbar.html' %} 
     
-    <h1>Zoznam všetkých profilov</h1>
+    <h1>Nájsť priateľov (Zoznam všetkých profilov)</h1>
     
     {% for profil in profily %}
-        <div style="margin-bottom: 5px;">
-            <h3>
-                <a href="{% url 'profil_detail' profil.id %}">
-                    {{ profil.nickname }}
-                </a>
-            </h3>
-        </div>
-        <hr>
+        {% if request.user.is_authenticated and profil != request.user.profil %}
+            
+            <div style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding: 5px;">
+                
+                <h3>
+                    <a href="{% url 'profil_detail' profil.id %}">
+                        {{ profil.nickname }}
+                    </a>
+                    
+                    <a href="{% url 'send_friend_request' profil.id %}" 
+                       style="font-size: 0.8em; background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px; float: right;">
+                       + Pridať priateľa
+                    </a>
+                </h3>
+                
+            </div>
+        {% endif %}
     {% empty %}
         <p>Zatiaľ nemáme žiadne profily v databáze.</p>
     {% endfor %}

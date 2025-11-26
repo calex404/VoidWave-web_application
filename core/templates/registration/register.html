@@ -6,6 +6,13 @@
 <body>
     <h1>Registrácia nového používateľa</h1>
 
+    {% if form.errors %}
+        <div style="border: 2px solid red; padding: 10px; margin-bottom: 15px; background-color: #fdd;">
+            <p style="color: black; font-weight: bold;">Registrácia zlyhala. Skontrolujte nasledovné chyby:</p>
+            {{ form.non_field_errors }} 
+        </div>
+    {% endif %}
+
     <form method="post" action="{% url 'user_register' %}"> 
         {% csrf_token %}
         
@@ -24,8 +31,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('show-password-register');
-            const passwordField1 = document.getElementById('id_password1'); // ID prvého hesla
-            const passwordField2 = document.getElementById('id_password2'); // ID druhého hesla
+            const passwordField1 = document.getElementById('id_password1'); // Default ID
+            const passwordField2 = document.getElementById('id_password2'); // Default ID
             
             if (checkbox && passwordField1 && passwordField2) {
                 checkbox.addEventListener('change', function() {

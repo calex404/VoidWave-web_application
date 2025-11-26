@@ -31,4 +31,9 @@ urlpatterns = [
     # 7. Ostatné
     path('oznamenia/', views.oznamenie_list_view, name='oznamenie_list'),
     path('rebricky/', views.rebricek_list_view, name='rebricek_list'),
+
+    path('priatelstvo/send/<int:profil_id>/', views.send_friend_request, name='send_friend_request'),
+    path('priatelstvo/accept/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
+    path('priatelstvo/reject/<int:request_id>/', views.reject_friend_request, name='reject_friend_request'),
+    # ...
 ] 

@@ -1,5 +1,5 @@
 <style>
-    /* ... (CSS blok) ... */
+    /* ... (CSS blok pre funkčný vizuál zostáva) ... */
     .navbar {
         display: flex;
         justify-content: space-between;
@@ -41,7 +41,7 @@
         color: white;
     }
 
-    /* 🔔 IKONA ZVONČEKA */
+    /* 🔔 IKONA ZVONČEKA (NOVÝ ŠTÝL) */
     .bell-icon {
         margin-right: 20px; 
         font-size: 1.5em; 
@@ -66,6 +66,7 @@
 <div class="navbar">
     
     <div class="navbar-left">
+        <a href="{% url 'home' %}">Domov</a>
         <a href="{% url 'profil_list' %}">🏠 Profily</a> 
         <a href="{% url 'hra_list' %}">🎮 Hry</a>
         <a href="{% url 'udalost_list' %}">📅 Udalosti</a>

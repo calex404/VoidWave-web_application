@@ -1,4 +1,4 @@
-# core/views.py (KONSOLIDOVANÝ A OPRAVENÝ KÓD)
+# core/views.py (KOMPLETNÝ KÓD PRE STABILNÝ SERVER A FUNKČNOSŤ)
 
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie
@@ -9,7 +9,6 @@ from django.db.models import Q
 
 # Konštanta pre maximálny počet členov tímu
 MAX_TEAM_SIZE = 5
-
 
 # --- ÚVOD A PROFILY ---
 
@@ -27,12 +26,10 @@ def profil_list_view(request):
     }
     return render(request, 'core/profil_list.html', context)
 
-# core/views.py (Nahraď TÚTO FUNKCIU)
-
 def profil_detail_view(request, profil_id):
     profil = get_object_or_404(Profil, id=profil_id)
     
-    # 1. Získame priateľov a žiadosti
+    # Získame priateľov a žiadosti (logika ostáva)
     priatelia = Priatelstvo.objects.filter(
         Q(profil1=profil) | Q(profil2=profil),
         stav='accepted'
@@ -42,18 +39,15 @@ def profil_detail_view(request, profil_id):
         stav='pending'
     )
 
-    # 2. 💥 OPRAVENÉ ZÍSKANIE NOTIFIKÁCIÍ 💥
+    # Získanie notifikácií (Len ak pozerám SVOJ profil) 
     oznamenia_list = []
     if request.user.profil == profil:
-        # Načítame všetky záznamy Odoslanie, kde je príjemca aktuálny profil.
-        # DÔLEŽITÉ: Zoradíme podľa novo pridaného poľa 'datum_odoslania'.
-        odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania')
-        
+        # Načítame záznamy, zoradené podľa novo pridaného poľa 'datum_odoslania'
+        odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania') 
         for o in odoslania:
             oznamenia_list.append({
-                # Odoslanie obsahuje Oznamenie aj dáta pre zobrazenie
                 'oznamenie': o.oznamenie,
-                'datum_odoslania': o.datum_odoslania, # Používame dáta z Odoslania
+                'datum_odoslania': o.datum_odoslania,
                 'datum_precitania': o.datum_precitania
             })
 
@@ -61,23 +55,27 @@ def profil_detail_view(request, profil_id):
         'profil': profil,
         'priatelia': priatelia,
         'ziadosti': ziadosti,
-        'oznamenia_list': oznamenia_list # Posielame notifikácie do šablóny
+        'oznamenia_list': oznamenia_list
     }
     return render(request, 'core/profil_detail.html', context)
 
+# 💥 CHÝBAJÚCA FUNKCIA: PROFIL EDIT VIEW (Pridaná) 💥
 def profil_edit_view(request):
     """Umožňuje prihlásenému používateľovi editovať vlastný profil (nickname a bio)."""
+    
     if not request.user.is_authenticated:
         return redirect('login')
-
+    
     profil = request.user.profil 
-
+    
     if request.method == 'POST':
+        # Spracovanie odoslaných dát
         form = ProfilEditForm(request.POST, instance=profil)
         if form.is_valid():
             form.save()
             return redirect('profil_detail', profil_id=profil.id) 
     else:
+        # Zobrazenie formulára s existujúcimi dátami
         form = ProfilEditForm(instance=profil)
 
     context = {
@@ -86,61 +84,87 @@ def profil_edit_view(request):
     }
     return render(request, 'core/profil_edit.html', context)
 
+def send_friend_request(request, profil_id):
+    """Odošle žiadosť o priateľstvo inému profilu s vynútenou diagnostikou."""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    from_profil = request.user.profil
+    to_profil = get_object_or_404(Profil, id=profil_id)
+    
+    # Zabránenie odoslania samému sebe
+    if from_profil == to_profil:
+        return redirect('profil_detail', profil_id=profil_id)
 
-# --- PRIATEĽSTVÁ ---
+    # 1. Kontrola, či už žiadosť alebo priateľstvo neexistuje
+    friendship_exists = Priatelstvo.objects.filter(
+        Q(profil1=from_profil, profil2=to_profil) | 
+        Q(profil1=to_profil, profil2=from_profil)
+    ).exists()
+    
+    if not friendship_exists:
+        try:
+            # 2. Vytvorenie záznamu Priatelstvo
+            Priatelstvo.objects.create(
+                profil1=from_profil,
+                profil2=to_profil,
+                stav='pending'
+            )
+            
+            # 3. Vytvorenie Oznamenia pre príjemcu
+            oznamenie = Oznamenie.objects.create(
+                nazov='Nová žiadosť o priateľstvo',
+                typ='sprava',
+                obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo. Choď na svoj profil a prijmi ju!"
+            )
+            # 4. Vytvorenie Odoslania
+            Odoslanie.objects.create(oznamenie=oznamenie, prijemca=to_profil)
+
+            print("\n✅ INFO: Žiadosť a notifikácia ÚSPEŠNE VYTVORENÁ\n")
+
+        except Exception as e:
+            # 💥 TOTO NÁM POVIE, ČO NEFUNGUJE 💥
+            print("\n🛑 FATALNA CHYBA PRI UKLADANÍ ŽIADOSTI/NOTIFIKÁCIE 🛑")
+            print(f"CHYBA: {e}")
+            print("----------------------------------------------------\n")
+
+    # Vráti nás späť na profil, kde sme klikli
+    return redirect('profil_detail', profil_id=profil_id)
 
 def accept_friend_request(request, request_id):
     """Prijme žiadosť o priateľstvo a pošle notifikáciu."""
-    if not request.user.is_authenticated:
-        return redirect('login')
-
+    print("ne")
+    if not request.user.is_authenticated: return redirect('login')
     friendship = get_object_or_404(Priatelstvo, id=request_id)
     
     if friendship.profil2 == request.user.profil:
         friendship.stav = 'accepted'
         friendship.save()
         
-        # --- NOTIFIKÁCIA PRE ODOSIELATEĽA ---
-        oznamenie = Oznamenie.objects.create(
-            nazov='Priateľstvo prijaté',
-            typ='sprava',
-            obsah=f"{request.user.profil.nickname} prijal tvoju žiadosť o priateľstvo. Ste teraz priatelia!"
-        )
+        # Oznámenie pre odosielateľa
+        oznamenie = Oznamenie.objects.create(nazov='Priateľstvo prijaté', typ='sprava', obsah=f"{request.user.profil.nickname} prijal tvoju žiadosť o priateľstvo. Ste teraz priatelia!")
         Odoslanie.objects.create(oznamenie=oznamenie, prijemca=friendship.profil1)
 
-    return redirect('profil_detail', profil_id=request.user.profil.id)
-
+    # 💥 Vracia sa na zoznam oznámení 💥
+    return redirect('oznamenie_list') 
 
 def reject_friend_request(request, request_id):
     """Zamietne žiadosť o priateľstvo a pošle notifikáciu."""
-    if not request.user.is_authenticated:
-        return redirect('login')
-
+    if not request.user.is_authenticated: return redirect('login')
     friendship = get_object_or_404(Priatelstvo, id=request_id)
     
     if friendship.profil2 == request.user.profil:
-        # --- NOTIFIKÁCIA PRE ODOSIELATEĽA ---
-        oznamenie = Oznamenie.objects.create(
-            nazov='Žiadosť zamietnutá',
-            typ='sprava',
-            obsah=f"{request.user.profil.nickname} zamietol tvoju žiadosť o priateľstvo."
-        )
+        # Oznámenie pre odosielateľa
+        oznamenie = Oznamenie.objects.create(nazov='Žiadosť zamietnutá', typ='sprava', obsah=f"{request.user.profil.nickname} zamietol tvoju žiadosť o priateľstvo.")
         Odoslanie.objects.create(oznamenie=oznamenie, prijemca=friendship.profil1)
-        
-        # Zmažeme záznam o žiadosti
         friendship.delete()
 
-    return redirect('profil_detail', profil_id=request.user.profil.id)
-
-
-# --- HRY, UDALOSTI, TÍMY, OSTATNÉ (Kód je rovnaký, ale je čistý a na konci) ---
+    # 💥 Vracia sa na zoznam oznámení 💥
+    return redirect('oznamenie_list')
 
 def hra_list_view(request):
     vsetky_hry = Hra.objects.all()
-    context = {
-        'hry': vsetky_hry,
-        'nadpis': 'Katalóg hier',
-    }
+    context = { 'hry': vsetky_hry, 'nadpis': 'Katalóg hier', }
     return render(request, 'core/hra_list.html', context)
 
 def hra_detail_view(request, hra_id):
@@ -154,11 +178,8 @@ def udalost_list_view(request):
     return render(request, 'core/udalost_list.html', context)
 
 def udalost_create_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    if not (request.user.is_superuser or request.user.profil.rola.nazov_role == 'Organizátor'):
-        return redirect('udalost_list')
+    if not request.user.is_authenticated: return redirect('login')
+    if not (request.user.is_superuser or request.user.profil.rola.nazov_role == 'Organizátor'): return redirect('udalost_list')
 
     if request.method == 'POST':
         form = UdalostForm(request.POST)
@@ -167,33 +188,23 @@ def udalost_create_view(request):
             nova_udalost.organizator = request.user.profil 
             nova_udalost.save()
             return redirect('udalost_list')
-    else:
-        form = UdalostForm()
-
-    context = {
-        'form': form,
-        'nadpis': 'Vytvoriť novú udalosť'
-    }
+    else: form = UdalostForm()
+    context = { 'form': form, 'nadpis': 'Vytvoriť novú udalosť' }
     return render(request, 'core/udalost_form.html', context)
 
 def udalost_join_view(request, udalost_id):
-    """Pridá aktuálneho používateľa ako účastníka na udalosť."""
-    if not request.user.is_authenticated:
-        return redirect('login')
+    if not request.user.is_authenticated: return redirect('login')
     udalost = get_object_or_404(Udalost, id=udalost_id)
     profil = request.user.profil
     udalost.ucastnici.add(profil)
     return redirect('udalost_list')
 
 def udalost_withdraw_view(request, udalost_id):
-    """Odstráni aktuálneho používateľa zo zoznamu účastníkov."""
-    if not request.user.is_authenticated:
-        return redirect('login')
+    if not request.user.is_authenticated: return redirect('login')
     udalost = get_object_or_404(Udalost, id=udalost_id)
     profil = request.user.profil
     udalost.ucastnici.remove(profil)
     return redirect('udalost_list')
-
 
 def tim_list_view(request):
     vsetky_timy = Tim.objects.all()
@@ -201,11 +212,8 @@ def tim_list_view(request):
     return render(request, 'core/tim_list.html', context)
 
 def tim_create_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    if Tim.objects.filter(clenovia=request.user.profil).exists():
-        return redirect('tim_list') 
+    if not request.user.is_authenticated: return redirect('login')
+    if Tim.objects.filter(clenovia=request.user.profil).exists(): return redirect('tim_list') 
 
     if request.method == 'POST':
         form = TimForm(request.POST)
@@ -214,28 +222,17 @@ def tim_create_view(request):
             novy_tim.clenovia.add(request.user.profil)
             novy_tim.save()
             return redirect('tim_list')
-    else:
-        form = TimForm()
+    else: form = TimForm()
 
-    context = {
-        'form': form,
-        'nadpis': 'Založiť nový tím'
-    }
+    context = { 'form': form, 'nadpis': 'Založiť nový tím' }
     return render(request, 'core/tim_form.html', context)
 
 def tim_join_view(request, tim_id):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
+    if not request.user.is_authenticated: return redirect('login')
     tim = get_object_or_404(Tim, id=tim_id)
     profil = request.user.profil
-    
-    if Tim.objects.filter(clenovia=profil).exists():
-        return redirect('tim_list') 
-        
-    if tim.clenovia.count() >= MAX_TEAM_SIZE:
-        return redirect('tim_list') 
-    
+    if Tim.objects.filter(clenovia=profil).exists(): return redirect('tim_list') 
+    if tim.clenovia.count() >= MAX_TEAM_SIZE: return redirect('tim_list') 
     tim.clenovia.add(profil)
     return redirect('tim_list')
 
@@ -244,9 +241,43 @@ def rebricek_list_view(request):
     context = {'rebricky': vsetky_rebricky}
     return render(request, 'core/rebricek_list.html', context)
 
+# core/views.py (Nahraď len funkciu oznamenie_list_view)
+
+# core/views.py (Nahraď len funkciu oznamenie_list_view)
+
+# core/views.py (Nahraď len funkciu oznamenie_list_view)
+
 def oznamenie_list_view(request):
-    vsetky_oznamenia = Oznamenie.objects.all().order_by('-datum_vytvorenia')
-    context = {'oznamenia': vsetky_oznamenia}
+    """Zobrazí všetky oznámenia, žiadosti a pripomienky pre aktuálneho používateľa."""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    profil = request.user.profil
+    
+    # 1. ZÍSKANIE ŽIADOSTÍ O PRIATEĽSTVO
+    ziadosti = Priatelstvo.objects.filter(profil2=profil, stav='pending')
+
+    # 2. VŠEOBECNÉ NOTIFIKÁCIE (História)
+    odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania')[:30]
+    
+    # 3. PRIPOMIENKY UDALOSTÍ (Pre zjednodušenie ostane len nadpis)
+    today = datetime.now().date()
+    pripomienky = Udalost.objects.filter(ucastnici=profil, datum_konania=today).order_by('datum_konania')
+
+    oznamenia_historia = []
+    for o in odoslania:
+        oznamenia_historia.append({
+            'oznamenie': o.oznamenie,
+            'datum_odoslania': o.datum_odoslania, 
+            'datum_precitania': o.datum_precitania
+        })
+
+    context = {
+        'odoslania_list': oznamenia_historia,
+        'ziadosti_priatelstva': ziadosti, 
+        'pripomienky': pripomienky,
+    }
+    # 💥 KRITICKÁ OPRAVA: Používame správny názov 'oznamenie_list.html' 💥
     return render(request, 'core/oznamenie_list.html', context)
 
 def register_view(request):
@@ -255,11 +286,6 @@ def register_view(request):
         if form.is_valid():
             form.save() 
             return redirect('login') 
-    else:
-        form = CustomUserCreationForm()
-
-    context = {
-        'form': form,
-        'nadpis': 'Registrácia nového používateľa',
-    }
+    else: form = CustomUserCreationForm()
+    context = { 'form': form, 'nadpis': 'Registrácia nového používateľa', }
     return render(request, 'registration/register.html', context)
