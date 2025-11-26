@@ -26,6 +26,16 @@
             <hr>
         {% endif %}
 
+        {% if pripomienky %}
+            <div style="border: 2px solid #ffc107; padding: 15px; margin-bottom: 25px; background-color: #fff3cd;">
+                <h2>⚠️ Udalosti Dnes a Neskôr!</h2>
+                {% for udalost in pripomienky %}
+                    <p style="font-weight: bold;">{{ udalost.nazov }} ({{ udalost.datum_konania }})</p>
+                {% endfor %}
+            </div>
+            <hr>
+        {% endif %}
+        
         <h2 style="color: #666;">História Notifikácií</h2>
         
         {% for odoslanie in odoslania_list %}

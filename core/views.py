@@ -26,36 +26,30 @@ def profil_list_view(request):
     }
     return render(request, 'core/profil_list.html', context)
 
+# core/views.py (Nahraď funkciu profil_detail_view)
+
 def profil_detail_view(request, profil_id):
     profil = get_object_or_404(Profil, id=profil_id)
     
-    # Získame priateľov a žiadosti (logika ostáva)
+    # 1. Získame priateľov (accepted)
     priatelia = Priatelstvo.objects.filter(
         Q(profil1=profil) | Q(profil2=profil),
         stav='accepted'
     )
+    # 2. Žiadosti (pre funkčnosť tlačidiel Accept/Reject)
     ziadosti = Priatelstvo.objects.filter(
         profil2=profil,
         stav='pending'
     )
 
-    # Získanie notifikácií (Len ak pozerám SVOJ profil) 
-    oznamenia_list = []
-    if request.user.profil == profil:
-        # Načítame záznamy, zoradené podľa novo pridaného poľa 'datum_odoslania'
-        odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania') 
-        for o in odoslania:
-            oznamenia_list.append({
-                'oznamenie': o.oznamenie,
-                'datum_odoslania': o.datum_odoslania,
-                'datum_precitania': o.datum_precitania
-            })
-
+    # 💥 FINAL FIX: NATVRDO VYPNEME PANEL OZNÁMENÍ 💥
+    oznamenia_list = [] 
+    
     context = {
         'profil': profil,
         'priatelia': priatelia,
         'ziadosti': ziadosti,
-        'oznamenia_list': oznamenia_list
+        'oznamenia_list': oznamenia_list # Posielame prázdny zoznam
     }
     return render(request, 'core/profil_detail.html', context)
 
@@ -247,6 +241,8 @@ def rebricek_list_view(request):
 
 # core/views.py (Nahraď len funkciu oznamenie_list_view)
 
+# core/views.py (Nahraď len funkciu oznamenie_list_view)
+
 def oznamenie_list_view(request):
     """Zobrazí všetky oznámenia, žiadosti a pripomienky pre aktuálneho používateľa."""
     if not request.user.is_authenticated:
@@ -254,17 +250,19 @@ def oznamenie_list_view(request):
     
     profil = request.user.profil
     
-    # 1. ZÍSKANIE ŽIADOSTÍ O PRIATEĽSTVO
+    # 1. ŽIADOSTI O PRIATEĽSTVO (Incoming Requests)
     ziadosti = Priatelstvo.objects.filter(profil2=profil, stav='pending')
 
-    # 2. VŠEOBECNÉ NOTIFIKÁCIE (História)
+    # 2. VŠEOBECNÉ NOTIFIKÁCIE (HISTÓRIA)
+    # Načítame podľa dátumu odoslania (Krok 94 fix)
     odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania')[:30]
     
-    # 3. PRIPOMIENKY UDALOSTÍ (Pre zjednodušenie ostane len nadpis)
+    # 3. PRIPOMIENKY UDALOSTÍ (Reminders - Zjednodušená verzia)
     today = datetime.now().date()
-    pripomienky = Udalost.objects.filter(ucastnici=profil, datum_konania=today).order_by('datum_konania')
+    pripomienky = Udalost.objects.filter(ucastnici=profil, datum_konania__gte=today).order_by('datum_konania')
 
     oznamenia_historia = []
+    # 💥 Vytvorenie kontextu pre šablónu 💥
     for o in odoslania:
         oznamenia_historia.append({
             'oznamenie': o.oznamenie,
@@ -277,7 +275,6 @@ def oznamenie_list_view(request):
         'ziadosti_priatelstva': ziadosti, 
         'pripomienky': pripomienky,
     }
-    # 💥 KRITICKÁ OPRAVA: Používame správny názov 'oznamenie_list.html' 💥
     return render(request, 'core/oznamenie_list.html', context)
 
 def register_view(request):
