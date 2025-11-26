@@ -126,9 +126,11 @@ class Umiestnenie(models.Model):
 
 class Udalost(models.Model):
     
+    User = get_user_model()
     nazov = models.CharField(max_length=64) 
     popis = models.TextField(null=True, blank=True)
     datum_konania = models.DateField() 
+    ucastnici = models.ManyToManyField('Profil', related_name='prihlasene_udalosti', blank=True)
     
     TYP_CHOICES = [
         ('mission', 'Mission'),

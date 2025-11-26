@@ -158,3 +158,21 @@ def register_view(request):
         'nadpis': 'Registrácia nového používateľa',
     }
     return render(request, 'registration/register.html', context)
+# core/views.py (Pridaj novú funkciu pre prihlásenie sa na udalosť)
+
+# core/views.py (Pridaj novú funkciu pre prihlásenie sa na udalosť)
+
+def udalost_join_view(request, udalost_id):
+    """Pridá aktuálneho používateľa ako účastníka na udalosť."""
+    
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    udalost = get_object_or_404(Udalost, id=udalost_id)
+    profil = request.user.profil
+    
+    # Pridáme profil k účastníkom (Django M2M to ošetrí, ak je už pridaný)
+    udalost.ucastnici.add(profil)
+    
+    # Presmerujeme ho späť na zoznam udalostí
+    return redirect('udalost_list')

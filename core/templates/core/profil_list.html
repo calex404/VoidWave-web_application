@@ -10,9 +10,13 @@
     <h1>Zoznam všetkých profilov</h1>
     
     {% for profil in profily %}
-        <h3>{{ profil.nickname }}</h3>
-        <p>Úroveň: {{ profil.uroven }}</p>
-        <p>Rola: {{ profil.rola.nazov_role }}</p>
+        <div style="margin-bottom: 5px;">
+            <h3>
+                <a href="{% url 'profil_detail' profil.id %}">
+                    {{ profil.nickname }}
+                </a>
+            </h3>
+        </div>
         <hr>
     {% empty %}
         <p>Zatiaľ nemáme žiadne profily v databáze.</p>

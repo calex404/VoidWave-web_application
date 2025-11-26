@@ -26,17 +26,27 @@
             <p><strong>Typ:</strong> {{ udalost.get_typ_display }}</p>
             <p><strong>Dátum konania:</strong> {{ udalost.datum_konania }}</p>
             
-            <p><strong>Organizátor:</strong> {{ udalost.organizator.nickname|default:"Neznámy" }}</p>
-            
-            <p><strong>Hra:</strong> {{ udalost.hra.nazov|default:"Neznáma" }}</p>
-            
             <hr>
-            <p><strong>Popis:</strong></p>
-            <p>{{ udalost.popis|default:"Popis nie je k dispozícii." }}</p>
+            <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
+            <p style="font-size: 0.9em; color: #555;">
+                {% for ucastnik in udalost.ucastnici.all %}
+                    {{ ucastnik.nickname }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Zatiaľ nikto.
+                {% endfor %}
+            </p>
+            
+            {% if user.is_authenticated and user.profil not in udalost.ucastnici.all %}
+                <br>
+                <a href="{% url 'udalost_join' udalost.id %}" style="color: green; font-weight: bold; text-decoration: underline;">
+                    👉 Chcem sa zúčastniť!
+                </a>
+            {% elif user.is_authenticated and user.profil in udalost.ucastnici.all %}
+                 <p style="color: green; font-weight: bold;">✔ Si prihlásený/á na túto udalosť.</p>
+            {% endif %}
         </div>
     {% empty %}
         <p>V súčasnosti neplánujeme žiadne udalosti.</p>
     {% endfor %}
-    
 </body>
 </html>

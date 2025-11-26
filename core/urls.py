@@ -20,7 +20,7 @@ urlpatterns = [
     # 5. Udalosti
     path('udalosti/', views.udalost_list_view, name='udalost_list'),
     path('udalosti/vytvorit/', views.udalost_create_view, name='udalost_create'),
-    
+    path('udalosti/join/<int:udalost_id>/', views.udalost_join_view, name='udalost_join'),
     # 6. Tímy
     path('timy/', views.tim_list_view, name='tim_list'),
     path('timy/vytvorit/', views.tim_create_view, name='tim_create'),
