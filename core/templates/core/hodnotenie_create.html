@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pridať Hodnotenie</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    <div style="max-width: 600px; margin: 20px auto;">
+        <a href="{% url 'udalost_archiv' %}">← Späť na Archív Udalostí</a>
+
+        <h1>Pridať Hodnotenie pre udalosť: {{ udalost.nazov }}</h1>
+        <p>Táto udalosť sa konala dňa: {{ udalost.datum_konania }}.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                Uložiť Hodnotenie
+            </button>
+        </form>
+    </div>
+</body>
+</html>

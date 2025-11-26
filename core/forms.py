@@ -2,7 +2,7 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm 
-from .models import Profil, Rola, Udalost, Tim
+from .models import Profil, Rola, Udalost, Tim, Hodnotenie
 from django.contrib.auth import get_user_model 
 
 User = get_user_model()
@@ -64,3 +64,17 @@ class ProfilEditForm(forms.ModelForm):
             'nickname': 'Prezývka (viditeľná)',
             'bio': 'O mne'
         }
+
+# core/forms.py (Iba sekcia pre Hodnotenie)
+
+# Uisti sa, že máš hore importovaný aj model Hodnotenie!
+# from .models import Profil, Rola, Udalost, Tim, Hodnotenie # <--- MUSÍ BYŤ PRÍTOMNÝ HORE
+
+HODNOTENIE_CHOICES = [(i, str(i)) for i in range(1, 11)]
+
+class HodnotenieForm(forms.ModelForm):
+    hodnotenie = forms.ChoiceField(choices=HODNOTENIE_CHOICES, label="Tvoje hodnotenie (1-10)")
+
+    class Meta:
+        model = Hodnotenie
+        fields = ['hodnotenie']

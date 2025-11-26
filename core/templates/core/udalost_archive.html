@@ -33,7 +33,7 @@
                         {% if item.ma_hodnotenie %}
                             <span style="color: green; font-weight: bold;">[Už ohodnotené]</span>
                         {% else %}
-                            <a href="{% url 'hodnotenie_create' udalost_id=item.udalost.id %}" 
+                            <a href="{% url 'hodnotenie_create_udalost' udalost_id=item.udalost.id %}" 
                                style="background-color: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;">
                                 Pridať Hodnotenie
                             </a>

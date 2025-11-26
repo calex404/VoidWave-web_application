@@ -23,6 +23,8 @@ urlpatterns = [
     path('udalosti/vytvorit/', views.udalost_create_view, name='udalost_create'),
     path('udalosti/join/<int:udalost_id>/', views.udalost_join_view, name='udalost_join'),
     path('udalosti/withdraw/<int:udalost_id>/', views.udalost_withdraw_view, name='udalost_withdraw'),
+    path('udalosti/archiv/', views.udalost_archiv_view, name='udalost_archiv'),
+    path('udalosti/<int:udalost_id>/hodnotit/', views.hodnotenie_create_view, name='hodnotenie_create'),
     # 6. Tímy
     path('timy/', views.tim_list_view, name='tim_list'),
     path('timy/vytvorit/', views.tim_create_view, name='tim_create'),
@@ -31,7 +33,8 @@ urlpatterns = [
     # 7. Ostatné
     path('oznamenia/', views.oznamenie_list_view, name='oznamenie_list'),
     path('rebricky/', views.rebricek_list_view, name='rebricek_list'),
-
+    path('rebricky/<int:rebricek_id>/', views.rebricek_detail_view, name='rebricek_detail'),
+    
     path('priatelstvo/send/<int:profil_id>/', views.send_friend_request, name='send_friend_request'),
     path('priatelstvo/accept/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
     path('priatelstvo/reject/<int:request_id>/', views.reject_friend_request, name='reject_friend_request'),

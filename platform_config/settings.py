@@ -114,3 +114,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/' 
 LOGOUT_REDIRECT_URL = '/' # Kam presmerovať po odhlásení
 LOGIN_URL = 'login' # Adresa pre prihlásenie
+
+# platform_config/settings.py (Iba sekcia TEMPLATES)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                # 💥 NOVÝ RIADOK: Náš context processor
+                'core.context_processors.unread_notification_count', 
+            ],
+        },
+    },
+]

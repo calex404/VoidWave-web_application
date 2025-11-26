@@ -1,12 +1,13 @@
-# core/views.py (KOMPLETNÝ KÓD PRE STABILNÝ SERVER A FUNKČNOSŤ)
+# core/views.py (OPRAVENÉ IMPORTY)
 
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie
-from .forms import CustomUserCreationForm, UdalostForm, TimForm, ProfilEditForm 
+# 💥 KRITICKÁ OPRAVA: Pridaný model Hodnotenie
+from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie, Hodnotenie 
+from .forms import CustomUserCreationForm, UdalostForm, TimForm, ProfilEditForm, HodnotenieForm
 from datetime import datetime
 from django.contrib.auth.forms import AuthenticationForm
-from django.db.models import Q
-
+from django.db.models import Q, Avg
+from django.contrib import messages
 # Konštanta pre maximálny počet členov tímu
 MAX_TEAM_SIZE = 5
 
@@ -78,18 +79,19 @@ def profil_edit_view(request):
     }
     return render(request, 'core/profil_edit.html', context)
 
+# core/views.py (Nahraď len funkciu send_friend_request)
+
 def send_friend_request(request, profil_id):
-    """Odošle žiadosť o priateľstvo inému profilu s vynútenou diagnostikou."""
-    if not request.user.is_authenticated:
-        return redirect('login')
+    """Odošle žiadosť o priateľstvo inému profilu."""
+    if not request.user.is_authenticated: return redirect('login')
     
     from_profil = request.user.profil
     to_profil = get_object_or_404(Profil, id=profil_id)
     
-    # Zabránenie odoslania samému sebe
     if from_profil == to_profil:
-        return redirect('profil_detail', profil_id=profil_id)
-
+        # Ak si posielam sám sebe, presmerujem na vlastný profil
+        return redirect('profil_detail', profil_id=from_profil.id)
+        
     # 1. Kontrola, či už žiadosť alebo priateľstvo neexistuje
     friendship_exists = Priatelstvo.objects.filter(
         Q(profil1=from_profil, profil2=to_profil) | 
@@ -97,33 +99,23 @@ def send_friend_request(request, profil_id):
     ).exists()
     
     if not friendship_exists:
-        try:
-            # 2. Vytvorenie záznamu Priatelstvo
-            Priatelstvo.objects.create(
-                profil1=from_profil,
-                profil2=to_profil,
-                stav='pending'
-            )
-            
-            # 3. Vytvorenie Oznamenia pre príjemcu
-            oznamenie = Oznamenie.objects.create(
-                nazov='Nová žiadosť o priateľstvo',
-                typ='sprava',
-                obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo. Choď na svoj profil a prijmi ju!"
-            )
-            # 4. Vytvorenie Odoslania
-            Odoslanie.objects.create(oznamenie=oznamenie, prijemca=to_profil)
+        # 2. Vytvorenie záznamu Priatelstvo
+        Priatelstvo.objects.create(
+            profil1=from_profil,
+            profil2=to_profil,
+            stav='pending'
+        )
+        
+        # 3. Oznámenie pre príjemcu
+        oznamenie = Oznamenie.objects.create(
+            nazov='Nová žiadosť o priateľstvo',
+            typ='sprava',
+            obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo. Choď na svoj profil a prijmi ju!"
+        )
+        Odoslanie.objects.create(oznamenie=oznamenie, prijemca=to_profil)
 
-            print("\n✅ INFO: Žiadosť a notifikácia ÚSPEŠNE VYTVORENÁ\n")
-
-        except Exception as e:
-            # 💥 TOTO NÁM POVIE, ČO NEFUNGUJE 💥
-            print("\n🛑 FATALNA CHYBA PRI UKLADANÍ ŽIADOSTI/NOTIFIKÁCIE 🛑")
-            print(f"CHYBA: {e}")
-            print("----------------------------------------------------\n")
-
-    # Vráti nás späť na profil, kde sme klikli
-    return redirect('profil_detail', profil_id=profil_id)
+    # 💥 FIX: Vrátime ťa na SVOJ vlastný profil 💥
+    return redirect('profil_detail', profil_id=from_profil.id)
 
 def accept_friend_request(request, request_id):
     """Prijme žiadosť o priateľstvo a pošle notifikáciu."""
@@ -166,8 +158,14 @@ def hra_detail_view(request, hra_id):
     context = {'hra': hra}
     return render(request, 'core/hra_detail.html', context)
 
+# core/views.py (Nahraď existujúcu funkciu)
+
 def udalost_list_view(request):
-    vsetky_udalosti = Udalost.objects.all().order_by('datum_konania')
+    today = datetime.now().date() # Zistíme dnešný dátum
+    
+    # 💥 FIX: Filtrujeme, aby sa zobrazovali len udalosti DNEŠNÉHO a BUDÚCEHO DŇA 💥
+    vsetky_udalosti = Udalost.objects.filter(datum_konania__gte=today).order_by('datum_konania')
+    
     context = {'udalosti': vsetky_udalosti}
     return render(request, 'core/udalost_list.html', context)
 
@@ -243,6 +241,8 @@ def rebricek_list_view(request):
 
 # core/views.py (Nahraď len funkciu oznamenie_list_view)
 
+# core/views.py (Nahraď len funkciu oznamenie_list_view)
+
 def oznamenie_list_view(request):
     """Zobrazí všetky oznámenia, žiadosti a pripomienky pre aktuálneho používateľa."""
     if not request.user.is_authenticated:
@@ -250,19 +250,23 @@ def oznamenie_list_view(request):
     
     profil = request.user.profil
     
+    # --- MARK AS READ LOGIC (Kľúčové pre zmiznutie zvončeka) ---
+    # Získame všetky neprečítané oznámenia pre aktuálneho používateľa a označíme ich ako prečítané
+    Odoslanie.objects.filter(prijemca=profil, stav='neprecitane').update(stav='precitane', datum_precitania=datetime.now())
+    # -----------------------------------------------------------
+
     # 1. ŽIADOSTI O PRIATEĽSTVO (Incoming Requests)
     ziadosti = Priatelstvo.objects.filter(profil2=profil, stav='pending')
 
-    # 2. VŠEOBECNÉ NOTIFIKÁCIE (HISTÓRIA)
-    # Načítame podľa dátumu odoslania (Krok 94 fix)
+    # 2. VŠEOBECNÉ NOTIFIKÁCIE (História)
+    # Načítame znova, tentokrát už ako prečítané
     odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania')[:30]
     
-    # 3. PRIPOMIENKY UDALOSTÍ (Reminders - Zjednodušená verzia)
+    # 3. PRIPOMIENKY UDALOSTÍ (Reminders)
     today = datetime.now().date()
     pripomienky = Udalost.objects.filter(ucastnici=profil, datum_konania__gte=today).order_by('datum_konania')
 
     oznamenia_historia = []
-    # 💥 Vytvorenie kontextu pre šablónu 💥
     for o in odoslania:
         oznamenia_historia.append({
             'oznamenie': o.oznamenie,
@@ -286,3 +290,88 @@ def register_view(request):
     else: form = CustomUserCreationForm()
     context = { 'form': form, 'nadpis': 'Registrácia nového používateľa', }
     return render(request, 'registration/register.html', context)
+
+# core/views.py (Pridaj k ostatným View funkciám)
+
+# core/views.py (Pridaj TÚTO FUNKCIU k ostatným View funkciám)
+
+def rebricek_detail_view(request, rebricek_id):
+    """Zobrazí detaily a zoradené umiestnenia pre daný rebríček."""
+    from .models import Umiestnenie, Rebricek # Zabezpečenie importov
+    
+    rebricek = get_object_or_404(Rebricek, id=rebricek_id)
+    
+    # Načítame všetky záznamy Umiestnenie pre tento rebríček, zoradené podľa pozície
+    umiestnenia = Umiestnenie.objects.filter(rebricek=rebricek).order_by('pozicia')
+    
+    context = {
+        'rebricek': rebricek,
+        'umiestnenia': umiestnenia,
+    }
+    return render(request, 'core/rebricek_detail.html', context)
+
+# core/views.py (Pridaj na koniec súboru)
+from .forms import HodnotenieForm # Uisti sa, že máš tento import hore
+
+# core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
+
+def udalost_archiv_view(request):
+    today = datetime.now().date()
+    # Filtrujeme, aby sa zobrazili len udalosti STARŠIE ako dnešný deň
+    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=today).order_by('-datum_konania')
+
+    udalosti_s_hodnotenim = []
+    for udalost in archiv_udalosti:
+        # Získame VŠETKY hodnotenia pre zobrazenie
+        vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
+
+        ma_hodnotenie = vsetky_hodnotenia.exists() # Kontrola, či existuje akékoľvek hodnotenie
+        
+        # Výpočet priemeru
+        priemer_hodnotenia = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))
+        priemer = priemer_hodnotenia['hodnotenie__avg']
+        
+        udalosti_s_hodnotenim.append({
+            'udalost': udalost,
+            'ma_hodnotenie': ma_hodnotenie,
+            'priemer': round(priemer, 2) if priemer else None,
+            'vsetky_hodnotenia': vsetky_hodnotenia, # <-- POSIELAME VŠETKY HODNOTENIA
+        })
+
+    context = {'udalosti': udalosti_s_hodnotenim}
+    return render(request, 'core/udalost_archive.html', context)
+
+
+def hodnotenie_create_view(request, udalost_id):
+    """Vytvorí hodnotenie pre konkrétnu udalosť."""
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
+    udalost = get_object_or_404(Udalost, id=udalost_id)
+    
+    # Ak už hodnotenie existuje, presmerujeme
+    if Hodnotenie.objects.filter(udalost=udalost).exists():
+        messages.warning(request, f"Udalosť '{udalost.nazov}' už bola ohodnotená!")
+        return redirect('udalost_archiv')
+
+    if request.method == 'POST':
+        # Vytvoríme inštanciu formulára a priradíme k nej aktuálneho užívateľa a udalosť
+        form = HodnotenieForm(request.POST)
+        if form.is_valid():
+            hodnotenie = form.save(commit=False)
+            hodnotenie.profil = request.user.profil # Kto hodnotenie pridáva
+            hodnotenie.udalost = udalost
+            hodnotenie.datum_hodnotenia = datetime.now().date()
+            hodnotenie.save()
+            messages.success(request, f"Hodnotenie pre '{udalost.nazov}' bolo úspešne pridané.")
+            return redirect('udalost_archiv')
+    else:
+        # Používateľ hodnotí hru, ktorá je spojená s udalosťou, ak nejaká je.
+        # Ak udalosť nemá priradenú hru, v modeli to nevadí, ale pre UI je to dôležité.
+        form = HodnotenieForm(initial={'hra': udalost.hra}) 
+        
+    context = {
+        'udalost': udalost,
+        'form': form
+    }
+    return render(request, 'core/hodnotenie_create.html', context)

@@ -78,9 +78,9 @@ class Hra(models.Model):
 class Rebricek(models.Model):
 
     TYP_CHOICES = [
+        ('denny', 'Denný'),
         ('tyzdenny', 'Týždenný'), 
         ('mesacny', 'Mesačný'), 
-        ('rocny', 'Ročný'),
     ]
 
     typ = models.CharField(max_length=64, choices=TYP_CHOICES) 

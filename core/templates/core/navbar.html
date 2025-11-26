@@ -1,5 +1,5 @@
 <style>
-    /* ... (CSS blok pre funkčný vizuál zostáva) ... */
+    /* ... (CSS blok pre funkčný vizuál) ... */
     .navbar {
         display: flex;
         justify-content: space-between;
@@ -41,7 +41,7 @@
         color: white;
     }
 
-    /* 🔔 IKONA ZVONČEKA (NOVÝ ŠTÝL) */
+    /* 🔔 IKONA ZVONČEKA */
     .bell-icon {
         margin-right: 20px; 
         font-size: 1.5em; 
@@ -49,7 +49,7 @@
         text-decoration: none;
         cursor: pointer;
     }
-
+    
     /* ODHLASOVACÍ BUTTON */
     .logout-btn {
         background-color: #cc0000; 
@@ -81,8 +81,11 @@
     <div class="navbar-right">
         {% if user.is_authenticated %}
             
-            <a href="{% url 'oznamenie_list' %}" class="bell-icon">
+            <a href="{% url 'oznamenie_list' %}" class="bell-icon" style="position: relative;">
                 🔔
+                {% if total_unread_count > 0 %}
+                    <span style="position: absolute; top: 0px; right: 0px; background-color: red; color: white; font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">{{ total_unread_count }}</span>
+                {% endif %}
             </a>
             
             <a href="{% url 'profil_detail' profil_id=user.profil.id %}" class="user-nickname-link">

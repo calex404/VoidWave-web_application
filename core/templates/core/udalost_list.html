@@ -6,19 +6,28 @@
 <body>
     {% include 'core/navbar.html' %}
     
-    {% if user.is_authenticated %}
-        {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
-            <a href="{% url 'udalost_create' %}" style="display: inline-block; margin-bottom: 20px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                + Vytvoriť novú udalosť
-            </a>
-            <hr>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+
+        {% if user.is_authenticated %}
+            {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
+                <a href="{% url 'udalost_create' %}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    + Vytvoriť novú udalosť
+                </a>
+            {% endif %}
         {% endif %}
-    {% endif %}
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'udalost_archiv' %}" style="display: inline-block; padding: 10px 15px; background-color: #555; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Archív starých udalostí →
+            </a>
+        {% endif %}
+    </div>
+    
+    <hr>
     
     <h1>Aktuálne Udalosti a Turnaje</h1>
     
     {% for udalost in udalosti %}
-        
         <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
             <h2>{{ udalost.nazov }}</h2>
             
@@ -38,21 +47,21 @@
             {% if user.is_authenticated %}
             
                 {% if user.profil in udalost.ucastnici.all %}
-                     <br>
+                    <br>
                     <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: red; font-weight: bold; text-decoration: underline;">
                         ❌ Odhlásiť sa z udalosti
                     </a>
                 {% else %}
-                     <br>
+                    <br>
                     <a href="{% url 'udalost_join' udalost.id %}" style="color: green; font-weight: bold; text-decoration: underline;">
                         👉 Chcem sa zúčastniť!
                     </a>
                 {% endif %}
-                
+            
             {% endif %}
         </div>
     {% empty %}
-        <p>V súčasnosti neplánujeme žiadne udalosti.</p>
+        <p>V zozname sú len budúce udalosti. Žiadne aktívne udalosti nenájdete.</p>
     {% endfor %}
 </body>
 </html>

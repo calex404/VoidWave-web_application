@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detail Rebríčka: {{ rebricek.get_typ_display }}</title>
+    <style>
+        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .ranking-table th, .ranking-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .ranking-table th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+
+    <div style="max-width: 800px; margin: 20px auto;">
+        <a href="{% url 'rebricek_list' %}">← Späť na zoznam rebríčkov</a>
+
+        <h1>Rebríček: {{ rebricek.get_typ_display }}</h1>
+        <p>Posledná aktualizácia: {{ rebricek.datum_aktualizacie }}</p>
+        
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th># Pozícia</th>
+                    <th>Názov Tímu</th>
+                    <th>Úroveň Tímu</th>
+                    <th>Body</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for um v umiestnenia %}
+                    <tr>
+                        <td style="font-weight: bold;">{{ um.pozicia }}</td>
+                        <td>{{ um.tim.nazov }}</td>
+                        <td>{{ um.tim.uroven }}</td>
+                        <td>{{ um.body }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4">Zatiaľ žiadne umiestnenia v tomto rebríčku.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
