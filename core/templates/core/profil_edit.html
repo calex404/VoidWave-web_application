@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editovať Profil</title>
+</head>
+<body>
+    {% include 'core/navbar.html' %}
+    
+    <div style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd;">
+        
+        <h1>Upraviť svoj profil</h1>
+        <hr>
+        
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            
+            <button type="submit" style="background-color: green; color: white; padding: 10px 20px; border: none;">
+                Uložiť zmeny
+            </button>
+        </form>
+        
+        <br>
+        <a href="{% url 'profil_detail' profil_id=request.user.profil.id %}">← Zrušiť a späť na profil</a>
+    </div>
+</body>
+</html>

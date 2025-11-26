@@ -19,14 +19,15 @@
         <div style="text-align: center; margin-top: 100px;">
             <h1>Hi stranger</h1>
             <p>Vitaj, {{ user.profil.nickname|default:user.username }}! Použi navigáciu hore.</p>
-        </div>
+            
+            </div>
     
     {% else %}
 
         <h1>Vitajte na Hráčskej Platforme!</h1>
         <p>Pre pokračovanie sa, prosím, prihláste alebo zaregistrujte.</p>
 
-        <div class="form-container" style="border: 1px solid #ccc; padding: 20px; max-width: 300px; margin: 20px auto;">
+        <div class="form-container">
             <h2>Prihlásenie:</h2>
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
@@ -48,7 +49,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('show-password-login');
-            // ID hesla je defaultne 'id_password'
             const passwordField = document.getElementById('id_password'); 
             
             if (checkbox && passwordField) {

@@ -1,10 +1,15 @@
+# core/models.py (FINÁLNA VERZIA PRED MIGRÁCIOU)
+
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model 
+from django.contrib.auth.models import User # Použité pre OneToOneField
+
+# Získanie dynamickej triedy User (pre funkcie)
+AuthUser = get_user_model() 
 
 class Rola(models.Model):
     
-    nazov_role = models.CharField(max_length = 64, unique = True)
+    nazov_role = models.CharField(max_length=64, unique=True)
     
     def __str__(self):
         return self.nazov_role
@@ -15,10 +20,11 @@ class Profil(models.Model):
     bio = models.TextField(null=True, blank=True) 
     uroven = models.IntegerField(default=1)
     datum_registracie = models.DateField(auto_now_add=True) 
+    # Vzťah k Django User modelu
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
  
-    # vztah N:1
-    rola = models.ForeignKey(Rola, on_delete=models.SET_NULL, null=True) 
+    # Vzťah N:1 k Role
+    rola = models.ForeignKey(Rola, on_delete=models.SET_NULL, null=True, blank=True) 
    
     def __str__(self):
         return self.nickname
@@ -27,10 +33,9 @@ class Priatelstvo(models.Model):
 
     profil1 = models.ForeignKey(
         Profil, 
-        on_delete=models.CASCADE, # kaskadove mazanie
+        on_delete=models.CASCADE, 
         related_name='ziadost_odoslana' 
     )
-    
     profil2 = models.ForeignKey(
         Profil, 
         on_delete=models.CASCADE, 
@@ -42,38 +47,26 @@ class Priatelstvo(models.Model):
         ('accepted', 'Accepted'), 
         ('blocked', 'Blocked'), 
     ]
-
     stav = models.CharField(max_length=10, choices=STAV_CHOICES, default='pending') 
     datum = models.DateField(auto_now_add=True) 
 
-    def __str__(self):
-        return f"{self.profil1.nickname} - {self.profil2.nickname} ({self.stav})"
-
-    # zabezpecenie aby bolo priatelstvo jedinecne
     class Meta:
         unique_together = ('profil1', 'profil2')
+
+    def __str__(self):
+        return f"{self.profil1.nickname} - {self.profil2.nickname} ({self.stav})"
 
 class Hra(models.Model):
 
     nazov = models.CharField(max_length=64, unique=True) 
     
     ZANER_CHOICES = [
-        ('fps', 'FPS'), 
-        ('tps', 'TPS'), 
-        ('battleroyal', 'Battle Royale'),
-        ('moba', 'MOBA'),
-        ('rpg', 'RPG'), 
-        ('mmorpg', 'MMORPG'),
-        ('survival', 'Survival'), 
-        ('openworld', 'Open World'),
-        ('fighting', 'Fighting'),  
-        ('sports', 'Sports'), 
-        ('racing', 'Racing'),
-        ('strategy', 'Strategy'),
-        ('adventure', 'Adventure'), 
-        ('partygames', 'RPG'),   
-        ('card', 'Card'),
-        ('simulator', 'Simulator'),  
+        ('fps', 'FPS'), ('tps', 'TPS'), ('battleroyal', 'Battle Royale'),
+        ('moba', 'MOBA'), ('rpg', 'RPG'), ('mmorpg', 'MMORPG'),
+        ('survival', 'Survival'), ('openworld', 'Open World'),
+        ('fighting', 'Fighting'), ('sports', 'Sports'), ('racing', 'Racing'),
+        ('strategy', 'Strategy'), ('adventure', 'Adventure'), 
+        ('partygames', 'RPG'), ('card', 'Card'), ('simulator', 'Simulator'),  
     ]
 
     zaner = models.CharField(max_length=64, choices=ZANER_CHOICES) 
@@ -102,13 +95,11 @@ class Tim(models.Model):
     bio = models.TextField(null=True, blank=True) 
     uroven = models.IntegerField(default=1) 
     
-    # vztah M:N 
     clenovia = models.ManyToManyField(Profil, related_name='timy_clenom_je')
     
     def __str__(self):
         return self.nazov
 
-# spojovacia entita M:N 
 class Umiestnenie(models.Model):
     
     tim = models.ForeignKey(Tim, on_delete=models.CASCADE) 
@@ -118,7 +109,6 @@ class Umiestnenie(models.Model):
     body = models.IntegerField() 
     
     class Meta:
-        # zabezpecenie aby bol jeden tim v danom rebricku iba raz 
         unique_together = ('tim', 'rebricek')
         
     def __str__(self):
@@ -126,22 +116,15 @@ class Umiestnenie(models.Model):
 
 class Udalost(models.Model):
     
-    User = get_user_model()
     nazov = models.CharField(max_length=64) 
     popis = models.TextField(null=True, blank=True)
     datum_konania = models.DateField() 
     ucastnici = models.ManyToManyField('Profil', related_name='prihlasene_udalosti', blank=True)
     
     TYP_CHOICES = [
-        ('mission', 'Mission'),
-        ('quest', 'Quest'),
-        ('challange', 'Challange'),
-        ('event', 'Event'),
-        ('match', 'Match') ,
-        ('battle', 'Battle'),
-        ('duel', 'Duel'),
-        ('raid', 'Raid'),
-        ('tournament', 'Tournament'), 
+        ('mission', 'Mission'), ('quest', 'Quest'), ('challange', 'Challange'),
+        ('event', 'Event'), ('match', 'Match') , ('battle', 'Battle'),
+        ('duel', 'Duel'), ('raid', 'Raid'), ('tournament', 'Tournament'), 
         ('dungeon', 'Dungeon'),
     ]
 
@@ -162,7 +145,6 @@ class Hodnotenie(models.Model):
     hra = models.ForeignKey(Hra, on_delete=models.SET_NULL, null=True, blank=True)
     udalost = models.ForeignKey(Udalost, on_delete=models.SET_NULL, null=True, blank=True)
     
-    # zabezpeci aby hodnotenie bolo len pre hru alebo udalost
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -176,19 +158,12 @@ class Hodnotenie(models.Model):
         return f"Hodnotenie {self.hodnotenie}/10 pre {objekt_nazov}"
 
 class Oznamenie(models.Model):
-
-    nazov = models.CharField(max_length=64) 
-    
-    TYP_CHOICES = [
-        ('pozvanka', 'Pozvánka'), 
-        ('upozornenie', 'Upozornenie'), 
-        ('sprava', 'Správa'), 
-    ]
-
-    typ = models.CharField(max_length=64, choices=TYP_CHOICES) 
-    obsah = models.TextField() 
-    datum_vytvorenia = models.DateField(auto_now_add=True) 
-    
+    # Dátumy zmenené na DateTimeField pre presnosť
+    nazov = models.CharField(max_length=255, default='Notifikácia') 
+    TYP_CHOICES = [('pozvanka', 'Pozvánka'), ('upozornenie', 'Upozornenie'), ('sprava', 'Správa')]
+    typ = models.CharField(max_length=15, choices=TYP_CHOICES, default='sprava') 
+    obsah = models.TextField()
+    datum_vytvorenia = models.DateTimeField(auto_now_add=True) 
     def __str__(self):
         return f"{self.nazov} ({self.typ})"
 
@@ -197,13 +172,12 @@ class Odoslanie(models.Model):
     oznamenie = models.ForeignKey(Oznamenie, on_delete=models.CASCADE)
     prijemca = models.ForeignKey(Profil, on_delete=models.CASCADE, related_name='prijate_oznamenia')
     
-    datum_precitania = models.DateField(null=True, blank=True) 
-
-    STAV_CHOICES = [
-        ('neprecitane', 'Neprečítané'), 
-        ('precitane', 'Prečítané'), 
-    ]
-    stav = models.CharField(max_length=64, choices=STAV_CHOICES, default='neprecitane') # enum, not null
+    # 💥 PRIDANÉ KRITICKÉ POLE 💥
+    datum_odoslania = models.DateTimeField(auto_now_add=True) 
+    datum_precitania = models.DateTimeField(null=True, blank=True) # Zmenené na DateTimeField
+    
+    STAV_CHOICES = [('neprecitane', 'Neprečítané'), ('precitane', 'Prečítané')]
+    stav = models.CharField(max_length=64, choices=STAV_CHOICES, default='neprecitane')
 
     def __str__(self):
         return f"Oznámenie pre {self.prijemca.nickname} - {self.stav}"

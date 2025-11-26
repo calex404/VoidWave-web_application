@@ -18,7 +18,6 @@
     <h1>Aktuálne Udalosti a Turnaje</h1>
     
     {% for udalost in udalosti %}
-        <p style="font-size: 0.8em; color: gray;">--- Udalosť číslo {{ udalost.id }} ---</p> 
         
         <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
             <h2>{{ udalost.nazov }}</h2>
@@ -36,13 +35,20 @@
                 {% endfor %}
             </p>
             
-            {% if user.is_authenticated and user.profil not in udalost.ucastnici.all %}
-                <br>
-                <a href="{% url 'udalost_join' udalost.id %}" style="color: green; font-weight: bold; text-decoration: underline;">
-                    👉 Chcem sa zúčastniť!
-                </a>
-            {% elif user.is_authenticated and user.profil in udalost.ucastnici.all %}
-                 <p style="color: green; font-weight: bold;">✔ Si prihlásený/á na túto udalosť.</p>
+            {% if user.is_authenticated %}
+            
+                {% if user.profil in udalost.ucastnici.all %}
+                     <br>
+                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: red; font-weight: bold; text-decoration: underline;">
+                        ❌ Odhlásiť sa z udalosti
+                    </a>
+                {% else %}
+                     <br>
+                    <a href="{% url 'udalost_join' udalost.id %}" style="color: green; font-weight: bold; text-decoration: underline;">
+                        👉 Chcem sa zúčastniť!
+                    </a>
+                {% endif %}
+                
             {% endif %}
         </div>
     {% empty %}

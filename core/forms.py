@@ -1,12 +1,12 @@
-# core/forms.py
+# core/forms.py (KOMPLETNÝ A OPRAVENÝ KÓD)
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm 
-# 💥 DÔLEŽITÉ: Musíme importovať aj model Tim
 from .models import Profil, Rola, Udalost, Tim
 from django.contrib.auth import get_user_model 
 
 User = get_user_model()
+
 
 # --- 1. REGISTRAČNÝ FORMULÁR ---
 class CustomUserCreationForm(UserCreationForm):
@@ -23,16 +23,14 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.save()
 
-        # Nájdenie roly
         default_role = Rola.objects.filter(nazov_role='Hráč').first() 
 
-        # Vytvorenie profilu
         profil = Profil.objects.create(
+            user=user, 
             nickname=self.cleaned_data.get('nickname'), 
             bio=self.cleaned_data.get('bio'),
             rola=default_role 
         )
-        # Priradenie Usera k Profilu
         profil.user = user
         profil.save()
         
@@ -47,7 +45,7 @@ class UdalostForm(forms.ModelForm):
             'datum_konania': forms.DateInput(attrs={'type': 'date'}),
         }
 
-# --- 3. 💥 CHÝBAJÚCI FORMULÁR PRE TÍMY 💥 ---
+# --- 3. FORMULÁR PRE TÍMY ---
 class TimForm(forms.ModelForm):
     class Meta:
         model = Tim
@@ -55,4 +53,14 @@ class TimForm(forms.ModelForm):
         labels = {
             'nazov': 'Názov tímu',
             'bio': 'Popis tímu (napr. hráme len CS:GO)'
+        }
+
+# --- 4. 💥 CHÝBAJÚCI FORMULÁR PRE EDITÁCIU PROFILU 💥 ---
+class ProfilEditForm(forms.ModelForm):
+    class Meta:
+        model = Profil
+        fields = ['nickname', 'bio']
+        labels = {
+            'nickname': 'Prezývka (viditeľná)',
+            'bio': 'O mne'
         }
