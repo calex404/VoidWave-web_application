@@ -29,29 +29,40 @@ def profil_list_view(request):
 
 # core/views.py (Nahraď funkciu profil_detail_view)
 
+# core/views.py (Nahraď TÚTO funkciu)
+
 def profil_detail_view(request, profil_id):
     profil = get_object_or_404(Profil, id=profil_id)
     
-    # 1. Získame priateľov (accepted)
+    # Získame priateľov a žiadosti (logika ostáva)
     priatelia = Priatelstvo.objects.filter(
         Q(profil1=profil) | Q(profil2=profil),
         stav='accepted'
     )
-    # 2. Žiadosti (pre funkčnosť tlačidiel Accept/Reject)
     ziadosti = Priatelstvo.objects.filter(
         profil2=profil,
         stav='pending'
     )
 
-    # 💥 FINAL FIX: NATVRDO VYPNEME PANEL OZNÁMENÍ 💥
-    oznamenia_list = [] 
-    
+    # Získanie notifikácií (Len ak pozerám SVOJ profil) 
+    oznamenia_list = []
+    if request.user.profil == profil:
+        # Načítame záznamy, zoradené podľa dátumu odoslania
+        odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania') 
+        for o in odoslania:
+            oznamenia_list.append({
+                'oznamenie': o.oznamenie,
+                'datum_odoslania': o.datum_odoslania,
+                'datum_precitania': o.datum_precitania
+            })
+
     context = {
         'profil': profil,
         'priatelia': priatelia,
         'ziadosti': ziadosti,
-        'oznamenia_list': oznamenia_list # Posielame prázdny zoznam
+        'oznamenia_list': oznamenia_list
     }
+    # TOTO renderuje správnu šablónu s profilom
     return render(request, 'core/profil_detail.html', context)
 
 # 💥 CHÝBAJÚCA FUNKCIA: PROFIL EDIT VIEW (Pridaná) 💥
@@ -315,27 +326,39 @@ from .forms import HodnotenieForm # Uisti sa, že máš tento import hore
 
 # core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
 
+# core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
+
 def udalost_archiv_view(request):
-    today = datetime.now().date()
-    # Filtrujeme, aby sa zobrazili len udalosti STARŠIE ako dnešný deň
-    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=today).order_by('-datum_konania')
+    from django.db.models import Avg 
+    from datetime import datetime
+    
+    # Použijeme datetime.now() na presné porovnanie s DateTimeField
+    now = datetime.now() 
+    
+    # 💥 FIX: FILTRUJEME UDALOSTI, KTORÉ UŽ FYZICKY PREŠLI 💥
+    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
+
+    print(f"DEBUG: Aktuálny datetime je: {now}")
+    print(f"DEBUG: Nájdené staré udalosti: {archiv_udalosti.count()}") # Skontrolujeme, či nájde udalosti
 
     udalosti_s_hodnotenim = []
+    current_profil = request.user.profil if request.user.is_authenticated else None
+    
     for udalost in archiv_udalosti:
-        # Získame VŠETKY hodnotenia pre zobrazenie
+        # Zvyšok logiky zostáva, lebo teraz už pracuje s dátami, ktoré prešli filtrom
         vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
-
-        ma_hodnotenie = vsetky_hodnotenia.exists() # Kontrola, či existuje akékoľvek hodnotenie
-        
-        # Výpočet priemeru
         priemer_hodnotenia = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))
         priemer = priemer_hodnotenia['hodnotenie__avg']
         
+        uz_som_hodnotil = False
+        if current_profil:
+             uz_som_hodnotil = Hodnotenie.objects.filter(profil=current_profil, udalost=udalost).exists()
+        
         udalosti_s_hodnotenim.append({
             'udalost': udalost,
-            'ma_hodnotenie': ma_hodnotenie,
+            'uz_som_hodnotil': uz_som_hodnotil, 
             'priemer': round(priemer, 2) if priemer else None,
-            'vsetky_hodnotenia': vsetky_hodnotenia, # <-- POSIELAME VŠETKY HODNOTENIA
+            'vsetky_hodnotenia': vsetky_hodnotenia,
         })
 
     context = {'udalosti': udalosti_s_hodnotenim}

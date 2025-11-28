@@ -32,7 +32,7 @@
             <h2>{{ udalost.nazov }}</h2>
             
             <p><strong>Typ:</strong> {{ udalost.get_typ_display }}</p>
-            <p><strong>Dátum konania:</strong> {{ udalost.datum_konania }}</p>
+            <p><strong>Dátum konania:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}</p>
             
             <hr>
             <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>

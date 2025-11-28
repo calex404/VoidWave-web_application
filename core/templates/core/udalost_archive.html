@@ -10,8 +10,7 @@
         <a href="{% url 'udalost_list' %}" style="display: block; text-align: left; margin-bottom: 20px;">← Späť na Aktuálne Udalosti</a>
 
         <h1>Archív Udalostí (Už skončené)</h1>
-        <p>Tu nájdeš udalosti, ktoré už prebehli a je potrebné im priradiť hodnotenie hry alebo komentár.</p>
-
+        
         {% if messages %}
             {% for message in messages %}
                 <div style="padding: 10px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin-bottom: 10px;">
@@ -20,20 +19,20 @@
             {% endfor %}
         {% endif %}
 
-        {% for item in udalosti_s_hodnotenim %}
+        {% for item in udalosti %}
             <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
                 
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <strong>{{ item.udalost.nazov }}</strong>
-                        <p>Dátum konania: {{ item.udalost.datum_konania }}</p>
+                        <p>Dátum konania: {{ item.udalost.datum_konania|date:"d.m.Y H:i" }}</p>
                     </div>
                     
                     <div>
-                        {% if item.ma_hodnotenie %}
-                            <span style="color: green; font-weight: bold;">[Už ohodnotené]</span>
-                        {% else %}
-                            <a href="{% url 'hodnotenie_create_udalost' udalost_id=item.udalost.id %}" 
+                        {% if item.uz_som_hodnotil %}
+                            <span style="color: green; font-weight: bold;">[Tvoj rating je uložený]</span>
+                        {% elif user.is_authenticated %}
+                            <a href="{% url 'hodnotenie_create' udalost_id=item.udalost.id %}" 
                                style="background-color: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;">
                                 Pridať Hodnotenie
                             </a>
@@ -44,13 +43,13 @@
                 <hr>
 
                 {% if item.priemer %}
-                    <p style="font-weight: bold;">Priemerné hodnotenie: {{ item.priemer }}/10</p>
+                    <p style="font-weight: bold;">⭐ Priemerné hodnotenie: {{ item.priemer }}/10</p>
                 {% else %}
                     <p>Ešte nebolo hodnotené.</p>
                 {% endif %}
 
                 {% if item.vsetky_hodnotenia %}
-                    <h3>Hodnotenia od Komunity ({{ item.vsetky_hodnotenia.count }}):</h3>
+                    <h3>Hodnotenia od Komunity ({{ item.vsetky_hodnotenia.count }})</h3>
                     {% for hodnotenie in item.vsetky_hodnotenia %}
                         <div style="padding: 5px 0; border-bottom: 1px dashed #eee;">
                             <strong>{{ hodnotenie.profil.nickname }}</strong> udelil/a: 

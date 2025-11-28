@@ -118,7 +118,8 @@ class Udalost(models.Model):
     
     nazov = models.CharField(max_length=64) 
     popis = models.TextField(null=True, blank=True)
-    datum_konania = models.DateField() 
+    datum_konania = models.DateTimeField() 
+    popis = models.TextField(blank=True, null=True)
     ucastnici = models.ManyToManyField('Profil', related_name='prihlasene_udalosti', blank=True)
     
     TYP_CHOICES = [

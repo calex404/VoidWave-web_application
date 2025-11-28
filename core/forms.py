@@ -37,14 +37,24 @@ class CustomUserCreationForm(UserCreationForm):
         return user
 
 # --- 2. FORMULÁR PRE UDALOSTI ---
+
+from django import forms
+from .models import Udalost # ... a ostatné importy, ak nejaké máš
+
+# core/forms.py (Opravený UdalostForm)
+
+# ... (ostatné formuláre) ...
+
+# --- 2. FORMULÁR PRE UDALOSTI ---
 class UdalostForm(forms.ModelForm):
     class Meta:
         model = Udalost
-        fields = ['nazov', 'typ', 'hra', 'datum_konania', 'popis']
+        # 💥 FIX: Odstránené neexistujúce pole 'max_ucastnikov' 💥
+        fields = ['nazov', 'datum_konania', 'popis', 'hra', 'typ'] 
         widgets = {
-            'datum_konania': forms.DateInput(attrs={'type': 'date'}),
+            # NOVÝ WIDGET PRE DÁTUM A ČAS
+            'datum_konania': forms.DateTimeInput(attrs={'type': 'datetime-local'}), 
         }
-
 # --- 3. FORMULÁR PRE TÍMY ---
 class TimForm(forms.ModelForm):
     class Meta:

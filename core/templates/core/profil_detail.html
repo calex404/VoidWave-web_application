@@ -1,69 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Archív Udalostí</title>
+    <title>Profil: {{ profil.nickname }}</title>
 </head>
 <body>
     {% include 'core/navbar.html' %}
     
-    <div style="max-width: 800px; margin: 20px auto;">
-        <a href="{% url 'udalost_list' %}" style="display: block; text-align: left; margin-bottom: 20px;">← Späť na Aktuálne Udalosti</a>
+    <a href="{% url 'profil_list' %}" style="margin-left: 20px;">← Späť na zoznam profilov</a>
+    
+    <div style="max-width: 1000px; margin: 20px auto; display: flex; gap: 20px;">
+        
+        <div style="flex: 1; padding: 20px; border: 1px solid #ddd;">
+            
+            {% if request.user.is_authenticated and request.user.profil.id == profil.id %}
+                <h1>Môj profil</h1>
+                <p>Prezývka: <strong>{{ profil.nickname }}</strong></p>
+            {% else %}
+                <h1>Profil: {{ profil.nickname }}</h1>
+                <p>Prezývka: <strong>{{ profil.nickname }}</strong></p>
+            {% endif %}
 
-        <h1>Archív Udalostí (Už skončené)</h1>
-        <p>Tu nájdeš udalosti, ktoré už prebehli a je potrebné im priradiť hodnotenie hry alebo komentár.</p>
+            <hr>
+            
+            <h2>Informácie</h2>
+            <p><strong>Rola:</strong> {{ profil.rola.nazov_role }}</p>
+            <p><strong>Úroveň:</strong> {{ profil.uroven }}</p>
+            <p><strong>Dátum registrácie:</strong> {{ profil.datum_registracie|date:"d.m.Y" }}</p>
+            
+            <hr>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div style="padding: 10px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; margin-bottom: 10px;">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+            <h2>Bio:</h2>
+            <p>{{ profil.bio|linebreaksbr }}</p>
 
-        {% for item in udalosti_s_hodnotenim %}
-            <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
-                
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>{{ item.udalost.nazov }}</strong>
-                        <p>Dátum konania: {{ item.udalost.datum_konania }}</p>
-                    </div>
-                    
-                    <div>
-                        {% if item.ma_hodnotenie %}
-                            <span style="color: green; font-weight: bold;">[Už ohodnotené]</span>
-                        {% else %}
-                            <a href="{% url 'hodnotenie_create' udalost_id=item.udalost.id %}" 
-                               style="background-color: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;">
-                                Pridať Hodnotenie
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-                
+            {% if request.user.is_authenticated and request.user.profil.id == profil.id %}
                 <hr>
+                <a href="{% url 'profil_edit' %}" style="display: block; text-align: right; color: blue; text-decoration: none; font-weight: bold; margin-top: 15px;">
+                    [ Upraviť Bio a Prezývku ]
+                </a>
+            {% endif %}
+            
+        </div>
 
-                {% if item.priemer %}
-                    <p style="font-weight: bold;">Priemerné hodnotenie: {{ item.priemer }}/10</p>
-                {% else %}
-                    <p>Ešte nebolo hodnotené.</p>
-                {% endif %}
+        <div style="flex: 1; padding: 20px; border: 1px solid #ddd; background-color: #f9f9f9;">
+            
+            <a href="{% url 'profil_list' %}" style="display: block; text-align: center; background-color: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">
+                🔍 Nájsť / Pridať priateľov
+            </a>
 
-                {% if item.vsetky_hodnotenia %}
-                    <h3>Hodnotenia od Komunity ({{ item.vsetky_hodnotenia.count }}):</h3>
-                    {% for hodnotenie in item.vsetky_hodnotenia %}
-                        <div style="padding: 5px 0; border-bottom: 1px dashed #eee;">
-                            <strong>{{ hodnotenie.profil.nickname }}</strong> udelil/a: 
-                            <span style="color: darkred; font-weight: bold;">{{ hodnotenie.hodnotenie }}/10</span> 
-                        </div>
+            {% if request.user.profil == profil and ziadosti %}
+                <h3>📩 Žiadosti o priateľstvo ({{ ziadosti.count }})</h3>
+                <ul style="list-style-type: none; padding: 0;">
+                    {% for ziadost in ziadosti %}
+                        <li style="margin-bottom: 10px;">
+                            {{ ziadost.profil1.nickname }}
+                            <a href="{% url 'accept_friend_request' ziadost.id %}" style="color: green; font-weight: bold; margin-left: 10px;">[✔ Prijať]</a>
+                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="color: red; margin-left: 5px;">[❌ Zamietnuť]</a>
+                        </li>
                     {% endfor %}
-                {% else %}
-                    <p>Zatiaľ žiadne individuálne hodnotenia.</p>
-                {% endif %}
+                </ul>
+                <hr>
+            {% endif %}
+
+            <h3>🤝 Priatelia ({{ priatelia.count }})</h3>
+            <ul style="list-style-type: none; padding: 0;">
+                {% for p in priatelia %}
+                    <li>
+                        {% if p.profil1 == profil %}
+                            <a href="{% url 'profil_detail' p.profil2.id %}">{{ p.profil2.nickname }}</a>
+                        {% else %}
+                            <a href="{% url 'profil_detail' p.profil1.id %}">{{ p.profil1.nickname }}</a>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li>Zatiaľ žiadni priatelia.</li>
+                {% endfor %}
+            </ul>
+            
+            <hr>
+
             </div>
-        {% empty %}
-            <p>Archív neobsahuje žiadne minulé udalosti.</p>
-        {% endfor %}
+
     </div>
 </body>
 </html>
