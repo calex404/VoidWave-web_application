@@ -1,26 +1,44 @@
-# core/context_processors.py
+from django.utils import timezone
+from datetime import timedelta
+from .models import Udalost, FriendRequest
 
-from .models import Odoslanie, Priatelstvo
-from django.db.models import Q # Pre hľadanie priateľstiev
+def notifikacie_processor(request):
+    """
+    Počíta LEN nové (nevidené) notifikácie.
+    """
+    realny_pocet = 0
+    
+    if request.user.is_authenticated:
+        try:
+            profil = getattr(request.user, 'profil', None)
+            if profil:
+                # 1. Žiadosti o priateľstvo
+                ziadosti = FriendRequest.objects.filter(pre_koho=profil).count()
+                
+                # 2. Udalosti (LEN tie, kde som prihlásený a sú do 24h)
+                now = timezone.now()
+                limit = now + timedelta(days=1)
+                
+                urgentne = Udalost.objects.filter(
+                    ucastnici=profil,       # <--- Len moje
+                    datum_konania__gt=now, 
+                    datum_konania__lte=limit
+                ).count()
+                
+                realny_pocet = ziadosti + urgentne
+                
+        except Exception:
+            realny_pocet = 0
 
-def unread_notification_count(request):
-    """Pridá celkový počet neprečítaných oznámení a čakajúcich žiadostí do kontextu."""
+    # LOGIKA PRE ZMIZNUTIE ČÍSLA:
+    # Načítame zo session, koľko sme videli naposledy
+    videny_pocet = request.session.get('videny_pocet_notifikacii', 0)
     
-    if request.user.is_authenticated and request.user.profil:
-        profil = request.user.profil
-        
-        # 1. Neprečítané oznámenia (kde stav je 'neprecitane')
-        unread_messages = Odoslanie.objects.filter(
-            prijemca=profil, stav='neprecitane'
-        ).count()
-        
-        # 2. Čakajúce žiadosti o priateľstvo (stav 'pending')
-        pending_requests = Priatelstvo.objects.filter(
-            profil2=profil, stav='pending'
-        ).count()
-        
-        total_unread = unread_messages + pending_requests
-        
-        return {'total_unread_count': total_unread}
+    # Zobrazíme len rozdiel (ak pribudlo niečo nové)
+    badge_cislo = realny_pocet - videny_pocet
     
-    return {} # Pre odhlásených používateľov vráti prázdny slovník
+    # Ak je výsledok záporný (napr. si niečo vymazala), ukážeme 0
+    if badge_cislo < 0:
+        badge_cislo = 0
+
+    return {'badge_cislo': badge_cislo}

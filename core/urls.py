@@ -9,10 +9,18 @@ urlpatterns = [
     path('', views.home_view, name='home'), 
     
     # 2. ZOZNAM PROFILOV
+  # 1. Zoznam všetkých profilov (bez tlačidiel - len na pozeranie)
     path('profily/', views.profil_list_view, name='profil_list'),
+
+    # 2. Hľadanie priateľov (tento istý zoznam, ale s tlačidlami "Pridať")
+    # TOTO JE TEN NOVÝ RIADOK:
+    path('profily/hladat/', views.find_priatelov_view, name='find_priatelov'),
+
+    # 3. Detail konkrétneho profilu (musí byť až za 'hladat')
     path('profily/<int:profil_id>/', views.profil_detail_view, name='profil_detail'),
+
+    # 4. Editácia vlastného profilu
     path('profil/edit/', views.profil_edit_view, name='profil_edit'),
-    # 3. Registrácia
     path('accounts/register/', views.register_view, name='user_register'),
     
     # 4. Hry
@@ -39,5 +47,6 @@ urlpatterns = [
     path('priatelstvo/reject/<int:request_id>/', views.reject_friend_request, name='reject_friend_request'),
     # ...
     path('rebricky/', rebricky_view, name='rebricek_list'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 
 ] 

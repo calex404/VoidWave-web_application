@@ -127,8 +127,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # 💥 NOVÝ RIADOK: Náš context processor
-                'core.context_processors.unread_notification_count', 
+                
+                # 👇 TOTO JE SPRÁVNY NÁZOV (Prepíš to):
+                'core.context_processors.notifikacie_processor', 
             ],
         },
     },

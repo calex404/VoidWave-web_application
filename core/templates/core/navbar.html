@@ -1,5 +1,5 @@
 <style>
-    /* ... (CSS blok pre funkčný vizuál) ... */
+    /* ... (Tvoj pôvodný CSS, nemenil som ho, je super) ... */
     .navbar {
         display: flex;
         justify-content: space-between;
@@ -70,7 +70,7 @@
         <a href="{% url 'hra_list' %}">🎮 Hry</a>
         <a href="{% url 'udalost_list' %}">📅 Udalosti</a>
         <a href="{% url 'tim_list' %}">🛡️ Tímy</a>
-        <a href="{% url 'rebricek_list' %}">🏆Rebríčky</a>
+        <a href="{% url 'rebricek_list' %}">🏆 Rebríčky</a>
         
         {% if user.is_superuser %}
             <a href="/admin/" style="background-color: #555;">⚙️ Admin</a>
@@ -82,12 +82,14 @@
             
             <a href="{% url 'oznamenie_list' %}" class="bell-icon" style="position: relative;">
                 🔔
-                {% if total_unread_count > 0 %}
-                    <span style="position: absolute; top: 0px; right: 0px; background-color: red; color: white; font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">{{ total_unread_count }}</span>
+                {% if badge_cislo > 0 %}
+                    <span style="position: absolute; top: -5px; right: -8px; background-color: red; color: white; font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">
+                        {{ badge_cislo }}
+                    </span>
                 {% endif %}
             </a>
             
-            <a href="{% url 'profil_detail' profil_id=user.profil.id %}" class="user-nickname-link">
+            <a href="{% url 'dashboard' %}" class="user-nickname-link">
                 👤 {{ user.profil.nickname|default:user.username }}
             </a>
             
@@ -100,5 +102,4 @@
             <a href="{% url 'login' %}">Prihlásiť sa</a>
         {% endif %}
     </div>
-
 </div>

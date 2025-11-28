@@ -29,31 +29,27 @@ class Profil(models.Model):
         return self.nickname
     
 class Priatelstvo(models.Model):
-
-    profil1 = models.ForeignKey(
-        Profil, 
-        on_delete=models.CASCADE, 
-        related_name='ziadost_odoslana' 
-    )
-    profil2 = models.ForeignKey(
-        Profil, 
-        on_delete=models.CASCADE, 
-        related_name='ziadost_prijata' 
-    )
-
-    STAV_CHOICES = [
-        ('pending', 'Pending'), 
-        ('accepted', 'Accepted'), 
-        ('blocked', 'Blocked'), 
-    ]
-    stav = models.CharField(max_length=10, choices=STAV_CHOICES, default='pending') 
-    datum = models.DateField(auto_now_add=True) 
+    """
+    Model pre existujúce priateľstvá.
+    Aby sme predišli chybe IntegrityError (A-B vs B-A),
+    vždy uložíme profil s menším ID ako profil1.
+    """
+    profil1 = models.ForeignKey(Profil, related_name='priatelstva_1', on_delete=models.CASCADE)
+    profil2 = models.ForeignKey(Profil, related_name='priatelstva_2', on_delete=models.CASCADE)
+    stav = models.CharField(max_length=20, choices=[('pending', 'Čakajúce'), ('accepted', 'Prijaté'), ('blocked', 'Blokované')], default='pending')
+    datum_vytvorenia = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('profil1', 'profil2')
+        unique_together = ('profil1', 'profil2') # Zabezpečí unikátnosť páru v DB
+
+    def save(self, *args, **kwargs):
+        # Automatické zoradenie ID, aby sme nemali duplikáty (1-2 a 2-1)
+        if self.profil1.id > self.profil2.id:
+            self.profil1, self.profil2 = self.profil2, self.profil1
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.profil1.nickname} - {self.profil2.nickname} ({self.stav})"
+        return f"{self.profil1} - {self.profil2} ({self.stav})"
 
 class Hra(models.Model):
 
@@ -183,3 +179,11 @@ class Odoslanie(models.Model):
 
     def __str__(self):
         return f"Oznámenie pre {self.prijemca.nickname} - {self.stav}"
+    
+class FriendRequest(models.Model):
+    od_koho = models.ForeignKey(Profil, related_name='odoslane_ziadosti', on_delete=models.CASCADE)
+    pre_koho = models.ForeignKey(Profil, related_name='prijate_ziadosti', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Od {self.od_koho} pre {self.pre_koho}"

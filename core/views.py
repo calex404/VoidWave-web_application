@@ -1,7 +1,7 @@
 # core/views.py (OPRAVENÉ IMPORTY)
 
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie, Hodnotenie 
+from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie, Hodnotenie, FriendRequest
 from .forms import CustomUserCreationForm, UdalostForm, TimForm, ProfilEditForm, HodnotenieForm
 from datetime import datetime, timedelta
 from django.contrib.auth.forms import AuthenticationForm
@@ -19,11 +19,24 @@ def home_view(request):
         context['form'] = AuthenticationForm()
     return render(request, 'core/home.html', context)
 
+# core/views.py
+
 def profil_list_view(request):
-    vsetky_profily = Profil.objects.all()
+    """1. ČISTÝ ZOZNAM (Len na pozeranie - bez tlačidiel)"""
+    profily = Profil.objects.all()
     context = {
-        'profily': vsetky_profily,
-        'datum_a_cas': datetime.now()
+        'profily': profily,
+        'hladame_priatelov': False  # <--- Tlačidlá skryté
+    }
+    return render(request, 'core/profil_list.html', context)
+
+def find_priatelov_view(request):
+    """2. HĽADANIE (Zoznam s tlačidlami 'Pridať')"""
+    # Vylúčime seba zo zoznamu
+    profily = Profil.objects.exclude(user=request.user) 
+    context = {
+        'profily': profily,
+        'hladame_priatelov': True   # <--- Tlačidlá viditeľné
     }
     return render(request, 'core/profil_list.html', context)
 
@@ -93,71 +106,98 @@ def profil_edit_view(request):
 # core/views.py (Nahraď len funkciu send_friend_request)
 
 def send_friend_request(request, profil_id):
-    """Odošle žiadosť o priateľstvo inému profilu."""
+    """
+    Hybridná verzia: Robí staré notifikácie (správy) AJ nové (čísielko) 
+    a správne presmeruje.
+    """
     if not request.user.is_authenticated: return redirect('login')
     
     from_profil = request.user.profil
     to_profil = get_object_or_404(Profil, id=profil_id)
     
     if from_profil == to_profil:
-        # Ak si posielam sám sebe, presmerujem na vlastný profil
         return redirect('profil_detail', profil_id=from_profil.id)
         
-    # 1. Kontrola, či už žiadosť alebo priateľstvo neexistuje
+    # 1. Kontrola, či už nie sú priatelia (Stará logika)
     friendship_exists = Priatelstvo.objects.filter(
         Q(profil1=from_profil, profil2=to_profil) | 
         Q(profil1=to_profil, profil2=from_profil)
     ).exists()
     
     if not friendship_exists:
-        # 2. Vytvorenie záznamu Priatelstvo
+        # A) Vytvoríme záznam v Priatelstvo (Stará logika)
         Priatelstvo.objects.create(
             profil1=from_profil,
             profil2=to_profil,
             stav='pending'
         )
         
-        # 3. Oznámenie pre príjemcu
+        # B) Pošleme textovú správu do Oznámení (Stará logika)
         oznamenie = Oznamenie.objects.create(
             nazov='Nová žiadosť o priateľstvo',
             typ='sprava',
-            obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo. Choď na svoj profil a prijmi ju!"
+            obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo."
         )
         Odoslanie.objects.create(oznamenie=oznamenie, prijemca=to_profil)
 
-    # 💥 FIX: Vrátime ťa na SVOJ vlastný profil 💥
-    return redirect('profil_detail', profil_id=from_profil.id)
+        # C) Vytvoríme záznam pre ČERVENÉ ČÍSIELKO (Nová logika)
+        FriendRequest.objects.get_or_create(od_koho=from_profil, pre_koho=to_profil)
+
+    # D) OPRAVA PRESMEROVANIA: Vráti ťa na zoznam s tlačidlami
+    return redirect('find_priatelov')
 
 def accept_friend_request(request, request_id):
-    """Prijme žiadosť o priateľstvo a pošle notifikáciu."""
-    print("ne")
+    """Bezpečné prijatie žiadosti."""
     if not request.user.is_authenticated: return redirect('login')
-    friendship = get_object_or_404(Priatelstvo, id=request_id)
     
-    if friendship.profil2 == request.user.profil:
-        friendship.stav = 'accepted'
-        friendship.save()
+    ziadost = get_object_or_404(FriendRequest, id=request_id)
+    
+    if ziadost.pre_koho == request.user.profil:
         
-        # Oznámenie pre odosielateľa
-        oznamenie = Oznamenie.objects.create(nazov='Priateľstvo prijaté', typ='sprava', obsah=f"{request.user.profil.nickname} prijal tvoju žiadosť o priateľstvo. Ste teraz priatelia!")
-        Odoslanie.objects.create(oznamenie=oznamenie, prijemca=friendship.profil1)
+        # 1. Zoraď profily podľa ID (menšie ID bude vždy profil1)
+        # Toto zabráni duplicitám typu A-B vs B-A
+        p1, p2 = sorted([ziadost.od_koho, ziadost.pre_koho], key=lambda x: x.id)
+        
+        # 2. Skúsime vytvoriť priateľstvo (ak už existuje, nič sa nestane)
+        # Používame filter() a exists(), aby sme predišli IntegrityError
+        if not Priatelstvo.objects.filter(profil1=p1, profil2=p2).exists():
+            Priatelstvo.objects.create(profil1=p1, profil2=p2, stav='accepted')
+        
+        # 3. Zmažeme žiadosť
+        ziadost.delete()
 
-    # 💥 Vracia sa na zoznam oznámení 💥
-    return redirect('oznamenie_list') 
+        messages.success(request, f"Teraz si priateľ s {ziadost.od_koho.nickname}!")
+
+    return redirect('oznamenie_list')
+
+    # Vrátime sa do Oznámení (kde sme klikli na tlačidlo)
+    return redirect('oznamenie_list')
 
 def reject_friend_request(request, request_id):
-    """Zamietne žiadosť o priateľstvo a pošle notifikáciu."""
+    """Zamietne žiadosť a vyčistí všetko."""
     if not request.user.is_authenticated: return redirect('login')
-    friendship = get_object_or_404(Priatelstvo, id=request_id)
     
-    if friendship.profil2 == request.user.profil:
-        # Oznámenie pre odosielateľa
-        oznamenie = Oznamenie.objects.create(nazov='Žiadosť zamietnutá', typ='sprava', obsah=f"{request.user.profil.nickname} zamietol tvoju žiadosť o priateľstvo.")
-        Odoslanie.objects.create(oznamenie=oznamenie, prijemca=friendship.profil1)
-        friendship.delete()
+    old_friendship = get_object_or_404(Priatelstvo, id=request_id)
+    
+    if old_friendship.profil2 == request.user.profil:
+        # Pošleme správu o zamietnutí
+        oznamenie = Oznamenie.objects.create(
+            nazov='Žiadosť zamietnutá', 
+            typ='sprava', 
+            obsah=f"{request.user.profil.nickname} zamietol tvoju žiadosť."
+        )
+        Odoslanie.objects.create(oznamenie=oznamenie, prijemca=old_friendship.profil1)
+        
+        # Zmažeme NOVÚ notifikáciu (červené čísielko)
+        FriendRequest.objects.filter(
+            od_koho=old_friendship.profil1, 
+            pre_koho=request.user.profil
+        ).delete()
+        
+        # Zmažeme STARÚ žiadosť
+        old_friendship.delete()
 
-    # 💥 Vracia sa na zoznam oznámení 💥
-    return redirect('oznamenie_list')
+    return redirect('profil_detail', profil_id=request.user.profil.id)
 
 def hra_list_view(request):
     vsetky_hry = Hra.objects.all()
@@ -286,40 +326,32 @@ def rebricky_view(request):
     return render(request, 'core/rebricek_list.html', context)
 
 def oznamenie_list_view(request):
-    """Zobrazí všetky oznámenia, žiadosti a pripomienky pre aktuálneho používateľa."""
-    if not request.user.is_authenticated:
-        return redirect('login')
+    """Zobrazí len relevantné notifikácie a vynuluje počítadlo."""
+    if not request.user.is_authenticated: return redirect('login')
     
     profil = request.user.profil
-    
-    # --- MARK AS READ LOGIC (Kľúčové pre zmiznutie zvončeka) ---
-    # Získame všetky neprečítané oznámenia pre aktuálneho používateľa a označíme ich ako prečítané
-    Odoslanie.objects.filter(prijemca=profil, stav='neprecitane').update(stav='precitane', datum_precitania=datetime.now())
-    # -----------------------------------------------------------
+    now = timezone.now()
+    limit = now + timedelta(days=1) # Zajtra
 
-    # 1. ŽIADOSTI O PRIATEĽSTVO (Incoming Requests)
-    ziadosti = Priatelstvo.objects.filter(profil2=profil, stav='pending')
+    # 1. URGENTNÉ UDALOSTI (Len tie, kde som účastník a sú do 24h)
+    moje_urgentne = Udalost.objects.filter(
+        ucastnici=profil,           # <--- Kľúčový filter: Len moje
+        datum_konania__gt=now,
+        datum_konania__lte=limit
+    ).order_by('datum_konania')
 
-    # 2. VŠEOBECNÉ NOTIFIKÁCIE (História)
-    # Načítame znova, tentokrát už ako prečítané
-    odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania')[:30]
-    
-    # 3. PRIPOMIENKY UDALOSTÍ (Reminders)
-    today = datetime.now().date()
-    pripomienky = Udalost.objects.filter(ucastnici=profil, datum_konania__gte=today).order_by('datum_konania')
+    # 2. ŽIADOSTI O PRIATEĽSTVO
+    ziadosti = FriendRequest.objects.filter(pre_koho=profil)
 
-    oznamenia_historia = []
-    for o in odoslania:
-        oznamenia_historia.append({
-            'oznamenie': o.oznamenie,
-            'datum_odoslania': o.datum_odoslania, 
-            'datum_precitania': o.datum_precitania
-        })
+    # --- RESETOVANIE ČÍSLA V MENU ---
+    # Uložíme si aktuálny počet do session.
+    # Context processor to porovná a ak sa to rovná, zobrazí 0.
+    total_count = moje_urgentne.count() + ziadosti.count()
+    request.session['videny_pocet_notifikacii'] = total_count
 
     context = {
-        'odoslania_list': oznamenia_historia,
-        'ziadosti_priatelstva': ziadosti, 
-        'pripomienky': pripomienky,
+        'moje_urgentne': moje_urgentne,
+        'ziadosti': ziadosti,
     }
     return render(request, 'core/oznamenie_list.html', context)
 
@@ -404,3 +436,11 @@ def hodnotenie_create_view(request, udalost_id):
     
     # --- Spracovanie Formulára ---
     # ... (zvyšok logiky zostáva)
+
+# core/views.py
+
+def dashboard_view(request):
+    if not request.user.is_authenticated: return redirect('login')
+    
+    # Už neposielame 'ziadosti', len profil
+    return render(request, 'core/dashboard.html', {'profil': request.user.profil})

@@ -1,85 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
-    <title>Profil: {{ profil.nickname }}</title>
+    <meta charset="UTF-8">
+    <title>Detail Profilu - {{ profil.nickname }}</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f9f9f9; margin: 0; }
+        .container { 
+            max-width: 900px; 
+            margin: 30px auto; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header-section {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .stats-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+
     {% include 'core/navbar.html' %}
-    
-    <a href="{% url 'profil_list' %}" style="margin-left: 20px;">← Späť na zoznam profilov</a>
-    
-    <div style="max-width: 1000px; margin: 20px auto; display: flex; gap: 20px;">
-        
-        <div style="flex: 1; padding: 20px; border: 1px solid #ddd;">
-            
-            {% if request.user.is_authenticated and request.user.profil.id == profil.id %}
-                <h1>Môj profil</h1>
-                <p>Prezývka: <strong>{{ profil.nickname }}</strong></p>
-            {% else %}
-                <h1>Profil: {{ profil.nickname }}</h1>
-                <p>Prezývka: <strong>{{ profil.nickname }}</strong></p>
-            {% endif %}
 
-            <hr>
-            
-            <h2>Informácie</h2>
-            <p><strong>Rola:</strong> {{ profil.rola.nazov_role }}</p>
-            <p><strong>Úroveň:</strong> {{ profil.uroven }}</p>
-            <p><strong>Dátum registrácie:</strong> {{ profil.datum_registracie|date:"d.m.Y" }}</p>
-            
-            <hr>
+    <div class="container">
 
-            <h2>Bio:</h2>
-            <p>{{ profil.bio|linebreaksbr }}</p>
-
-            {% if request.user.is_authenticated and request.user.profil.id == profil.id %}
-                <hr>
-                <a href="{% url 'profil_edit' %}" style="display: block; text-align: right; color: blue; text-decoration: none; font-weight: bold; margin-top: 15px;">
-                    [ Upraviť Bio a Prezývku ]
-                </a>
-            {% endif %}
-            
+        <div class="header-section">
+            <h1 style="margin: 0; color: #333;">{{ profil.nickname }}</h1>
+            <p style="color: #777; margin: 5px 0;">
+                Členom od: {{ profil.datum_registracie|date:"d.m.Y" }}
+                {% if profil.rola %} | Rola: <strong>{{ profil.rola.nazov_role }}</strong>{% endif %}
+            </p>
         </div>
 
-        <div style="flex: 1; padding: 20px; border: 1px solid #ddd; background-color: #f9f9f9;">
-            
-            <a href="{% url 'profil_list' %}" style="display: block; text-align: center; background-color: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">
-                🔍 Nájsť / Pridať priateľov
-            </a>
+        <div class="stats-box">
+            <h3 style="margin-top: 0;">📊 Štatistiky</h3>
+            <p><strong>Úroveň:</strong> {{ profil.uroven }}</p>
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+            <p><strong>Bio:</strong></p>
+            <p style="font-style: italic; color: #555;">
+                {% if profil.bio %}{{ profil.bio }}{% else %}Bez popisu.{% endif %}
+            </p>
+        </div>
 
-            {% if request.user.profil == profil and ziadosti %}
-                <h3>📩 Žiadosti o priateľstvo ({{ ziadosti.count }})</h3>
-                <ul style="list-style-type: none; padding: 0;">
-                    {% for ziadost in ziadosti %}
-                        <li style="margin-bottom: 10px;">
-                            {{ ziadost.profil1.nickname }}
-                            <a href="{% url 'accept_friend_request' ziadost.id %}" style="color: green; font-weight: bold; margin-left: 10px;">[✔ Prijať]</a>
-                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="color: red; margin-left: 5px;">[❌ Zamietnuť]</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <hr>
-            {% endif %}
-
-            <h3>🤝 Priatelia ({{ priatelia.count }})</h3>
-            <ul style="list-style-type: none; padding: 0;">
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">👥 Priatelia</h3>
+        {% if priatelia %}
+            <ul style="list-style: none; padding: 0;">
                 {% for p in priatelia %}
-                    <li>
-                        {% if p.profil1 == profil %}
-                            <a href="{% url 'profil_detail' p.profil2.id %}">{{ p.profil2.nickname }}</a>
-                        {% else %}
-                            <a href="{% url 'profil_detail' p.profil1.id %}">{{ p.profil1.nickname }}</a>
-                        {% endif %}
+                    <li style="padding: 10px; border-bottom: 1px solid #eee;">
+                        <a href="{% if p.profil1 == profil %}{% url 'profil_detail' p.profil2.id %}{% else %}{% url 'profil_detail' p.profil1.id %}{% endif %}" 
+                           style="text-decoration: none; font-weight: bold; color: #6f42c1;">
+                            {% if p.profil1 == profil %}{{ p.profil2.nickname }}{% else %}{{ p.profil1.nickname }}{% endif %}
+                        </a>
                     </li>
-                {% empty %}
-                    <li>Zatiaľ žiadni priatelia.</li>
                 {% endfor %}
             </ul>
-            
-            <hr>
-
-            </div>
+        {% else %}
+            <p style="color: #777;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
+        {% endif %}
 
     </div>
+
 </body>
 </html>
