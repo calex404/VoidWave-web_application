@@ -1,12 +1,11 @@
 # core/views.py (OPRAVENÉ IMPORTY)
 
 from django.shortcuts import render, get_object_or_404, redirect
-# 💥 KRITICKÁ OPRAVA: Pridaný model Hodnotenie
 from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie, Hodnotenie 
 from .forms import CustomUserCreationForm, UdalostForm, TimForm, ProfilEditForm, HodnotenieForm
 from datetime import datetime
 from django.contrib.auth.forms import AuthenticationForm
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count
 from django.contrib import messages
 # Konštanta pre maximálny počet členov tímu
 MAX_TEAM_SIZE = 5
@@ -239,9 +238,21 @@ def tim_join_view(request, tim_id):
     tim.clenovia.add(profil)
     return redirect('tim_list')
 
-def rebricek_list_view(request):
-    vsetky_rebricky = Rebricek.objects.all().order_by('-datum_aktualizacie')
-    context = {'rebricky': vsetky_rebricky}
+def rebricky_view(request):
+    # 1. Top Úrovne (zostupne)
+    top_urovne = Profil.objects.order_by('-uroven')[:10]
+
+    # 2. Top Aktivita (zostupne podľa počtu účastí)
+    top_aktivita = Profil.objects.annotate(
+        pocet_ucasti=Count('prihlasene_udalosti')
+    ).order_by('-pocet_ucasti')[:10]
+
+    context = {
+        'top_urovne': top_urovne,
+        'top_aktivita': top_aktivita,
+    }
+    
+    # TU BOLA ZMENA: Používame názov súboru, ktorý reálne máš
     return render(request, 'core/rebricek_list.html', context)
 
 def oznamenie_list_view(request):
@@ -296,20 +307,6 @@ def register_view(request):
 
 # core/views.py (Pridaj TÚTO FUNKCIU k ostatným View funkciám)
 
-def rebricek_detail_view(request, rebricek_id):
-    """Zobrazí detaily a zoradené umiestnenia pre daný rebríček."""
-    from .models import Umiestnenie, Rebricek # Zabezpečenie importov
-    
-    rebricek = get_object_or_404(Rebricek, id=rebricek_id)
-    
-    # Načítame všetky záznamy Umiestnenie pre tento rebríček, zoradené podľa pozície
-    umiestnenia = Umiestnenie.objects.filter(rebricek=rebricek).order_by('pozicia')
-    
-    context = {
-        'rebricek': rebricek,
-        'umiestnenia': umiestnenia,
-    }
-    return render(request, 'core/rebricek_detail.html', context)
 
 # core/views.py (Pridaj na koniec súboru)
 from .forms import HodnotenieForm # Uisti sa, že máš tento import hore

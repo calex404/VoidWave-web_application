@@ -2,6 +2,7 @@
 
 from django.urls import path
 from . import views
+from .views import rebricky_view
 
 urlpatterns = [
     # 1. KOREŇ / HOME
@@ -32,11 +33,11 @@ urlpatterns = [
     
     # 7. Ostatné
     path('oznamenia/', views.oznamenie_list_view, name='oznamenie_list'),
-    path('rebricky/', views.rebricek_list_view, name='rebricek_list'),
-    path('rebricky/<int:rebricek_id>/', views.rebricek_detail_view, name='rebricek_detail'),
-    
+
     path('priatelstvo/send/<int:profil_id>/', views.send_friend_request, name='send_friend_request'),
     path('priatelstvo/accept/<int:request_id>/', views.accept_friend_request, name='accept_friend_request'),
     path('priatelstvo/reject/<int:request_id>/', views.reject_friend_request, name='reject_friend_request'),
     # ...
+    path('rebricky/', rebricky_view, name='rebricek_list'),
+
 ] 
