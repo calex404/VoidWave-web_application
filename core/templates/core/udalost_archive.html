@@ -1,68 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
+    <meta charset="UTF-8">
     <title>Archív Udalostí</title>
 </head>
-<body>
+<body style="font-family: sans-serif; background-color: #f9f9f9; margin: 0;">
+
     {% include 'core/navbar.html' %}
-    
-    <div style="max-width: 800px; margin: 20px auto;">
-        <a href="{% url 'udalost_list' %}" style="display: block; text-align: left; margin-bottom: 20px;">← Späť na Aktuálne Udalosti</a>
 
-        <h1>Archív Udalostí (Už skončené)</h1>
+    <div style="max-width: 900px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         
-        {% if messages %}
-            {% for message in messages %}
-                <div style="padding: 10px; background-color: #e724d7ff; color: #155724; border: 1px solid #c3e6cb; margin-bottom: 10px;">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+            <h1 style="margin: 0; color: #333;">🗄️ Archív Udalostí</h1>
+            <a href="{% url 'udalost_list' %}" style="text-decoration: none; background-color: #6c757d; color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold;">
+                ← Späť na Aktuálne
+            </a>
+        </div>
 
-        {% for item in udalosti %}
-            <div style="border: 1px solid #a82e2eff; padding: 15px; margin-bottom: 20px;">
+        <p style="color: #666; font-style: italic;">
+            Tu nájdeš históriu všetkých zápasov a turnajov, ktoré už skončili.
+        </p>
+
+        {% for udalost in archiv %}
+            <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; background-color: #fafafa;">
                 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
-                        <strong>{{ item.udalost.nazov }}</strong>
-                        <p>Dátum konania: {{ item.udalost.datum_konania|date:"d.m.Y H:i" }}</p>
-                    </div>
-                    
-                    <div>
-                        {% if item.uz_som_hodnotil %}
-                            <span style="color: green; font-weight: bold;">[Tvoj rating je uložený]</span>
-                        {% elif user.is_authenticated %}
-                            <a href="{% url 'hodnotenie_create' udalost_id=item.udalost.id %}" 
-                               style="background-color: #007bff; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px;">
-                                Pridať Hodnotenie
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <hr>
-
-                {% if item.priemer %}
-                    <p style="font-weight: bold;">⭐ Priemerné hodnotenie: {{ item.priemer }}/10</p>
-                {% else %}
-                    <p>Ešte nebolo hodnotené.</p>
-                {% endif %}
-
-                {% if item.vsetky_hodnotenia %}
-                    <h3>Hodnotenia od Komunity ({{ item.vsetky_hodnotenia.count }})</h3>
-                    {% for hodnotenie in item.vsetky_hodnotenia %}
-                        <div style="padding: 5px 0; border-bottom: 1px dashed #eee;">
-                            <strong>{{ hodnotenie.profil.nickname }}</strong> udelil/a: 
-                            <span style="color: darkred; font-weight: bold;">{{ hodnotenie.hodnotenie }}/10</span> 
+                        <h3 style="margin: 0 0 10px 0; color: #444;">
+                            {{ udalost.nazov }} 
+                            <span style="font-size: 0.7em; background-color: #ddd; padding: 3px 6px; border-radius: 4px; vertical-align: middle;">Skončené</span>
+                        </h3>
+                        
+                        <div style="color: #555; line-height: 1.6;">
+                            <strong>Hra:</strong> {{ udalost.hra.nazov }} <br>
+                            <strong>Dátum:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }} <br>
+                            <strong>Typ:</strong> {{ udalost.typ|capfirst }}
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p>Zatiaľ žiadne individuálne hodnotenia.</p>
-                {% endif %}
+                    </div>
+
+                    <div>
+                        <a href="{% url 'hodnotenie_create' udalost.id %}" style="display: inline-block; text-decoration: none; background-color: #28a745; color: white; padding: 10px 15px; border-radius: 5px; font-weight: bold; text-align: center;">
+                            Hodnotiť udalosť
+                        </a>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px; border-top: 1px solid #e0e0e0; padding-top: 10px;">
+                    <strong style="font-size: 0.9em; color: #666;">📝 Hodnotenia hráčov:</strong>
+                    
+                    <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
+                        {% for recenzia in udalost.hodnotenie_set.all %}
+                            <li style="background: white; border: 1px solid #eee; padding: 8px; margin-bottom: 5px; border-radius: 4px; font-size: 0.9em;">
+                                <strong style="color: #333;">{{ recenzia.profil.nickname }}</strong>: 
+                                <span style="color: #e67e22; font-weight: bold;">{{ recenzia.hodnotenie }}/10</span>
+                            </li>
+                        {% empty %}
+                            <li style="color: #999; font-size: 0.8em; font-style: italic;">
+                                Zatiaľ žiadne hodnotenia. Buď prvý!
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
             </div>
         {% empty %}
-            <p>Archív neobsahuje žiadne minulé udalosti.</p>
+            <div style="text-align: center; padding: 40px; color: #999; border: 2px dashed #ddd; border-radius: 8px;">
+                <h3>📭 Archív je prázdny</h3>
+                <p>Spusti simuláciu 'minulost' na vygenerovanie dát.</p>
+            </div>
         {% endfor %}
+
     </div>
+
 </body>
 </html>

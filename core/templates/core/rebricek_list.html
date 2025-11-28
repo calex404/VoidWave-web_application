@@ -8,31 +8,59 @@
 
     {% include 'core/navbar.html' %}
 
-    <div style="max-width: 1000px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="max-width: 1200px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
         
-        <h1 style="text-align: center; margin-bottom: 40px; color: #333;">🏆 Siene Slávy 🏆</h1>
+        <h1 style="text-align: center; margin-bottom: 40px; color: #333;">🏆 Rebríčky Aktivity (Top 5) 🏆</h1>
 
-        <div style="display: flex; gap: 40px; justify-content: space-between; flex-wrap: wrap;">
+        <div style="display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap;">
             
             <div style="flex: 1; min-width: 300px;">
-                <h2 style="color: #d35400; text-align: center; border-bottom: 2px solid #d35400; padding-bottom: 10px;">
-                    🔥 Najvyššia Úroveň
+                <h2 style="color: #e74c3c; text-align: center; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">
+                    📅 Denný
                 </h2>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                     <thead style="background-color: #f2f2f2;">
                         <tr>
-                            <th style="padding: 12px; text-align: center;">#</th>
-                            <th style="padding: 12px; text-align: left;">Hráč</th>
-                            <th style="padding: 12px; text-align: center;">Level</th>
+                            <th style="padding: 10px; text-align: center;">#</th>
+                            <th style="padding: 10px; text-align: left;">Hráč</th>
+                            <th style="padding: 10px; text-align: center;">Akcie</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for profil in top_urovne %}
+                        {% for profil in top_denne %}
                         <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; text-align: center;">{{ forloop.counter }}.</td>
-                            <td style="padding: 10px;"><strong>{{ profil.nickname }}</strong></td>
-                            <td style="padding: 10px; text-align: center; font-weight: bold;">{{ profil.uroven }}</td>
+                            <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
+                            <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
+                            <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
+                        {% empty %}
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Dnes zatiaľ nič.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="flex: 1; min-width: 300px;">
+                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                    📆 Týždenný
+                </h2>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead style="background-color: #f2f2f2;">
+                        <tr>
+                            <th style="padding: 10px; text-align: center;">#</th>
+                            <th style="padding: 10px; text-align: left;">Hráč</th>
+                            <th style="padding: 10px; text-align: center;">Akcie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profil in top_tyzdenne %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
+                            <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
+                            <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Tento týždeň ticho.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -40,29 +68,25 @@
 
             <div style="flex: 1; min-width: 300px;">
                 <h2 style="color: #2980b9; text-align: center; border-bottom: 2px solid #2980b9; padding-bottom: 10px;">
-                    ⚔️ Najaktívnejší Hráči
+                    🗓️ Mesačný
                 </h2>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                     <thead style="background-color: #f2f2f2;">
                         <tr>
-                            <th style="padding: 12px; text-align: center;">#</th>
-                            <th style="padding: 12px; text-align: left;">Hráč</th>
-                            <th style="padding: 12px; text-align: center;">Účasti</th>
+                            <th style="padding: 10px; text-align: center;">#</th>
+                            <th style="padding: 10px; text-align: left;">Hráč</th>
+                            <th style="padding: 10px; text-align: center;">Akcie</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for profil in top_aktivita %}
+                        {% for profil in top_mesacne %}
                         <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; text-align: center;">{{ forloop.counter }}.</td>
-                            <td style="padding: 10px;"><strong>{{ profil.nickname }}</strong></td>
-                            <td style="padding: 10px; text-align: center;">{{ profil.pocet_ucasti }}x</td>
+                            <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
+                            <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
+                            <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="3" style="padding: 20px; text-align: center; color: #777;">
-                                Zatiaľ nikto nebol na žiadnej akcii.
-                            </td>
-                        </tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Mesiac bez akcií.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

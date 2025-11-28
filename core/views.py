@@ -3,10 +3,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Profil, Hra, Udalost, Tim, Rebricek, Oznamenie, Priatelstvo, Odoslanie, Hodnotenie 
 from .forms import CustomUserCreationForm, UdalostForm, TimForm, ProfilEditForm, HodnotenieForm
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q, Avg, Count
 from django.contrib import messages
+from django.utils import timezone
 # Konštanta pre maximálny počet členov tímu
 MAX_TEAM_SIZE = 5
 
@@ -170,14 +171,31 @@ def hra_detail_view(request, hra_id):
 
 # core/views.py (Nahraď existujúcu funkciu)
 
+from django.utils import timezone  # <--- Dôležitý import
+
 def udalost_list_view(request):
-    today = datetime.now().date() # Zistíme dnešný dátum
+    """Zobrazuje LEN budúce udalosti (odteraz dopredu)"""
+    now = timezone.now()
+    # gte = Greater Than or Equal (Väčšie alebo rovné = Budúcnosť)
+    udalosti = Udalost.objects.filter(datum_konania__gte=now).order_by('datum_konania')
     
-    # 💥 FIX: Filtrujeme, aby sa zobrazovali len udalosti DNEŠNÉHO a BUDÚCEHO DŇA 💥
-    vsetky_udalosti = Udalost.objects.filter(datum_konania__gte=today).order_by('datum_konania')
+    return render(request, 'core/udalost_list.html', {'udalosti': udalosti})
+
+def udalost_archiv_view(request):
+    now = timezone.now()
     
-    context = {'udalosti': vsetky_udalosti}
-    return render(request, 'core/udalost_list.html', context)
+    # Filtrujeme všetko, čo je MENŠIE (lt) ako teraz = MINULOSŤ
+    archivne_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
+    
+    # DEBUG VÝPIS (Uvidíš ho v termináli, keď refreshneš stránku)
+    print(f"--- DEBUG ARCHÍV ---")
+    print(f"Aktuálny čas: {now}")
+    print(f"Nájdených udalostí v archíve: {archivne_udalosti.count()}")
+    
+    context = {
+        'archiv': archivne_udalosti  # <--- TOTO SLOVO JE KĽÚČOVÉ
+    }
+    return render(request, 'core/udalost_archive.html', context)
 
 def udalost_create_view(request):
     if not request.user.is_authenticated: return redirect('login')
@@ -239,20 +257,32 @@ def tim_join_view(request, tim_id):
     return redirect('tim_list')
 
 def rebricky_view(request):
-    # 1. Top Úrovne (zostupne)
-    top_urovne = Profil.objects.order_by('-uroven')[:10]
+    now = timezone.now()
+    
+    # 1. DENNÝ REBRÍČEK (Udalosti za posledných 24 hodín)
+    denny_limit = now - timedelta(days=1)
+    top_denne = Profil.objects.filter(prihlasene_udalosti__datum_konania__gte=denny_limit)\
+        .annotate(score=Count('prihlasene_udalosti'))\
+        .order_by('-score')[:5]
 
-    # 2. Top Aktivita (zostupne podľa počtu účastí)
-    top_aktivita = Profil.objects.annotate(
-        pocet_ucasti=Count('prihlasene_udalosti')
-    ).order_by('-pocet_ucasti')[:10]
+    # 2. TÝŽDENNÝ REBRÍČEK (Udalosti za posledných 7 dní)
+    tyzdenny_limit = now - timedelta(days=7)
+    top_tyzdenne = Profil.objects.filter(prihlasene_udalosti__datum_konania__gte=tyzdenny_limit)\
+        .annotate(score=Count('prihlasene_udalosti'))\
+        .order_by('-score')[:5]
+
+    # 3. MESAČNÝ REBRÍČEK (Udalosti za posledných 30 dní)
+    mesacny_limit = now - timedelta(days=30)
+    top_mesacne = Profil.objects.filter(prihlasene_udalosti__datum_konania__gte=mesacny_limit)\
+        .annotate(score=Count('prihlasene_udalosti'))\
+        .order_by('-score')[:5]
 
     context = {
-        'top_urovne': top_urovne,
-        'top_aktivita': top_aktivita,
+        'top_denne': top_denne,
+        'top_tyzdenne': top_tyzdenne,
+        'top_mesacne': top_mesacne,
     }
     
-    # TU BOLA ZMENA: Používame názov súboru, ktorý reálne máš
     return render(request, 'core/rebricek_list.html', context)
 
 def oznamenie_list_view(request):
@@ -313,34 +343,6 @@ from .forms import HodnotenieForm # Uisti sa, že máš tento import hore
 
 # core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
 # core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
-
-def udalost_archiv_view(request):
-    today = datetime.now().date()
-    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=today).order_by('-datum_konania')
-
-    udalosti_s_hodnotenim = []
-    # Získame profil aktuálneho používateľa, ak je prihlásený
-    current_profil = request.user.profil if request.user.is_authenticated else None
-    
-    for udalost in archiv_udalosti:
-        vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
-        priemer = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))['hodnotenie__avg']
-        
-        # 💥 FIX: KONTROLA PRE AKTUÁLNE PRIHLÁSENÉHO POUŽÍVATEĽA 💥
-        uz_som_hodnotil = False
-        if current_profil:
-             # Tento filter MUSÍ vrátiť True, len ak je to Lotricek (ak je Lotricek prihlásený)
-             uz_som_hodnotil = Hodnotenie.objects.filter(profil=current_profil, udalost=udalost).exists()
-        
-        udalosti_s_hodnotenim.append({
-            'udalost': udalost,
-            'uz_som_hodnotil': uz_som_hodnotil, 
-            'priemer': round(priemer, 2) if priemer else None,
-            'vsetky_hodnotenia': vsetky_hodnotenia,
-        })
-
-    context = {'udalosti': udalosti_s_hodnotenim}
-    return render(request, 'core/udalost_archive.html', context)
 
 # core/views.py (Nahraď existujúcu funkciu hodnotenie_create_view)
 
