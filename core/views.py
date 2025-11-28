@@ -244,16 +244,6 @@ def rebricek_list_view(request):
     context = {'rebricky': vsetky_rebricky}
     return render(request, 'core/rebricek_list.html', context)
 
-# core/views.py (Nahraď len funkciu oznamenie_list_view)
-
-# core/views.py (Nahraď len funkciu oznamenie_list_view)
-
-# core/views.py (Nahraď len funkciu oznamenie_list_view)
-
-# core/views.py (Nahraď len funkciu oznamenie_list_view)
-
-# core/views.py (Nahraď len funkciu oznamenie_list_view)
-
 def oznamenie_list_view(request):
     """Zobrazí všetky oznámenia, žiadosti a pripomienky pre aktuálneho používateľa."""
     if not request.user.is_authenticated:
@@ -325,33 +315,24 @@ def rebricek_detail_view(request, rebricek_id):
 from .forms import HodnotenieForm # Uisti sa, že máš tento import hore
 
 # core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
-
 # core/views.py (Nahraď existujúcu funkciu udalost_archiv_view)
 
 def udalost_archiv_view(request):
-    from django.db.models import Avg 
-    from datetime import datetime
-    
-    # Použijeme datetime.now() na presné porovnanie s DateTimeField
-    now = datetime.now() 
-    
-    # 💥 FIX: FILTRUJEME UDALOSTI, KTORÉ UŽ FYZICKY PREŠLI 💥
-    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
-
-    print(f"DEBUG: Aktuálny datetime je: {now}")
-    print(f"DEBUG: Nájdené staré udalosti: {archiv_udalosti.count()}") # Skontrolujeme, či nájde udalosti
+    today = datetime.now().date()
+    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=today).order_by('-datum_konania')
 
     udalosti_s_hodnotenim = []
+    # Získame profil aktuálneho používateľa, ak je prihlásený
     current_profil = request.user.profil if request.user.is_authenticated else None
     
     for udalost in archiv_udalosti:
-        # Zvyšok logiky zostáva, lebo teraz už pracuje s dátami, ktoré prešli filtrom
         vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
-        priemer_hodnotenia = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))
-        priemer = priemer_hodnotenia['hodnotenie__avg']
+        priemer = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))['hodnotenie__avg']
         
+        # 💥 FIX: KONTROLA PRE AKTUÁLNE PRIHLÁSENÉHO POUŽÍVATEĽA 💥
         uz_som_hodnotil = False
         if current_profil:
+             # Tento filter MUSÍ vrátiť True, len ak je to Lotricek (ak je Lotricek prihlásený)
              uz_som_hodnotil = Hodnotenie.objects.filter(profil=current_profil, udalost=udalost).exists()
         
         udalosti_s_hodnotenim.append({
@@ -364,37 +345,63 @@ def udalost_archiv_view(request):
     context = {'udalosti': udalosti_s_hodnotenim}
     return render(request, 'core/udalost_archive.html', context)
 
+# core/views.py (Nahraď existujúcu funkciu hodnotenie_create_view)
+
+# core/views.py (Nahraď existujúcu funkciu hodnotenie_create_view)
 
 def hodnotenie_create_view(request, udalost_id):
-    """Vytvorí hodnotenie pre konkrétnu udalosť."""
+    """Spracuje odoslanie hodnotenia k danej udalosti s kontrolou účasti."""
+    from django.contrib import messages
+    
     if not request.user.is_authenticated:
         return redirect('login')
-        
-    udalost = get_object_or_404(Udalost, id=udalost_id)
-    
-    # Ak už hodnotenie existuje, presmerujeme
-    if Hodnotenie.objects.filter(udalost=udalost).exists():
-        messages.warning(request, f"Udalosť '{udalost.nazov}' už bola ohodnotená!")
-        return redirect('udalost_archiv')
 
+    udalost = get_object_or_404(Udalost, id=udalost_id)
+    profil = request.user.profil
+    print(f"0. Udalost chuju (DB Check): {udalost}")
+    realni_ucastnici = udalost.ucastnici.all()
+    print(f"Počet účastníků v DB: {realni_ucastnici.count()}")
+    print("Seznam jmen účastníků:")
+    for u in realni_ucastnici:
+        print(f" - ID: {u.id}, Nick: {u.nickname}")
+    # --- DIAGNOSTIKA ID ---
+    print(f"\n--- DEBUG RATING CHECK ---")
+    print(f"1. Logged in Profile ID: {profil.id}")
+    print(f"2. Target Event ID: {udalost_id}")
+    print(f"3. Udalost.ucastnici IDs: {[p.id for p in udalost.ucastnici.all()]}")
+    
+    # KONTROLA POVOLENIA: Hodnotiť môže len ten, kto sa zúčastnil
+    is_participant = udalost.ucastnici.filter(id=profil.id).exists()
+    print(f"4. Is Participant (DB Check): {is_participant}")
+    print(f"--- END DEBUG ---\n")
+    
+    if not is_participant:
+        # TENTO BLOK STÁLE HÁDŽE CHYBU
+        messages.error(request, f"Hodnotenie udalosti '{udalost.nazov}' môže udeliť len prihlásený účastník.")
+        return redirect('udalost_archiv') 
     if request.method == 'POST':
-        # Vytvoríme inštanciu formulára a priradíme k nej aktuálneho užívateľa a udalosť
+        # Keď klikneš na tlačidlo "Uložiť Hodnotenie"
         form = HodnotenieForm(request.POST)
         if form.is_valid():
             hodnotenie = form.save(commit=False)
-            hodnotenie.profil = request.user.profil # Kto hodnotenie pridáva
-            hodnotenie.udalost = udalost
-            hodnotenie.datum_hodnotenia = datetime.now().date()
+            hodnotenie.udalost = udalost  # Priradíme udalosť
+            hodnotenie.profil = profil     # Priradíme teba ako autora
             hodnotenie.save()
-            messages.success(request, f"Hodnotenie pre '{udalost.nazov}' bolo úspešne pridané.")
-            return redirect('udalost_archiv')
+            
+            messages.success(request, "Hodnotenie úspešne pridané!")
+            return redirect('udalost_archiv') # Po uložení ťa hodí späť na archív
     else:
-        # Používateľ hodnotí hru, ktorá je spojená s udalosťou, ak nejaká je.
-        # Ak udalosť nemá priradenú hru, v modeli to nevadí, ale pre UI je to dôležité.
-        form = HodnotenieForm(initial={'hra': udalost.hra}) 
-        
+        # Ak len prišiel na stránku (GET request) -> zobrazíme prázdny formulár
+        form = HodnotenieForm()
+
+    # TOTO TI CHÝBALO: Nakoniec musíme vrátiť šablónu (HTML)
     context = {
+        'form': form,
         'udalost': udalost,
-        'form': form
+        'profil': profil,
+        'profil_id': profil.id
     }
-    return render(request, 'core/hodnotenie_create.html', context)
+    return render(request, 'core/hodnotenie_create.html', {'form': form, 'udalost': udalost})
+    
+    # --- Spracovanie Formulára ---
+    # ... (zvyšok logiky zostáva)

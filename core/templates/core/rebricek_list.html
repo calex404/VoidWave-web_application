@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Rebríčky</title>
+    <title>Zoznam Rebríčkov</title>
 </head>
 <body>
     {% include 'core/navbar.html' %}
@@ -10,9 +10,13 @@
     
     {% for rebricek in rebricky %}
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-            <h2>{{ rebricek.get_typ_display }}</h2>
+            <h2>
+                <a href="{% url 'rebricek_detail' rebricek.id %}">
+                    {{ rebricek.get_typ_display }}
+                </a>
+            </h2>
             <p>Aktualizované: {{ rebricek.datum_aktualizacie }}</p>
-            </div>
+        </div>
     {% empty %}
         <p>Zatiaľ nie sú vytvorené žiadne rebríčky.</p>
     {% endfor %}

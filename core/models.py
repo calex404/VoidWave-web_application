@@ -25,7 +25,6 @@ class Profil(models.Model):
  
     # Vzťah N:1 k Role
     rola = models.ForeignKey(Rola, on_delete=models.SET_NULL, null=True, blank=True) 
-   
     def __str__(self):
         return self.nickname
     
