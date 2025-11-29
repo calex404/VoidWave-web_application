@@ -1,3 +1,92 @@
+<style>
+    /* Pôvodné štýly priamo tu, aby sa nič nezmenilo */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 20px; 
+        background-color: #333; /* Tvoja pôvodná farba */
+        color: white;
+        align-items: center; 
+        height: 50px; 
+        margin-bottom: 20px;
+        
+        /* Pridal som len toto, aby ostal prilepený hore pri scrollovaní */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        box-sizing: border-box;
+        border-bottom: 1px solid #444;
+    }
+
+    .navbar-left {
+        display: flex;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 14px 16px;
+        font-size: 17px;
+    }
+
+    .navbar a:hover {
+        background-color: #555;
+    }
+
+    /* PRAVÁ STRANA A NICKNAME */
+    .user-nickname-link {
+        margin-right: 15px;
+        font-weight: bold;
+        color: #ffcc00 !important; /* Tvoja žltá */
+        text-decoration: none !important;
+        padding: 8px 0;
+    }
+
+    .navbar-right {
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+
+    /* 🔔 IKONA ZVONČEKA */
+    .bell-icon {
+        margin-right: 20px; 
+        font-size: 1.5em; 
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative;
+        padding: 0 !important;
+    }
+    
+    .badge {
+        position: absolute;
+        top: 0px;
+        right: -5px;
+        background-color: red;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 2px 5px;
+        border-radius: 50%;
+        line-height: 1;
+    }
+
+    /* ODHLASOVACÍ BUTTON */
+    .logout-btn {
+        background-color: #cc0000; 
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-left: 10px;
+    }
+</style>
+
 <div class="navbar">
     
     <div class="navbar-left">
@@ -15,26 +104,25 @@
     <div class="navbar-right">
         {% if user.is_authenticated %}
             
-            <a href="{% url 'oznamenie_list' %}" class="bell-icon" style="position: relative;">
+            <a href="{% url 'oznamenie_list' %}" class="bell-icon">
                 🔔
                 {% if badge_cislo > 0 %}
-                    <span style="position: absolute; top: -5px; right: -8px; background-color: var(--color-red); color: var(--color-text-main); font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">
-                        {{ badge_cislo }}
-                    </span>
+                    <span class="badge">{{ badge_cislo }}</span>
                 {% endif %}
             </a>
             
-            <a href="{% url 'dashboard' %}" class="user-nickname-link" style="color: var(--color-accent) !important;">
+            <a href="{% url 'dashboard' %}" class="user-nickname-link">
                 👤 {{ user.profil.nickname|default:user.username }}
             </a>
             
             <form method="post" action="{% url 'logout' %}" style="margin: 0;">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn" style="background-color: var(--color-red);">Odhlásiť</button>
+                <button type="submit" class="logout-btn">Odhlásiť</button>
             </form>
             
         {% else %}
             <a href="{% url 'login' %}">Prihlásiť sa</a>
         {% endif %}
     </div>
+
 </div>

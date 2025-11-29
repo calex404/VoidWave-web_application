@@ -1,38 +1,71 @@
-/* Dark Mode Pre-setup */
+/* ---------------------------------------------------- */
+/* 1. DEFINÍCIA FARIEB (DARK MODE PALETA)               */
+/* ---------------------------------------------------- */
 :root {
     --color-background: #1e1e1e;
-    --color-surface: #2d2d30;
-    --color-text-main: #f0f0f0;
-    --color-text-secondary: #aaaaaa;
-    --color-accent: #00bcd4; /* Neon Teal */
-    --color-link: #00aaff;
-    --color-red: #cc5555;
-    --color-border: #3f3f3f;
-    --color-success: #27ae60;
+    --color-surface: rgba(45, 45, 48, 0.90); /* Priehľadná čierna pre boxy */
+    --color-text-main: #f0f0f0;  
+    --color-text-secondary: #aaaaaa; 
+    --color-accent: #00bcd4;     /* Neon Teal */
+    --color-link: #42a5f5;      
+    --color-red: #ff5252;        
+    --color-success: #69f0ae;    
+    --color-gray: #6c757d;       
+    --color-border: #444444;     
 }
+
+/* ---------------------------------------------------- */
+/* 2. GLOBÁLNE TELO A VIDEO POZADIE (OREZANÉ)           */
+/* ---------------------------------------------------- */
 
 body {
     background-color: var(--color-background);
     color: var(--color-text-main);
-    transition: background-color 0.3s, color 0.3s;
-    /* SEM PRIDÁME OBRÁZOK */
-    /* background-image: url('../img/dark_bg.jpg'); */
-    /* background-size: cover; */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
-/* Global Elements */
-a { color: var(--color-link); }
+/* TOTO JE TO NASTAVENIE, ČO SA TI PÁČILO (OREZANÝ SPODOK) */
+#video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* 140% výška spôsobí, že rýchly spodok videa bude pod obrazovkou */
+    height: 140vh; 
+    object-fit: cover;
+    object-position: top center; /* Ukáže vrch videa */
+    z-index: -100;
+    filter: brightness(40%) contrast(1.1); 
+}
 
-/* Navbar Overrides */
+/* ---------------------------------------------------- */
+/* 3. NAVIGÁCIA (GLASS EFFECT)                          */
+/* ---------------------------------------------------- */
+
 .navbar {
-    background-color: var(--color-surface) !important;
-    border-bottom: 1px solid var(--color-border);
+    background-color: rgba(20, 20, 20, 0.75) !important; 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    height: 60px;
+    box-sizing: border-box;
 }
 
-/* Boxy (Profily, Detaily) */
-.container {
-    background-color: var(--color-surface) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-    border: 1px solid var(--color-border);
-}
+/* ODKAZY V NAVBARE */
+.navbar-brand a

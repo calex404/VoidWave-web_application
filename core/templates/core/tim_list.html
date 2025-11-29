@@ -34,4 +34,32 @@
                 <p style="font-size: 0.9em; color: var(--color-text-secondary);">
                     Členovia: 
                     {% for clen in tim.clenovia.all %}
-                        <span style="font-weight: bold; color: var(--color-text-main);">{{ clen.nickname }}</span>{% if not forloop.last %},
+                        <span style="font-weight: bold; color: var(--color-text-main);">{{ clen.nickname }}</span>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                
+                <div style="margin-top: 15px; border-top: 1px dashed var(--color-border); padding-top: 10px;">
+                    {% if user.is_authenticated %}
+                        {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
+                            
+                            {% if tim in user.profil.tim_set.all %}
+                                 <span style="color: var(--color-success); font-weight: bold;">✔ Už si členom tohto tímu</span>
+                            {% elif user_is_member_of_any_team %}
+                                 <span style="color: var(--color-red); font-weight: bold;">❌ Si už v inom tíme.</span>
+                            {% elif tim.clenovia.count >= 5 %}
+                                 <span style="color: var(--color-red); font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
+                            {% else %}
+                                 <a href="{% url 'tim_join' tim.id %}" style="color: var(--color-link); text-decoration: underline;">
+                                    👉 Pridať sa do tohto tímu
+                                </a>
+                            {% endif %}
+    
+                        {% endwith %}
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p style="color: var(--color-text-secondary);">Zatiaľ neboli založené žiadne tímy.</p>
+        {% endfor %}
+    </div>
+{% endblock content %}
