@@ -1,25 +1,20 @@
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <title>Rebríčky</title>
-</head>
-<body style="font-family: sans-serif; background-color: #f9f9f9; margin: 0;">
+{% extends "base.html" %}
 
-    {% include 'core/navbar.html' %}
+{% block title %}Rebríčky{% endblock %}
 
-    <div style="max-width: 1200px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+{% block content %}
+    <div style="max-width: 1200px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
         
-        <h1 style="text-align: center; margin-bottom: 40px; color: #333;">🏆 Rebríčky Aktivity (Top 5) 🏆</h1>
+        <h1 style="text-align: center; margin-bottom: 40px; color: var(--color-text-main);">🏆 Rebríčky Aktivity (Top 5) 🏆</h1>
 
         <div style="display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap;">
             
             <div style="flex: 1; min-width: 300px;">
-                <h2 style="color: #e74c3c; text-align: center; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">
+                <h2 style="color: var(--color-red); text-align: center; border-bottom: 2px solid var(--color-red); padding-bottom: 10px;">
                     📅 Denný
                 </h2>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead style="background-color: #f2f2f2;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px; color: var(--color-text-main);">
+                    <thead style="background-color: var(--color-border);">
                         <tr>
                             <th style="padding: 10px; text-align: center;">#</th>
                             <th style="padding: 10px; text-align: left;">Hráč</th>
@@ -28,24 +23,24 @@
                     </thead>
                     <tbody>
                         {% for profil in top_denne %}
-                        <tr style="border-bottom: 1px solid #ddd;">
+                        <tr style="border-bottom: 1px solid var(--color-border);">
                             <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
                             <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Dnes zatiaľ nič.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Dnes zatiaľ nič.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
 
             <div style="flex: 1; min-width: 300px;">
-                <h2 style="color: #f39c12; text-align: center; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                <h2 style="color: var(--color-accent); text-align: center; border-bottom: 2px solid var(--color-accent); padding-bottom: 10px;">
                     📆 Týždenný
                 </h2>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead style="background-color: #f2f2f2;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px; color: var(--color-text-main);">
+                    <thead style="background-color: var(--color-border);">
                         <tr>
                             <th style="padding: 10px; text-align: center;">#</th>
                             <th style="padding: 10px; text-align: left;">Hráč</th>
@@ -54,24 +49,24 @@
                     </thead>
                     <tbody>
                         {% for profil in top_tyzdenne %}
-                        <tr style="border-bottom: 1px solid #ddd;">
+                        <tr style="border-bottom: 1px solid var(--color-border);">
                             <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
                             <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Tento týždeň ticho.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Tento týždeň ticho.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
 
             <div style="flex: 1; min-width: 300px;">
-                <h2 style="color: #2980b9; text-align: center; border-bottom: 2px solid #2980b9; padding-bottom: 10px;">
+                <h2 style="color: var(--color-link); text-align: center; border-bottom: 2px solid var(--color-link); padding-bottom: 10px;">
                     🗓️ Mesačný
                 </h2>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead style="background-color: #f2f2f2;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px; color: var(--color-text-main);">
+                    <thead style="background-color: var(--color-border);">
                         <tr>
                             <th style="padding: 10px; text-align: center;">#</th>
                             <th style="padding: 10px; text-align: left;">Hráč</th>
@@ -80,13 +75,13 @@
                     </thead>
                     <tbody>
                         {% for profil in top_mesacne %}
-                        <tr style="border-bottom: 1px solid #ddd;">
+                        <tr style="border-bottom: 1px solid var(--color-border);">
                             <td style="padding: 8px; text-align: center;">{{ forloop.counter }}.</td>
                             <td style="padding: 8px;"><strong>{{ profil.nickname }}</strong></td>
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:#777;">Mesiac bez akcií.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Mesiac bez akcií.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -94,6 +89,4 @@
 
         </div>
     </div>
-
-</body>
-</html>
+    {% endblock content %}

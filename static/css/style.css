@@ -1,0 +1,38 @@
+/* Dark Mode Pre-setup */
+:root {
+    --color-background: #1e1e1e;
+    --color-surface: #2d2d30;
+    --color-text-main: #f0f0f0;
+    --color-text-secondary: #aaaaaa;
+    --color-accent: #00bcd4; /* Neon Teal */
+    --color-link: #00aaff;
+    --color-red: #cc5555;
+    --color-border: #3f3f3f;
+    --color-success: #27ae60;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text-main);
+    transition: background-color 0.3s, color 0.3s;
+    /* SEM PRIDÁME OBRÁZOK */
+    /* background-image: url('../img/dark_bg.jpg'); */
+    /* background-size: cover; */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Global Elements */
+a { color: var(--color-link); }
+
+/* Navbar Overrides */
+.navbar {
+    background-color: var(--color-surface) !important;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Boxy (Profily, Detaily) */
+.container {
+    background-color: var(--color-surface) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--color-border);
+}

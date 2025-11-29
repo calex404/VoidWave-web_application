@@ -1,18 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ hra.nazov }} - Detail</title> 
-</head>
-<body>
-    <a href="{% url 'hra_list' %}">← Späť na Katalóg Hier</a>
-    
-    <h1>Detail Hry: {{ hra.nazov }}</h1>
-    
-    <p><strong>Interné ID:</strong> {{ hra.id }}</p>
-    <p><strong>Žáner:</strong> {{ hra.zaner }}</p>
-    
-    <h2>Popis:</h2>
-    <p style="white-space: pre-wrap;">{{ hra.bio|default:"Popis zatiaľ nebol pridaný." }}</p> 
-    
-    </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}{{ hra.nazov }} - Detail{% endblock %}
+
+{% block content %}
+    <div style="max-width: 800px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+        
+        <a href="{% url 'hra_list' %}" style="color: var(--color-link); text-decoration: none; font-weight: bold;">
+            ← Späť na Katalóg Hier
+        </a>
+        
+        <h1 style="color: var(--color-text-main); margin-top: 15px; border-bottom: 2px solid var(--color-border); padding-bottom: 10px;">
+            🎮 Detail Hry: {{ hra.nazov }}
+        </h1>
+        
+        <p style="color: var(--color-text-secondary);"><strong>Interné ID:</strong> {{ hra.id }}</p>
+        <p style="color: var(--color-text-main);"><strong>Žáner:</strong> {{ hra.zaner }}</p>
+        
+        <h2 style="color: var(--color-text-main); margin-top: 30px; border-bottom: 1px solid var(--color-border); padding-bottom: 5px;">Popis:</h2>
+        
+        <p style="white-space: pre-wrap; color: var(--color-text-main);">
+            {{ hra.bio|default:"Popis zatiaľ nebol pridaný." }}
+        </p>
+        
+    </div>
+    {% endblock content %}

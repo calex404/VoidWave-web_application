@@ -1,54 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Domov</title>
-    <style>
-        .form-container {
-            border: 1px solid #ccc; 
-            padding: 20px; 
-            max-width: 300px; 
-            margin: 20px auto;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Domov{% endblock %}
+
+{% block content %}
+    
     {% if user.is_authenticated %}
-        {% include 'core/navbar.html' %}
-
+        
         <div style="text-align: center; margin-top: 100px;">
-            <h1>Hi stranger</h1>
-            <p>Vitaj, {{ user.profil.nickname|default:user.username }}! Použi navigáciu hore.</p>
-            
-            </div>
+            <h1 style="color: var(--color-text-main);">Hi {{ user.profil.nickname|default:user.username }}</h1>
+            <p style="color: var(--color-text-secondary);">Vitaj späť! Použi navigáciu hore, alebo <a href="{% url 'dashboard' %}" style="color: var(--color-link);">prejdi na svoj Dashboard.</a></p>
+        </div>
     
     {% else %}
 
-        <h1>Vitajte na Hráčskej Platforme!</h1>
-        <p>Pre pokračovanie sa, prosím, prihláste alebo zaregistrujte.</p>
+        <div style="max-width: 400px; margin: 50px auto; padding: 30px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+            <h1 style="color: var(--color-text-main); text-align: center;">Vitajte!</h1>
+            <p style="color: var(--color-text-secondary); text-align: center;">Pre pokračovanie sa, prosím, prihláste alebo zaregistrujte.</p>
 
-        <div class="form-container">
-            <h2>Prihlásenie:</h2>
-            <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                {{ form.as_p }}
-                
-                <input type="checkbox" id="show-password-login"> 
-                <label for="show-password-login">Zobraziť heslo</label>
-                <br>
-                
-                <button type="submit">Prihlásiť sa</button>
-                <input type="hidden" name="next" value="{{ request.path }}">
-            </form>
-            <hr>
-            <p>Nemáš účet? <a href="{% url 'user_register' %}">Zaregistruj sa</a></p>
+            <div style="margin-top: 20px; padding: 20px; border: 1px solid var(--color-border); border-radius: 4px;">
+                <h2 style="color: var(--color-text-main); margin-top: 0;">Prihlásenie:</h2>
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div style="color: var(--color-text-main);">
+                        {{ form.as_p }}
+                    </div>
+                    
+                    <input type="checkbox" id="show-password-login"> 
+                    <label for="show-password-login" style="color: var(--color-text-main);">Zobraziť heslo</label>
+                    <br>
+                    
+                    <button type="submit" style="background-color: var(--color-link); color: white; padding: 10px 15px; border: none; border-radius: 4px; margin-top: 15px; cursor: pointer;">
+                        Prihlásiť sa
+                    </button>
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                </form>
+                <hr style="border-color: var(--color-border);">
+                <p style="color: var(--color-text-secondary); text-align: center; margin-top: 15px;">Nemáš účet? <a href="{% url 'user_register' %}" style="color: var(--color-accent);">Zaregistruj sa</a></p>
+            </div>
         </div>
 
     {% endif %}
     
+{% endblock content %}
+
+{% block scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('show-password-login');
+            // Predpokladáme, že ID pre políčko hesla je 'id_password'
             const passwordField = document.getElementById('id_password'); 
             
             if (checkbox && passwordField) {
@@ -58,6 +57,4 @@
             }
         });
     </script>
-    
-</body>
-</html>
+{% endblock scripts %}

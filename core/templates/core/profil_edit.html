@@ -1,75 +1,35 @@
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <title>Upraviť Profil</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f9f9f9; margin: 0; }
-        .container { 
-            max-width: 600px; 
-            margin: 50px auto; 
-            padding: 30px; 
-            background: white; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-        h1 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 15px; color: #333; }
-        
-        /* Krajšie políčka */
-        p { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        
-        .btn-green {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1em;
-        }
-        .btn-green:hover { background-color: #218838; }
+{% extends "base.html" %}
 
-        .btn-gray {
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-weight: bold;
-            display: inline-block;
-            margin-left: 10px;
-        }
-    </style>
-</head>
-<body>
+{% block title %}Upraviť Profil{% endblock %}
 
-    {% include 'core/navbar.html' %}
-
-    <div class="container">
+{% block content %}
+    <div style="max-width: 600px; margin: 50px auto; padding: 30px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
         
-        <h1>✏️ Upraviť moje údaje</h1>
+        <h1 style="margin-top: 0; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; color: var(--color-text-main);">
+            ✏️ Upraviť moje údaje
+        </h1>
 
         <form method="post">
             {% csrf_token %}
             
-            {{ form.as_p }}
+            <div style="color: var(--color-text-main);">
+                {{ form.as_p }}
+            </div>
 
             <div style="margin-top: 30px; text-align: right;">
-                <a href="{% url 'dashboard' %}" class="btn-gray">Zrušiť</a>
-                <button type="submit" class="btn-green">💾 Uložiť zmeny</button>
+                <a href="{% url 'dashboard' %}" 
+                   class="btn-gray" 
+                   style="background-color: var(--color-gray); color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">
+                    Zrušiť
+                </a>
+                
+                <button type="submit" 
+                        class="btn-green"
+                        style="background-color: var(--color-success); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em; margin-left: 10px;">
+                    💾 Uložiť zmeny
+                </button>
             </div>
         </form>
 
     </div>
-
-</body>
-</html>
+{% endblock content %}

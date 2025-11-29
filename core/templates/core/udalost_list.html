@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Zoznam Udalostí</title>
-</head>
-<body>
-    {% include 'core/navbar.html' %}
+{% extends "base.html" %} 
+
+{% block title %}Zoznam Udalostí{% endblock %}
+
+{% block content %}
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
 
@@ -28,15 +26,15 @@
     <h1>Aktuálne Udalosti a Turnaje</h1>
     
     {% for udalost in udalosti %}
-        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+        <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 20px; background-color: var(--color-surface); border-radius: 8px;">
             <h2>{{ udalost.nazov }}</h2>
             
             <p><strong>Typ:</strong> {{ udalost.get_typ_display }}</p>
             <p><strong>Dátum konania:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}</p>
             
-            <hr>
+            <hr style="border-color: var(--color-border);">
             <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
-            <p style="font-size: 0.9em; color: #555;">
+            <p style="font-size: 0.9em; color: var(--color-text-secondary);">
                 {% for ucastnik in udalost.ucastnici.all %}
                     {{ ucastnik.nickname }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
@@ -48,12 +46,12 @@
             
                 {% if user.profil in udalost.ucastnici.all %}
                     <br>
-                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: red; font-weight: bold; text-decoration: underline;">
+                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-red); font-weight: bold; text-decoration: underline;">
                         ❌ Odhlásiť sa z udalosti
                     </a>
                 {% else %}
                     <br>
-                    <a href="{% url 'udalost_join' udalost.id %}" style="color: green; font-weight: bold; text-decoration: underline;">
+                    <a href="{% url 'udalost_join' udalost.id %}" style="color: var(--color-success); font-weight: bold; text-decoration: underline;">
                         👉 Chcem sa zúčastniť!
                     </a>
                 {% endif %}
@@ -63,5 +61,5 @@
     {% empty %}
         <p>V zozname sú len budúce udalosti. Žiadne aktívne udalosti nenájdete.</p>
     {% endfor %}
-</body>
-</html>
+    
+{% endblock content %}

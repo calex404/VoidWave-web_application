@@ -1,68 +1,3 @@
-<style>
-    /* ... (Tvoj pôvodný CSS, nemenil som ho, je super) ... */
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px; 
-        background-color: #333;
-        color: white;
-        align-items: center; 
-        height: 50px; 
-        margin-bottom: 20px; 
-    }
-
-    .navbar-left {
-        display: flex;
-    }
-
-    .navbar a {
-        color: white;
-        text-decoration: none;
-        padding: 14px 16px;
-        font-size: 17px;
-    }
-
-    .navbar a:hover {
-        background-color: #555;
-    }
-
-    /* PRAVÁ STRANA A NICKNAME */
-    .user-nickname-link {
-        margin-right: 15px;
-        font-weight: bold;
-        color: #ffcc00 !important;
-        text-decoration: none !important;
-        padding: 8px 0;
-    }
-
-    .navbar-right {
-        display: flex;
-        align-items: center;
-        color: white;
-    }
-
-    /* 🔔 IKONA ZVONČEKA */
-    .bell-icon {
-        margin-right: 20px; 
-        font-size: 1.5em; 
-        color: white;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    
-    /* ODHLASOVACÍ BUTTON */
-    .logout-btn {
-        background-color: #cc0000; 
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        cursor: pointer;
-        border-radius: 4px;
-        font-size: 14px;
-        margin-left: 10px;
-    }
-</style>
-
 <div class="navbar">
     
     <div class="navbar-left">
@@ -83,19 +18,19 @@
             <a href="{% url 'oznamenie_list' %}" class="bell-icon" style="position: relative;">
                 🔔
                 {% if badge_cislo > 0 %}
-                    <span style="position: absolute; top: -5px; right: -8px; background-color: red; color: white; font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">
+                    <span style="position: absolute; top: -5px; right: -8px; background-color: var(--color-red); color: var(--color-text-main); font-size: 11px; font-weight: bold; padding: 2px 5px; border-radius: 50%; line-height: 1;">
                         {{ badge_cislo }}
                     </span>
                 {% endif %}
             </a>
             
-            <a href="{% url 'dashboard' %}" class="user-nickname-link">
+            <a href="{% url 'dashboard' %}" class="user-nickname-link" style="color: var(--color-accent) !important;">
                 👤 {{ user.profil.nickname|default:user.username }}
             </a>
             
             <form method="post" action="{% url 'logout' %}" style="margin: 0;">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn">Odhlásiť</button>
+                <button type="submit" class="logout-btn" style="background-color: var(--color-red);">Odhlásiť</button>
             </form>
             
         {% else %}

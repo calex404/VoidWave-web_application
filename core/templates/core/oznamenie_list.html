@@ -1,62 +1,55 @@
-<!DOCTYPE html>
-<html lang="sk">
-<head>
-    <meta charset="UTF-8">
-    <title>Centrum Oznámení</title>
-</head>
-<body style="font-family: sans-serif; background-color: #f9f9f9; margin: 0;">
+{% extends "base.html" %}
 
-    {% include 'core/navbar.html' %}
+{% block title %}Centrum Oznámení{% endblock %}
 
-    <div style="max-width: 800px; margin: 30px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+{% block content %}
+    <div style="max-width: 800px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
         
-        <h1 style="text-align: center; color: #333; margin-bottom: 30px;">📬 Centrum Oznámení</h1>
+        <h1 style="text-align: center; color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px;">
+            📬 Centrum Oznámení
+        </h1>
 
         {% if ziadosti %}
-            <div style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                <h3 style="margin-top: 0; color: #856404;">👋 Nové žiadosti o priateľstvo</h3>
+            <div style="background-color: var(--color-accent); border: 1px solid var(--color-link); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                <h3 style="margin-top: 0; color: var(--color-text-main);">👋 Nové žiadosti o priateľstvo</h3>
                 
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    {% for ziadost in ziadosti %}
-                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e6dbb9;">
-                        <span>
+                {% for ziadost in ziadosti %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--color-border);">
+                        <span style="color: var(--color-text-main);">
                             <strong>{{ ziadost.od_koho.nickname }}</strong> si ťa chce pridať.
                         </span>
                         <div>
-                            <a href="{% url 'accept_friend_request' ziadost.id %}" style="background-color: #28a745; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold; margin-right: 5px;">Prijať</a>
-                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold;">Odmietnuť</a>
+                            <a href="{% url 'accept_friend_request' ziadost.id %}" style="background-color: var(--color-success); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold; margin-right: 5px;">Prijať</a>
+                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="background-color: var(--color-red); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold;">Odmietnuť</a>
                         </div>
-                    </li>
+                    </div>
+                {% empty %}
                     {% endfor %}
-                </ul>
             </div>
         {% endif %}
 
         {% if moje_urgentne %}
-            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 20px; border-radius: 8px;">
-                <h3 style="margin-top: 0; color: #0c5460;">⚠️ Tvoje akcie (Najbližších 24h)</h3>
+            <div style="background-color: var(--color-surface); border: 1px solid var(--color-accent); padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0; color: var(--color-link);">⚠️ Tvoje akcie (Najbližších 24h)</h3>
                 
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    {% for ud in moje_urgentne %}
-                    <li style="padding: 10px 0; border-bottom: 1px solid #b1dfbb; display: flex; justify-content: space-between;">
-                        <div>
+                {% for ud in moje_urgentne %}
+                    <div style="padding: 10px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between;">
+                        <div style="color: var(--color-text-main);">
                             <strong>{{ ud.datum_konania|date:"H:i" }}</strong> – {{ ud.nazov }}
-                            <span style="font-size: 0.9em; color: #555;">({{ ud.hra.nazov }})</span>
+                            <span style="font-size: 0.9em; color: var(--color-text-secondary);">({{ ud.hra.nazov }})</span>
                         </div>
-                        <a href="{% url 'hodnotenie_create' ud.id %}" style="color: #0c5460; text-decoration: underline;">Detail</a>
-                    </li>
-                    {% endfor %}
-                </ul>
+                        <a href="{% url 'hodnotenie_create' ud.id %}" style="color: var(--color-accent); text-decoration: underline;">Detail</a>
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
 
         {% if not ziadosti and not moje_urgentne %}
-            <div style="text-align: center; padding: 40px; color: #777;">
-                ✅ Všetko čisté. Nemáš žiadne nové upozornenia.
+            <div style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
+                <h3>✅ Všetko vybavené</h3>
+                <p>Momentálne ťa nečakajú žiadne urgentné akcie ani žiadosti.</p>
             </div>
         {% endif %}
 
     </div>
-
-</body>
-</html>
+    {% endblock content %}

@@ -1,28 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Pridať Hodnotenie</title>
-</head>
-<body>
-    {% include 'core/navbar.html' %}
-    
-    <div style="max-width: 600px; margin: 20px auto;">
-        <a href="{% url 'udalost_archiv' %}">← Späť na Archív Udalostí</a>
+{% extends "base.html" %}
 
-        <h1>Pridať Hodnotenie pre udalosť: {{ udalost.nazov }}</h1>
-        <p>Táto udalosť sa konala dňa: {{ udalost.datum_konania }}.</p>
+{% block title %}Pridať Hodnotenie{% endblock %}
+
+{% block content %}
+    <div style="max-width: 600px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        <form method="post">
+        <a href="{% url 'udalost_archiv' %}" style="color: var(--color-link); text-decoration: none; font-weight: bold;">
+            ← Späť na Archív Udalostí
+        </a>
+
+        <h1 style="color: var(--color-text-main); margin-top: 15px; border-bottom: 2px solid var(--color-border); padding-bottom: 10px;">
+            ⭐ Pridať Hodnotenie
+        </h1>
+        
+        <p style="color: var(--color-text-secondary);">Hodnotíš udalosť: <strong>{{ udalost.nazov }}</strong></p>
+        <p style="color: var(--color-text-secondary);">Táto udalosť sa konala dňa: {{ udalost.datum_konania|date:"d.m.Y H:i" }}.</p>
+        
+        <form method="post" style="margin-top: 30px;">
             {% csrf_token %}
             
-            <div style="margin-bottom: 15px;">
+            <div style="margin-bottom: 15px; color: var(--color-text-main);">
                 {{ form.as_p }}
             </div>
 
-            <button type="submit" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">
-                Uložiť Hodnotenie
+            <button type="submit" style="background-color: var(--color-success); color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                💾 Uložiť Hodnotenie
             </button>
         </form>
     </div>
-</body>
-</html>
+{% endblock content %}

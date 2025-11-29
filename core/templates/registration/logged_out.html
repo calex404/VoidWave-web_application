@@ -1,10 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Odhlásenie</title>
-</head>
-<body>
-    <h1>Bol/a si odhlásený/á.</h1>
-    <p><a href="{% url 'login' %}">Prihlásiť sa znova</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Prihlásenie{% endblock %}
+
+{% block content %}
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+        <div style="background: var(--color-surface); padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 100%; max-width: 400px; color: var(--color-text-main);">
+            
+            <h1 style="text-align: center; color: var(--color-text-main); margin-top: 0;">🔒 Prihlásiť sa</h1>
+
+            <form method="post" action="{% url 'login' %}"> 
+                {% csrf_token %}
+                
+                <div style="color: var(--color-text-main);">
+                    {{ form.as_p }}
+                </div>
+                
+                <button type="submit" style="width: 100%; padding: 10px; background-color: var(--color-link); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                    Prihlásiť
+                </button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 15px; font-size: 0.9em;">
+                <a href="{% url 'password_reset' %}" style="color: var(--color-text-secondary); text-decoration: underline;">Zabudol/a si heslo?</a>
+            </p>
+            
+            <hr style="border-color: var(--color-border); margin-top: 20px;">
+            
+            <p style="text-align: center; margin-top: 15px;">
+                Nemáš účet? <a href="{% url 'user_register' %}" style="color: var(--color-accent); font-weight: bold;">Zaregistrujte sa</a>
+            </p>
+        </div>
+    </div>
+{% endblock content %}

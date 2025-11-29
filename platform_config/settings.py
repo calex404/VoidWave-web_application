@@ -1,16 +1,15 @@
 from pathlib import Path
+import os # ponechaj tento import pre staršie nastavenia (STATICFILES_DIRS)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# ... (ostatné nastavenia) ...
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-+dhfx2*iln_b7bhm*l6sy$7==+fbmsr5*52+i9l&-mv+92p-nk'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -19,13 +18,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 1. Tvoja aplikácia 'core' musí byť prvá, aby prebila Admin šablóny!
+    'core', 
+    'django.contrib.admin', # Presunuli sme ho dole
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core'
 ]
 
 MIDDLEWARE = [
@@ -40,26 +40,36 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'platform_config.urls'
 
+# --- TEMPLATES (OPRAVENÁ JEDNA SEKCIA) ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        
+        # ✅ OPRAVA DIRS: Smeruje na hlavný templates/ priečinok
+        'DIRS': [BASE_DIR / 'templates'],
+        
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug', # Pridávam debug, pre istotu
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                
+                # Tvoj custom processor:
+                'core.context_processors.notifikacie_processor', 
             ],
         },
     },
 ]
+# --- KONIEC TEMPLATES ---
+
 
 WSGI_APPLICATION = 'platform_config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ... (zvyšok databázy) ...
 
 DATABASES = {
     'default': {
@@ -70,7 +80,7 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# ... (zvyšok password validation) ...
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -89,7 +99,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# ... (zvyšok i18n) ...
 
 LANGUAGE_CODE = 'en-us'
 
@@ -101,36 +111,21 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# Využívame os.path.join pre kompatibilitu so starším BASE_DIR, ak je to potrebné
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), 
+]
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 LOGIN_REDIRECT_URL = '/' 
-LOGOUT_REDIRECT_URL = '/' # Kam presmerovať po odhlásení
-LOGIN_URL = 'login' # Adresa pre prihlásenie
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'login'
 
-# platform_config/settings.py (Iba sekcia TEMPLATES)
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                
-                # 👇 TOTO JE SPRÁVNY NÁZOV (Prepíš to):
-                'core.context_processors.notifikacie_processor', 
-            ],
-        },
-    },
-]
+# Nastavenia pre e-mail resetu hesla
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'support@tvojaplatforma.sk'
