@@ -34,7 +34,7 @@
             
             <hr style="border-color: var(--color-border);">
             <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
-            <p style="font-size: 0.9em; color: var(--color-text-secondary);">
+            <p style="font-size: 0.9em; color: var(--color-text-main);">
                 {% for ucastnik in udalost.ucastnici.all %}
                     {{ ucastnik.nickname }}{% if not forloop.last %}, {% endif %}
                 {% empty %}
@@ -46,7 +46,7 @@
             
                 {% if user.profil in udalost.ucastnici.all %}
                     <br>
-                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-red); font-weight: bold; text-decoration: underline;">
+                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-reject); font-weight: bold; text-decoration: underline;">
                         ❌ Odhlásiť sa z udalosti
                     </a>
                 {% else %}

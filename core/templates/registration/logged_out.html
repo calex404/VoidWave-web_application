@@ -6,7 +6,7 @@
     <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
         <div style="background: var(--color-surface); padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 100%; max-width: 400px; color: var(--color-text-main);">
             
-            <h1 style="text-align: center; color: var(--color-text-main); margin-top: 0;">🔒 Prihlásiť sa</h1>
+            <h1 style="text-align: center; color: var(--color-text-main); margin-top: 0;"> Prihlásiť sa</h1>
 
             <form method="post" action="{% url 'login' %}"> 
                 {% csrf_token %}
@@ -21,7 +21,7 @@
             </form>
             
             <p style="text-align: center; margin-top: 15px; font-size: 0.9em;">
-                <a href="{% url 'password_reset' %}" style="color: var(--color-text-secondary); text-decoration: underline;">Zabudol/a si heslo?</a>
+                <a href="{% url 'password_reset' %}" style="color: var(--color-text-main); text-decoration: underline;">Zabudol/a si heslo?</a>
             </p>
             
             <hr style="border-color: var(--color-border); margin-top: 20px;">

@@ -10,7 +10,7 @@
         <div style="display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap;">
             
             <div style="flex: 1; min-width: 300px;">
-                <h2 style="color: var(--color-red); text-align: center; border-bottom: 2px solid var(--color-red); padding-bottom: 10px;">
+                <h2 style="color: var(--color-reject); text-align: center; border-bottom: 2px solid var(--color-reject); padding-bottom: 10px;">
                     📅 Denný
                 </h2>
                 <table style="width: 100%; border-collapse: collapse; margin-top: 15px; color: var(--color-text-main);">
@@ -29,7 +29,7 @@
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Dnes zatiaľ nič.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-main);">Dnes zatiaľ nič.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -55,7 +55,7 @@
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Tento týždeň ticho.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-main);">Tento týždeň ticho.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -81,7 +81,7 @@
                             <td style="padding: 8px; text-align: center;">{{ profil.score }}x</td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-secondary);">Mesiac bez akcií.</td></tr>
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:var(--color-text-main);">Mesiac bez akcií.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

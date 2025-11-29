@@ -17,7 +17,7 @@
                         {{ hra.nazov }}
                     </a>
                 </h2>
-                <p style="color: var(--color-text-secondary);">
+                <p style="color: var(--color-text-main);">
                     <strong>Žáner:</strong> {{ hra.zaner }}
                 </p>
                 <p style="color: var(--color-text-main);">
@@ -25,7 +25,7 @@
                 </p>
             </div>
         {% empty %}
-            <p style="color: var(--color-text-secondary); text-align: center;">
+            <p style="color: var(--color-text-main); text-align: center;">
                 V katalógu zatiaľ nie sú žiadne hry. Pridajte ich v Admin rozhraní!
             </p>
         {% endfor %}

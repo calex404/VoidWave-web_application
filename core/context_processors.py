@@ -35,10 +35,10 @@ def notifikacie_processor(request):
     videny_pocet = request.session.get('videny_pocet_notifikacii', 0)
     
     # Zobrazíme len rozdiel (ak pribudlo niečo nové)
-    badge_cislo = realny_pocet - videny_pocet
+    badge_num = realny_pocet - videny_pocet
     
     # Ak je výsledok záporný (napr. si niečo vymazala), ukážeme 0
-    if badge_cislo < 0:
-        badge_cislo = 0
+    if badge_num < 0:
+        badge_num = 0
 
-    return {'badge_cislo': badge_cislo}
+    return {'badge_num': badge_num}

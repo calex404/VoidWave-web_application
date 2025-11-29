@@ -15,7 +15,7 @@
 
         {% if hladame_priatelov %}
             <div style="margin-bottom: 20px;">
-                <a href="{% url 'profil_list' %}" style="text-decoration: none; color: var(--color-text-secondary);">← Späť na čistý zoznam</a>
+                <a href="{% url 'profil_list' %}" style="text-decoration: none; color: var(--color-text-main);">← Späť na čistý zoznam</a>
             </div>
         {% endif %}
 
@@ -37,7 +37,7 @@
 
             </div>
         {% empty %}
-            <p style="text-align: center; color: var(--color-text-secondary);">Žiadne profily.</p>
+            <p style="text-align: center; color: var(--color-text-main);">Žiadne profily.</p>
         {% endfor %}
 
     </div>

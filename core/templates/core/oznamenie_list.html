@@ -20,7 +20,7 @@
                         </span>
                         <div>
                             <a href="{% url 'accept_friend_request' ziadost.id %}" style="background-color: var(--color-success); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold; margin-right: 5px;">Prijať</a>
-                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="background-color: var(--color-red); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold;">Odmietnuť</a>
+                            <a href="{% url 'reject_friend_request' ziadost.id %}" style="background-color: var(--color-reject); color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-weight: bold;">Odmietnuť</a>
                         </div>
                     </div>
                 {% empty %}
@@ -36,7 +36,7 @@
                     <div style="padding: 10px 0; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between;">
                         <div style="color: var(--color-text-main);">
                             <strong>{{ ud.datum_konania|date:"H:i" }}</strong> – {{ ud.nazov }}
-                            <span style="font-size: 0.9em; color: var(--color-text-secondary);">({{ ud.hra.nazov }})</span>
+                            <span style="font-size: 0.9em; color: var(--color-text-main);">({{ ud.hra.nazov }})</span>
                         </div>
                         <a href="{% url 'hodnotenie_create' ud.id %}" style="color: var(--color-accent); text-decoration: underline;">Detail</a>
                     </div>
@@ -45,7 +45,7 @@
         {% endif %}
 
         {% if not ziadosti and not moje_urgentne %}
-            <div style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
+            <div style="text-align: center; padding: 40px; color: var(--color-text-main);">
                 <h3>✅ Všetko vybavené</h3>
                 <p>Momentálne ťa nečakajú žiadne urgentné akcie ani žiadosti.</p>
             </div>

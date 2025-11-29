@@ -8,7 +8,7 @@
         <div style="border-bottom: 2px solid var(--color-border); padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h1 style="margin: 0; color: var(--color-text-main);">{{ profil.nickname }}</h1>
-                <p style="color: var(--color-text-secondary); margin: 5px 0;">
+                <p style="color: var(--color-text-main); margin: 5px 0;">
                     Členom od: {{ profil.datum_registracie|date:"d.m.Y" }}
                     {% if profil.rola %} | Rola: <strong style="color: var(--color-accent);">{{ profil.rola.nazov_role }}</strong>{% endif %}
                 </p>
@@ -29,7 +29,7 @@
             <p style="color: var(--color-text-main);"><strong>Úroveň:</strong> {{ profil.uroven }}</p>
             <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 15px 0;">
             <p style="color: var(--color-text-main);"><strong>Bio:</strong></p>
-            <p style="font-style: italic; color: var(--color-text-secondary);">
+            <p style="font-style: italic; color: var(--color-text-main);">
                 {% if profil.bio %}{{ profil.bio }}{% else %}Bez popisu.{% endif %}
             </p>
         </div>
@@ -53,7 +53,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p style="color: var(--color-text-secondary); padding: 10px 0;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
+            <p style="color: var(--color-text-main); padding: 10px 0;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
         {% endif %}
 
     </div>

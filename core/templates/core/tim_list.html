@@ -13,7 +13,7 @@
                     </a>
                     <hr style="border-color: var(--color-border);">
                 {% else %}
-                     <p style="color: var(--color-red); font-weight: bold; margin-bottom: 20px;">
+                     <p style="color: var(--color-reject); font-weight: bold; margin-bottom: 20px;">
                          Nemôžeš založiť nový tím, pretože si už členom iného tímu.
                      </p>
                      <hr style="border-color: var(--color-border);">
@@ -27,11 +27,11 @@
             <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 20px; border-radius: 8px; background-color: var(--color-surface);">
                 <h2 style="color: var(--color-accent); margin-top: 0;">{{ tim.nazov }}</h2>
                 <p><strong>Úroveň tímu:</strong> {{ tim.uroven|default:"1" }}</p>
-                <p style="color: var(--color-text-secondary);">{{ tim.popis|default:"Bez popisu." }}</p>
+                <p style="color: var(--color-text-main);">{{ tim.popis|default:"Bez popisu." }}</p>
                 
                 <p><strong>Počet členov:</strong> {{ tim.clenovia.count }}/5</p>
                 
-                <p style="font-size: 0.9em; color: var(--color-text-secondary);">
+                <p style="font-size: 0.9em; color: var(--color-text-main);">
                     Členovia: 
                     {% for clen in tim.clenovia.all %}
                         <span style="font-weight: bold; color: var(--color-text-main);">{{ clen.nickname }}</span>{% if not forloop.last %}, {% endif %}
@@ -45,9 +45,9 @@
                             {% if tim in user.profil.tim_set.all %}
                                  <span style="color: var(--color-success); font-weight: bold;">✔ Už si členom tohto tímu</span>
                             {% elif user_is_member_of_any_team %}
-                                 <span style="color: var(--color-red); font-weight: bold;">❌ Si už v inom tíme.</span>
+                                 <span style="color: var(--color-reject); font-weight: bold;">❌ Si už v inom tíme.</span>
                             {% elif tim.clenovia.count >= 5 %}
-                                 <span style="color: var(--color-red); font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
+                                 <span style="color: var(--color-reject); font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
                             {% else %}
                                  <a href="{% url 'tim_join' tim.id %}" style="color: var(--color-link); text-decoration: underline;">
                                     👉 Pridať sa do tohto tímu
@@ -59,7 +59,7 @@
                 </div>
             </div>
         {% empty %}
-            <p style="color: var(--color-text-secondary);">Zatiaľ neboli založené žiadne tímy.</p>
+            <p style="color: var(--color-text-main);">Zatiaľ neboli založené žiadne tímy.</p>
         {% endfor %}
     </div>
 {% endblock content %}

@@ -12,7 +12,7 @@
             </a>
         </div>
 
-        <p style="color: var(--color-text-secondary); font-style: italic;">
+        <p style="color: var(--color-text-main); font-style: italic;">
             Tu nájdeš históriu všetkých zápasov a turnajov, ktoré už skončili.
         </p>
 
@@ -23,10 +23,10 @@
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: var(--color-accent);">
                             {{ udalost.nazov }} 
-                            <span style="font-size: 0.7em; background-color: var(--color-border); padding: 3px 6px; border-radius: 4px; vertical-align: middle; color: var(--color-text-secondary);">Skončené</span>
+                            <span style="font-size: 0.7em; background-color: var(--color-border); padding: 3px 6px; border-radius: 4px; vertical-align: middle; color: var(--color-text-main);">Skončené</span>
                         </h3>
                         
-                        <div style="color: var(--color-text-secondary); line-height: 1.6;">
+                        <div style="color: var(--color-text-main); line-height: 1.6;">
                             <strong>Hra:</strong> {{ udalost.hra.nazov }} <br>
                             <strong>Dátum:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }} <br>
                             <strong>Typ:</strong> {{ udalost.typ|capfirst }}
@@ -41,7 +41,7 @@
                 </div>
 
                 <div style="margin-top: 15px; border-top: 1px solid var(--color-border); padding-top: 10px;">
-                    <strong style="font-size: 0.9em; color: var(--color-text-secondary);">📝 Hodnotenia hráčov:</strong>
+                    <strong style="font-size: 0.9em; color: var(--color-text-main);">📝 Hodnotenia hráčov:</strong>
                     
                     <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
                         {% for recenzia in udalost.hodnotenie_set.all %}
@@ -50,7 +50,7 @@
                                 <span style="color: var(--color-accent); font-weight: bold;">{{ recenzia.hodnotenie }}/10</span>
                             </li>
                         {% empty %}
-                            <li style="color: var(--color-text-secondary); font-size: 0.8em; font-style: italic;">
+                            <li style="color: var(--color-text-main); font-size: 0.8em; font-style: italic;">
                                 Zatiaľ žiadne hodnotenia. Buď prvý!
                             </li>
                         {% endfor %}
@@ -59,7 +59,7 @@
 
             </div>
         {% empty %}
-            <div style="text-align: center; padding: 40px; color: var(--color-text-secondary); border: 2px dashed var(--color-border); border-radius: 8px;">
+            <div style="text-align: center; padding: 40px; color: var(--color-text-main); border: 2px dashed var(--color-border); border-radius: 8px;">
                 <h3>📭 Archív je prázdny</h3>
                 <p>Spusti simuláciu 'minulost' na vygenerovanie dát.</p>
             </div>

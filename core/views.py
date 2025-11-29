@@ -11,12 +11,40 @@ from django.utils import timezone
 # Konštanta pre maximálny počet členov tímu
 MAX_TEAM_SIZE = 5
 
-# --- ÚVOD A PROFILY ---
+# core/views.py
+from django.contrib.auth import login, authenticate # Uisti sa, že máš tieto importy
+from django.contrib.auth.forms import AuthenticationForm
+
+# core/views.py
 
 def home_view(request):
-    context = {}
-    if not request.user.is_authenticated:
-        context['form'] = AuthenticationForm()
+    """
+    Domovská stránka.
+    - Ak si odhlásená: Ukáže Login formulár.
+    - Ak si prihlásená: Ukáže 'Vitaj Calex' (a nepresmeruje ťa hneď preč).
+    """
+    
+    # TOTO SME VYHODILI:
+    # if request.user.is_authenticated:
+    #     return redirect('dashboard') 
+
+    form = AuthenticationForm()
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            
+            # ZMENA TU: Po prihlásení ostaň na 'home', aby si videla "Vitaj"
+            return redirect('home') 
+            
+        else:
+            messages.error(request, "Nesprávne meno alebo heslo.")
+
+    context = {
+        'form': form
+    }
     return render(request, 'core/home.html', context)
 
 # core/views.py
@@ -392,7 +420,7 @@ def register_view(request):
             messages.success(request, "Registrácia bola úspešná! Teraz sa môžeš prihlásiť.")
             
             # Presmerujeme na prihlasovaciu stránku
-            return redirect('login') 
+            return redirect('home') 
             
     else:
         form = CustomUserCreationForm()

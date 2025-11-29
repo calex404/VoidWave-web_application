@@ -13,8 +13,8 @@
             ⭐ Pridať Hodnotenie
         </h1>
         
-        <p style="color: var(--color-text-secondary);">Hodnotíš udalosť: <strong>{{ udalost.nazov }}</strong></p>
-        <p style="color: var(--color-text-secondary);">Táto udalosť sa konala dňa: {{ udalost.datum_konania|date:"d.m.Y H:i" }}.</p>
+        <p style="color: var(--color-text-main);">Hodnotíš udalosť: <strong>{{ udalost.nazov }}</strong></p>
+        <p style="color: var(--color-text-main);">Táto udalosť sa konala dňa: {{ udalost.datum_konania|date:"d.m.Y H:i" }}.</p>
         
         <form method="post" style="margin-top: 30px;">
             {% csrf_token %}
