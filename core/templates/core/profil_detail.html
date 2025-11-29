@@ -17,6 +17,9 @@
             border-bottom: 2px solid #eee;
             padding-bottom: 20px;
             margin-bottom: 20px;
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
         }
         .stats-box {
             background-color: #f8f9fa;
@@ -25,6 +28,26 @@
             border: 1px solid #ddd;
             margin-bottom: 20px;
         }
+        /* Tlačidlo pre majiteľa profilu (Na Dashboard) */
+        .btn-settings {
+            text-decoration: none;
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .btn-settings:hover { background-color: #5a6268; }
+        
+        /* Odkazy na priateľov v zozname */
+        .friend-link {
+            text-decoration: none;
+            font-weight: bold;
+            color: #6f42c1;
+            font-size: 1.1em;
+        }
+        .friend-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -34,11 +57,21 @@
     <div class="container">
 
         <div class="header-section">
-            <h1 style="margin: 0; color: #333;">{{ profil.nickname }}</h1>
-            <p style="color: #777; margin: 5px 0;">
-                Členom od: {{ profil.datum_registracie|date:"d.m.Y" }}
-                {% if profil.rola %} | Rola: <strong>{{ profil.rola.nazov_role }}</strong>{% endif %}
-            </p>
+            <div>
+                <h1 style="margin: 0; color: #333;">{{ profil.nickname }}</h1>
+                <p style="color: #777; margin: 5px 0;">
+                    Členom od: {{ profil.datum_registracie|date:"d.m.Y" }}
+                    {% if profil.rola %} | Rola: <strong>{{ profil.rola.nazov_role }}</strong>{% endif %}
+                </p>
+            </div>
+
+            {% if request.user.profil == profil %}
+                <div>
+                    <a href="{% url 'dashboard' %}" class="btn-settings">
+                        ⚙️ Spravovať profil
+                    </a>
+                </div>
+            {% endif %}
         </div>
 
         <div class="stats-box">
@@ -51,20 +84,26 @@
             </p>
         </div>
 
-        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">👥 Priatelia</h3>
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px;">👥 Priatelia</h3>
+        
         {% if priatelia %}
             <ul style="list-style: none; padding: 0;">
                 {% for p in priatelia %}
                     <li style="padding: 10px; border-bottom: 1px solid #eee;">
+                        
                         <a href="{% if p.profil1 == profil %}{% url 'profil_detail' p.profil2.id %}{% else %}{% url 'profil_detail' p.profil1.id %}{% endif %}" 
-                           style="text-decoration: none; font-weight: bold; color: #6f42c1;">
-                            {% if p.profil1 == profil %}{{ p.profil2.nickname }}{% else %}{{ p.profil1.nickname }}{% endif %}
+                           class="friend-link">
+                            {% if p.profil1 == profil %}
+                                {{ p.profil2.nickname }}
+                            {% else %}
+                                {{ p.profil1.nickname }}
+                            {% endif %}
                         </a>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p style="color: #777;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
+            <p style="color: #777; padding: 10px 0;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
         {% endif %}
 
     </div>

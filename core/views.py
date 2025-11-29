@@ -31,12 +31,35 @@ def profil_list_view(request):
     return render(request, 'core/profil_list.html', context)
 
 def find_priatelov_view(request):
-    """2. HĽADANIE (Zoznam s tlačidlami 'Pridať')"""
-    # Vylúčime seba zo zoznamu
-    profily = Profil.objects.exclude(user=request.user) 
+    """2. HĽADANIE (Zoznam s tlačidlami 'Pridať') - Vylučuje existujúcich priateľov."""
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    hladany_profil = request.user.profil
+    
+    # --- 1. Zostavíme zoznam ID priateľov a vlastného ID ---
+    
+    # Nájdi všetky POTVRDENÉ vzťahy, kde figuruje aktuálny profil
+    priatelia_vztahy = Priatelstvo.objects.filter(
+        Q(profil1=hladany_profil) | Q(profil2=hladany_profil),
+        stav='accepted'
+    )
+    
+    # Vytvoríme list ID na vylúčenie (vrátane vlastného ID)
+    priatelia_ids = [hladany_profil.id]
+    for vztah in priatelia_vztahy:
+        # Určíme, kto je ten druhý a pridáme ho do listu
+        if vztah.profil1 == hladany_profil:
+            priatelia_ids.append(vztah.profil2.id)
+        else:
+            priatelia_ids.append(vztah.profil1.id)
+            
+    # 2. Vylúčime priateľov a mňa zo zoznamu výsledkov
+    profily = Profil.objects.all().exclude(id__in=priatelia_ids)
+    
     context = {
         'profily': profily,
-        'hladame_priatelov': True   # <--- Tlačidlá viditeľné
+        'hladame_priatelov': True,  # Zobrazí tlačidlá v HTML
     }
     return render(request, 'core/profil_list.html', context)
 
@@ -47,35 +70,24 @@ def find_priatelov_view(request):
 def profil_detail_view(request, profil_id):
     profil = get_object_or_404(Profil, id=profil_id)
     
-    # Získame priateľov a žiadosti (logika ostáva)
-    priatelia = Priatelstvo.objects.filter(
-        Q(profil1=profil) | Q(profil2=profil),
-        stav='accepted'
+    # 1. Nájdi všetky vzťahy, kde figuruje tento profil (priatelia aj čakajúci)
+    vsetky_vztahy = Priatelstvo.objects.filter(
+        Q(profil1=profil) | Q(profil2=profil) 
     )
-    ziadosti = Priatelstvo.objects.filter(
-        profil2=profil,
-        stav='pending'
-    )
-
-    # Získanie notifikácií (Len ak pozerám SVOJ profil) 
-    oznamenia_list = []
-    if request.user.profil == profil:
-        # Načítame záznamy, zoradené podľa dátumu odoslania
-        odoslania = Odoslanie.objects.filter(prijemca=profil).order_by('-datum_odoslania') 
-        for o in odoslania:
-            oznamenia_list.append({
-                'oznamenie': o.oznamenie,
-                'datum_odoslania': o.datum_odoslania,
-                'datum_precitania': o.datum_precitania
-            })
+    
+    # 2. Vyfiltruj len tie, ktoré sú POTVRDENÉ
+    priatelia = vsetky_vztahy.filter(stav='accepted')
+    
+    # --- FINÁLNY DEBUG CHECK ---
+    print(f"\n--- ZOBRAZENIE PRIATEĽOV ---")
+    print(f"Hľadaný profil: {profil.nickname}")
+    print(f"NAŠLO V DB (prijatých): {priatelia.count()}")
+    print("---------------------------\n")
 
     context = {
         'profil': profil,
-        'priatelia': priatelia,
-        'ziadosti': ziadosti,
-        'oznamenia_list': oznamenia_list
+        'priatelia': priatelia, # Toto posielame do HTML
     }
-    # TOTO renderuje správnu šablónu s profilom
     return render(request, 'core/profil_detail.html', context)
 
 # 💥 CHÝBAJÚCA FUNKCIA: PROFIL EDIT VIEW (Pridaná) 💥
@@ -147,30 +159,37 @@ def send_friend_request(request, profil_id):
     return redirect('find_priatelov')
 
 def accept_friend_request(request, request_id):
-    """Bezpečné prijatie žiadosti."""
+    """Prijme žiadosť, vytvorí/opraví Priateľstvo a zmaže notifikáciu."""
     if not request.user.is_authenticated: return redirect('login')
     
     ziadost = get_object_or_404(FriendRequest, id=request_id)
     
     if ziadost.pre_koho == request.user.profil:
         
-        # 1. Zoraď profily podľa ID (menšie ID bude vždy profil1)
-        # Toto zabráni duplicitám typu A-B vs B-A
+        # 1. Zoraď profily podľa ID, aby sme našli existujúci záznam v Priatelstvo
         p1, p2 = sorted([ziadost.od_koho, ziadost.pre_koho], key=lambda x: x.id)
         
-        # 2. Skúsime vytvoriť priateľstvo (ak už existuje, nič sa nestane)
-        # Používame filter() a exists(), aby sme predišli IntegrityError
-        if not Priatelstvo.objects.filter(profil1=p1, profil2=p2).exists():
-            Priatelstvo.objects.create(profil1=p1, profil2=p2, stav='accepted')
+        # 2. Nájdeme alebo vytvoríme záznam v Priatelstvo a nastavíme ho na 'accepted'
         
-        # 3. Zmažeme žiadosť
+        # AK už existuje pending záznam (čo by sa nemalo stať, ale pre istotu)
+        priatelstvo_obj, created = Priatelstvo.objects.get_or_create(
+            profil1=p1, 
+            profil2=p2, 
+            # defaults sa použije len pri created=True
+            defaults={'stav': 'accepted'} 
+        )
+        
+        # AK bol nájdený (created=False), alebo AK bol práve vytvorený a má stav 'pending', aktualizujeme ho
+        if priatelstvo_obj.stav != 'accepted':
+             priatelstvo_obj.stav = 'accepted'
+             priatelstvo_obj.save()
+        
+        # 3. Zmažeme žiadosť (notifikáciu)
         ziadost.delete()
 
         messages.success(request, f"Teraz si priateľ s {ziadost.od_koho.nickname}!")
 
-    return redirect('oznamenie_list')
-
-    # Vrátime sa do Oznámení (kde sme klikli na tlačidlo)
+    # Vrátime sa do Oznámení
     return redirect('oznamenie_list')
 
 def reject_friend_request(request, request_id):
@@ -355,16 +374,31 @@ def oznamenie_list_view(request):
     }
     return render(request, 'core/oznamenie_list.html', context)
 
+from django.contrib.auth import login # <--- Pridaj tento import hore!
+
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save() 
+            user = form.save()
+            
+            # Vytvoríme profil (aby nevznikla chyba neskôr)
+            Profil.objects.get_or_create(user=user, defaults={'nickname': user.username})
+            
+            # --- ZMENA TU ---
+            # Vyhodili sme login(request, user) -> užívateľ sa neprihlási sám
+            
+            # Pridáme správu pre užívateľa (voliteľné, ale fajn)
+            messages.success(request, "Registrácia bola úspešná! Teraz sa môžeš prihlásiť.")
+            
+            # Presmerujeme na prihlasovaciu stránku
             return redirect('login') 
-    else: form = CustomUserCreationForm()
-    context = { 'form': form, 'nadpis': 'Registrácia nového používateľa', }
+            
+    else:
+        form = CustomUserCreationForm()
+        
+    context = { 'form': form, 'nadpis': 'Registrácia nového používateľa' }
     return render(request, 'registration/register.html', context)
-
 # core/views.py (Pridaj k ostatným View funkciám)
 
 # core/views.py (Pridaj TÚTO FUNKCIU k ostatným View funkciám)

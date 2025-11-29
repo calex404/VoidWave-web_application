@@ -1,47 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
+    <meta charset="UTF-8">
     <title>Registrácia</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        .errorlist { color: red; list-style: none; padding: 0; font-size: 0.9em; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
-    <h1>Registrácia nového používateľa</h1>
 
-    {% if form.errors %}
-        <div style="border: 2px solid red; padding: 10px; margin-bottom: 15px; background-color: #fdd;">
-            <p style="color: black; font-weight: bold;">Registrácia zlyhala. Skontrolujte nasledovné chyby:</p>
-            {{ form.non_field_errors }} 
-        </div>
-    {% endif %}
+    <div class="box">
+        <h2>📝 Registrácia</h2>
 
-    <form method="post" action="{% url 'user_register' %}"> 
-        {% csrf_token %}
-        
-        {{ form.as_p }}
-        
-        <input type="checkbox" id="show-password-register"> 
-        <label for="show-password-register">Zobraziť heslá</label>
-        <br>
-        
-        <button type="submit">Zaregistrovať sa</button>
-    </form>
-    
-    <hr>
-    <p>Už máš účet? <a href="{% url 'login' %}">Prihlás sa</a></p>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('show-password-register');
-            const passwordField1 = document.getElementById('id_password1'); // Default ID
-            const passwordField2 = document.getElementById('id_password2'); // Default ID
+        <form method="post">
+            {% csrf_token %}
             
-            if (checkbox && passwordField1 && passwordField2) {
-                checkbox.addEventListener('change', function() {
-                    const newType = checkbox.checked ? 'text' : 'password';
-                    passwordField1.type = newType;
-                    passwordField2.type = newType;
-                });
-            }
-        });
-    </script>
+            {% if form.errors %}
+                <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <p style="margin: 0; font-weight: bold;">Chyba pri registrácii:</p>
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: bold; font-size: 0.9em;">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: red; font-size: 0.8em; margin-top: 5px;">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">Zaregistrovať sa</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.9em;">
+            Už máš účet? <a href="{% url 'login' %}" style="color: #007bff;">Prihlás sa tu</a>
+        </p>
+    </div>
+
 </body>
 </html>
