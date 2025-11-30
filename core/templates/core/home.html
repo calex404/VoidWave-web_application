@@ -28,6 +28,7 @@
     {% else %}
 
         <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+           
             <div style="max-width: 400px; width: 100%; padding: 40px; background: var(--color-surface); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0); border: 1px solid var(--color-border);">
                 
                 <h2 style="color: var(--color-orange); text-align: center; margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; margin-bottom: 20px;">
@@ -38,7 +39,7 @@
                     {% csrf_token %}
                     
                     {% if form.errors %}
-                        <div style="background-color: var(--color-reject); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+                        <div style="background-color: var(--color-reject); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 1em; text-align: center;">
                             ⚠️ Nesprávne meno alebo heslo.
                         </div>
                     {% endif %}

@@ -1,25 +1,14 @@
-/* ---------------------------------------------------- */
-/* 1. DEFINÍCIA FARIEB (DARK MODE - FIALOVÁ EDÍCIA)     */
-/* ---------------------------------------------------- */
 :root {
     --color-background: #1e1e1e;
     --color-surface: rgba(45, 45, 48, 0.90); 
     --color-text-main: #aaaaaa;  
     --color-gray: #6c757d;       
-    --color-border: #444444;  
-       
-    /* Tvoja nová hlavná farba */
-    --color-purple: #b049d8; /* Fialová */    
+    --color-border: #444444;     
     --color-orange:#e9703c; 
-    --color-link: #a14ac3;   /* Odkazy budú tiež fialové */
-    
+    --color-orange-link:#c2582b;   
     --color-reject: #901e1e;        
     --color-success: #3eeb75;    
 }
-
-/* ---------------------------------------------------- */
-/* 2. GLOBÁLNE TELO A VIDEO POZADIE (OREZANÉ)           */
-/* ---------------------------------------------------- */
 
 body {
     background-color: var(--color-background);
@@ -30,23 +19,18 @@ body {
     overflow-x: hidden;
 }
 
-/* TOTO JE TO NASTAVENIE, ČO SA TI PÁČILO (OREZANÝ SPODOK) */
 #video-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    /* 140% výška spôsobí, že rýchly spodok videa bude pod obrazovkou */
     height: 140vh; 
     object-fit: cover;
-    object-position: top center; /* Ukáže vrch videa */
+    object-position: top center; 
     z-index: -100;
     filter: brightness(40%) contrast(1.1); 
 }
 
-/* ---------------------------------------------------- */
-/* 3. NAVIGÁCIA (GLASS EFFECT)                          */
-/* ---------------------------------------------------- */
 
 .nav_bar {
     background-color: rgba(20, 20, 20, 0.75) !important; 
@@ -70,11 +54,10 @@ body {
     box-sizing: border-box;
 }
 
-/* ODKAZY V NAVBARE */
 .nav_bar-brand a {
     font-size: 1.3em;
     font-weight: 800;
-    color: var(--color-accent); /* Fialové logo */
+    color: var(--color-accent); 
     text-transform: uppercase;
     letter-spacing: 1px;
     text-decoration: none;
@@ -96,7 +79,7 @@ body {
 
 .nav_bar-links a:hover {
     color: var(--color-text-main);
-    text-shadow: 0 0 8px var(--color-accent); /* Fialová žiara */
+    text-shadow: 0 0 8px var(--color-accent);
 }
 
 .nav_bar-user {
@@ -127,7 +110,6 @@ body {
     color: white;
 }
 
-/* Zvonček */
 .bell-icon {
     font-size: 1.2em;
     position: relative;
@@ -147,10 +129,6 @@ body {
     border-radius: 50%;
 }
 
-/* ---------------------------------------------------- */
-/* 4. BOXY A INPUTY                                     */
-/* ---------------------------------------------------- */
-
 .container, .stats-box, .box {
     background-color: var(--color-surface) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
@@ -160,16 +138,15 @@ body {
     border-radius: 8px !important;
 }
 
-/* Inputy natiahnuté na 100% šírky */
 input[type="text"], textarea, input[type="password"], select, input[type="email"] {
     background-color: rgba(0, 0, 0, 0.3) !important; 
     color: white !important;
     border: 1px solid var(--color-border) !important;
     padding: 5px;
     border-radius: 4px;
-    width: 100%; /* Toto ti roztiahne políčka */
+    width: 100%; 
     box-sizing: border-box;
 }
 
-a { color: var(--color-link); text-decoration: none; }
+a { color: var(--color-link-orange); text-decoration: none; }
 hr { border-color: rgba(255, 255, 255, 0.1) !important; }

@@ -1,7 +1,7 @@
 from django.contrib import admin
-
-from .models import Rola, Profil, Priatelstvo, Hra, Rebricek, Tim, Umiestnenie, Udalost, Hodnotenie, Oznamenie, Odoslanie
-
+from .models import (
+    Rola, Profil, Priatelstvo, Hra, Rebricek, Tim, Umiestnenie, Udalost, Hodnotenie, Oznamenie, Odoslanie
+)
 
 admin.site.register(Rola)
 admin.site.register(Profil)

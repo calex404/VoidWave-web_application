@@ -8,46 +8,62 @@
 
 
 {% block content %}
-   <div style="display: flex; justify-content: center; min-height: 20vh; padding-top: 10px;">
+
+    <div style="display: flex; justify-content: center; align-items: center; max-height: 80vh; padding: 20px;">
         
-        <div style="max-width: 400px; width: 100%; padding: 40px; background-color: #252526; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0, 0.8); border: 1px solid var(--color-border);">
-            
-            <h2 style="text-align: center; color: var(--color-success); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; margin-bottom: 20px;">
-                📝 Registrácia
+        <div style="max-width: 400px; width: 100%; padding: 40px; background-color: var(--color-surface); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0); border: 1px solid var(--color-border);">
+
+            <h2 style="text-align: center; color: var(--color-orange); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; margin-bottom: 15px;">
+                Registrácia
             </h2>
 
-            <form method="post">
+<form method="post">
                 {% csrf_token %}
-                
+
                 {% if form.errors %}
-                    <div style="background-color: var(--color-red); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-                        <p style="margin: 0; font-weight: bold;">Chyba pri registrácii:</p>
-                        {{ form.non_field_errors }}
+                    <div style="background-color: var(--color-reject); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 1em; text-align: center;">
+                        <p style="margin: 0; font-weight: bold;">⚠️ Chyba v údajoch.</p>
                     </div>
                 {% endif %}
 
-                {% for field in form %}
-                    <div style="margin-bottom: 15px;">
-                        <label style="font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 5px; color: var(--color-text-main);">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div style="color: var(--color-red); font-size: 0.8em; margin-top: 5px;">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Meno:</label>
+                    {{ form.username }}
+                </div>
 
-                <button type="submit" style="width: 100%; padding: 12px; background-color: var(--color-success); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1em;">
-                    Zaregistrovať sa
-                </button>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Email:</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Prezývka:</label>
+                    {{ form.nickname }}
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="field-label" style="display: block; >color: var(--color-text-main); margin-bottom: 5px;">
+                        Popis: <span style="font-weight:normal; font-size:0.8em; color: var(--color-gray);">(max 100 slov)</span>
+                    </label>
+                    {{ form.bio }}
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Heslo:</label>
+                    {{ form.password1 }} 
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Potvrdenie hesla:</label>
+                    {{ form.password2 }}
+                </div>
+
+                    <button type="submit" style="width: 100%; padding: 12px; background-color: var(--color-orange); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1em;">
+                        Zaregistrovať sa
+                    </button>
             </form>
 
-            <hr style="border-color: var(--color-border); margin: 25px 0;">
-
-            <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: var(--color-text-main);">
-                Už máš účet? <a href="{% url 'login' %}" style="color: var(--color-link); font-weight: bold;">Prihlás sa tu</a>
-            </p>
         </div>
     </div>
+
 {% endblock content %}

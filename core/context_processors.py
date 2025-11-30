@@ -1,44 +1,44 @@
-from django.utils import timezone
 from datetime import timedelta
-from .models import Udalost, FriendRequest
+from django.utils import timezone
+from .models import Udalost, FriendRequest, Profil 
+
 
 def notifikacie_processor(request):
     """
-    Počíta LEN nové (nevidené) notifikácie.
+    Vypočítava počet NOVÝCH (nezhliadnutých) notifikácií pre červený odznak.
+    
+    Obsah badge count: Žiadosti o priateľstvo + Urgentné udalosti (do 24h).
     """
-    realny_pocet = 0
+    
+    realny_pocet_aktualny = 0
     
     if request.user.is_authenticated:
         try:
             profil = getattr(request.user, 'profil', None)
+            
             if profil:
-                # 1. Žiadosti o priateľstvo
-                ziadosti = FriendRequest.objects.filter(pre_koho=profil).count()
+                ziadosti_count = FriendRequest.objects.filter(pre_koho=profil).count()
                 
-                # 2. Udalosti (LEN tie, kde som prihlásený a sú do 24h)
                 now = timezone.now()
-                limit = now + timedelta(days=1)
+                limit_den = now + timedelta(days=1)
                 
-                urgentne = Udalost.objects.filter(
-                    ucastnici=profil,       # <--- Len moje
+                urgentne_count = Udalost.objects.filter(
+                    ucastnici=profil,       
                     datum_konania__gt=now, 
-                    datum_konania__lte=limit
+                    datum_konania__lte=limit_den
                 ).count()
                 
-                realny_pocet = ziadosti + urgentne
-                
+                realny_pocet_aktualny = ziadosti_count + urgentne_count
+            
         except Exception:
-            realny_pocet = 0
+            realny_pocet_aktualny = 0
 
-    # LOGIKA PRE ZMIZNUTIE ČÍSLA:
-    # Načítame zo session, koľko sme videli naposledy
+
     videny_pocet = request.session.get('videny_pocet_notifikacii', 0)
     
-    # Zobrazíme len rozdiel (ak pribudlo niečo nové)
-    badge_num = realny_pocet - videny_pocet
+    badge_cislo = realny_pocet_aktualny - videny_pocet
     
-    # Ak je výsledok záporný (napr. si niečo vymazala), ukážeme 0
-    if badge_num < 0:
-        badge_num = 0
+    if badge_cislo < 0:
+        badge_cislo = 0
 
-    return {'badge_num': badge_num}
+    return {'badge_cislo': badge_cislo}
