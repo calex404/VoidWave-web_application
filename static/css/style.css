@@ -1,13 +1,21 @@
+/* core/static/core/style.css */
+
 :root {
+    /* 💥 TOTO JE KĽÚČOVÁ OPRAVA PRE FIREFOX A CHROME 💥 */
+    /* Povie prehliadaču, aby vykresľoval systémové prvky (dropdowny, scrollbary) tmavé */
+    color-scheme: dark; 
+
     --color-background: #1e1e1e;
     --color-surface: rgba(45, 45, 48, 0.90); 
     --color-text-main: #aaaaaa;  
     --color-gray: #6c757d;       
     --color-border: #444444;     
-    --color-orange:#e9703c; 
-    --color-orange-link:#c2582b;   
+    --color-orange: #e9703c; 
+    --color-orange-link: #c2582b;   
     --color-reject: #901e1e;        
-    --color-success: #34d668;    
+    --color-success: #34d668; 
+    /* Doplnená premenná, ktorú používaš v navbare, ale chýbala v definícii */
+    --color-accent: #e9703c;    
 }
 
 body {
@@ -31,7 +39,7 @@ body {
     filter: brightness(40%) contrast(1.1); 
 }
 
-
+/* --- NAVBAR --- */
 .nav_bar {
     background-color: rgba(20, 20, 20, 0.75) !important; 
     backdrop-filter: blur(10px); 
@@ -129,6 +137,7 @@ body {
     border-radius: 50%;
 }
 
+/* --- KONTAJNERY --- */
 .container, .stats-box, .box {
     background-color: var(--color-surface) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
@@ -138,6 +147,7 @@ body {
     border-radius: 8px !important;
 }
 
+/* --- FORMULÁROVÉ PRVKY --- */
 input[type="text"], textarea, input[type="password"], select, input[type="email"] {
     background-color: rgba(0, 0, 0, 0.3) !important; 
     color: white !important;
@@ -148,5 +158,29 @@ input[type="text"], textarea, input[type="password"], select, input[type="email"
     box-sizing: border-box;
 }
 
-a { color: var(--color-link-orange); text-decoration: none; }
+input[type="datetime-local"] {
+    background-color: rgba(0, 0, 0, 0.3) !important; 
+    color: white !important;
+    border: 1px solid var(--color-border) !important;
+    padding: 5px;
+    border-radius: 4px;
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+/* Inverzia ikonky kalendára (Chrome/Edge) */
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+/* 💥 FIX PRE DROPDOWN MENU (MOŽNOSTI) 💥 */
+/* Zabezpečí, že po rozkliknutí budú možnosti tmavé */
+select option {
+    background-color: #1e1e1e;
+    color: #aaaaaa;
+}
+
+/* --- OSTATNÉ --- */
+a { color: var(--color-orange-link); text-decoration: none; }
 hr { border-color: rgba(255, 255, 255, 0.1) !important; }
