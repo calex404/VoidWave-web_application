@@ -263,8 +263,6 @@ def udalost_list_view(request):
     return render(request, 'core/udalost_list.html', {'udalosti': udalosti})
 
 
-# core/views.py (Nahraď funkciu udalost_archiv_view)
-
 def udalost_archiv_view(request):
     from django.db.models import Avg 
     from datetime import datetime
@@ -276,25 +274,22 @@ def udalost_archiv_view(request):
     current_profil = request.user.profil if request.user.is_authenticated else None
     
     for udalost in archiv_udalosti:
-        # 1. Načítanie všetkých hodnotení
         vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
         
-        # Výpočet priemeru (ak sú hodnotenia)
         if vsetky_hodnotenia.exists():
             priemer = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))['hodnotenie__avg']
             priemer_hodnotou = round(priemer, 2)
         else:
             priemer_hodnotou = None
         
-        # 2. 💥 KONTROLA: Už som hodnotil? 💥
         uz_som_hodnotil = False
         if current_profil:
-             # Toto vráti True, ak už existuje záznam v DB
+
              uz_som_hodnotil = Hodnotenie.objects.filter(profil=current_profil, udalost=udalost).exists()
         
         udalosti_s_hodnotenim.append({
             'udalost': udalost,
-            'uz_som_hodnotil': uz_som_hodnotil, # Posielame True/False do šablóny
+            'uz_som_hodnotil': uz_som_hodnotil, 
             'priemer': priemer_hodnotou, 
             'vsetky_hodnotenia': vsetky_hodnotenia,
         })
@@ -383,10 +378,18 @@ def tim_list_view(request):
     return render(request, 'core/tim_list.html', context)
 
 
+def tim_list_view(request):
+    vsetky_timy = Tim.objects.all()
+    context = {'timy': vsetky_timy}
+    return render(request, 'core/tim_list.html', context)
+
 def tim_create_view(request):
-    """Vytvorenie nového tímu."""
     if not request.user.is_authenticated: return redirect('login')
-    if Tim.objects.filter(clenovia=request.user.profil).exists(): return redirect('tim_list') 
+
+    if not request.user.is_superuser:
+        if Tim.objects.filter(clenovia=request.user.profil).exists():
+            messages.warning(request, "Nemôžeš založiť nový tím, pretože už si členom iného.")
+            return redirect('tim_list') 
 
     if request.method == 'POST':
         form = TimForm(request.POST)
@@ -394,21 +397,40 @@ def tim_create_view(request):
             novy_tim = form.save()
             novy_tim.clenovia.add(request.user.profil)
             novy_tim.save()
+            messages.success(request, "Tím bol úspešne vytvorený!")
             return redirect('tim_list')
-    else: form = TimForm()
+    else:
+        form = TimForm()
 
     context = { 'form': form, 'nadpis': 'Založiť nový tím' }
     return render(request, 'core/tim_form.html', context)
 
-
 def tim_join_view(request, tim_id):
-    """Pripojenie sa k tímu."""
     if not request.user.is_authenticated: return redirect('login')
     tim = get_object_or_404(Tim, id=tim_id)
     profil = request.user.profil
-    if Tim.objects.filter(clenovia=profil).exists(): return redirect('tim_list') 
-    if tim.clenovia.count() >= MAX_TEAM_SIZE: return redirect('tim_list') 
+    
+    if not request.user.is_superuser and Tim.objects.filter(clenovia=profil).exists():
+        messages.warning(request, "Nemôžeš sa pridať do iného tímu, kým si členom svojho súčasného.")
+        return redirect('tim_list') 
+        
+    if tim.clenovia.count() >= MAX_TEAM_SIZE:
+        messages.error(request, "Tento tím je už plný.")
+        return redirect('tim_list') 
+    
     tim.clenovia.add(profil)
+    messages.success(request, f"Vitaj v tíme {tim.nazov}!")
+    return redirect('tim_list')
+
+def tim_leave_view(request, tim_id):
+    if not request.user.is_authenticated: return redirect('login')
+    tim = get_object_or_404(Tim, id=tim_id)
+    profil = request.user.profil
+    
+    if tim.clenovia.filter(id=profil.id).exists():
+        tim.clenovia.remove(profil)
+        messages.success(request, f"Opustil/a si tím {tim.nazov}.")
+    
     return redirect('tim_list')
 
 

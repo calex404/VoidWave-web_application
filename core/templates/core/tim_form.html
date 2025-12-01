@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Založiť Tím{% endblock %}
+{% block title %}Založiť tím{% endblock %}
 
 {% block content %}
     <div style="max-width: 600px; margin: 30px auto; padding: 25px; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        <h1 style="color: var(--color-text-main); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 15px;">
-            🛡️ Založiť nový tím
+        <h1 style="color: var(--color-text-main); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 15px; font-size: 1.8em">
+            Založiť nový tím
         </h1>
 
         <form method="post">
@@ -16,14 +16,10 @@
                 {{ form.as_p }}
             </div>
             
-            <button type="submit" style="background-color: var(--color-link); color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px;">
+            <button type="submit" style="background-color: var(--color-success); color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px; font-weight: bold">
                 Vytvoriť tím
             </button>
         </form>
         
-        <br>
-        <a href="{% url 'tim_list' %}" style="color: var(--color-link); text-decoration: none;">
-            ← Späť na zoznam tímov
-        </a>
     </div>
 {% endblock content %}

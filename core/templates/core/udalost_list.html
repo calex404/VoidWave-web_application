@@ -1,80 +1,77 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 
 {% block title %}Zoznam Udalostí{% endblock %}
 
 {% block content %}
-
-<div style="max-width: 900px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-
-        {% if user.is_authenticated %}
-            {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
-                <p onclick="window.location.href='{% url 'udalost_create' %}'"
-                   style="display: inline-block; padding: 10px 15px; background-color: var(--color-success); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    + Vytvoriť novú udalosť
-                </p>
-            {% endif %}
-        {% endif %}
+    <div style="max-width: 900px; margin: 30px auto; padding: 25px; background-color: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        {% if user.is_authenticated %}
-            <p onclick="window.location.href='{% url 'udalost_archiv' %}'"
-               style="display: inline-block; padding: 10px 15px; background-color: var(--color-orange); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                Archív starých udalostí →
-            </p>
-        {% endif %}
+        <h1 style="color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; font-size:1.8em">
+            📅 Aktuálne udalosti
+        </h1>
 
-    </div>
-
-    <h1 style="color: var(--color-text-main); margin-bottom: 25px; border-bottom: 2px solid var(--color-border); padding-bottom: 12px; font-size: 1.8em">
-        📅 Aktuálne udalosti
-    </h1>
-
-
-    {% for udalost in udalosti %}
-        <div style="border: 1px solid var(--color-border); padding: 20px; margin-bottom: 20px; background-color: var(--color-surface); border-radius: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             
-            <h2 style="margin-top: 0; color: var(--color-orange);">
-                {{ udalost.nazov }}
-            </h2>
-
-            <p><strong>Typ:</strong> {{ udalost.get_typ_display }}</p>
-            <p><strong>Dátum a čas konania:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}</p>
-
-            <hr style="border-color: var(--color-border); margin: 15px 0;">
-
-            <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
-            <p style="font-size: 0.9em; color: var(--color-text-main);">
-                {% for ucastnik in udalost.ucastnici.all %}
-                    {{ ucastnik.nickname }}{% if not forloop.last %}, {% endif %}
-                {% empty %}
-                    Zatiaľ nikto.
-                {% endfor %}
-            </p>
-
             {% if user.is_authenticated %}
-                
-                {% if user.profil in udalost.ucastnici.all %}
-                    <br>
-                    <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-reject); font-weight: bold; text-decoration: underline;">
-                        ❌ Odhlásiť sa z udalosti
-                    </a>
-                {% else %}
-                    <br>
-                    <a href="{% url 'udalost_join' udalost.id %}" style="color: var(--color-success); font-weight: bold; text-decoration: underline;">
-                        👉 Chcem sa zúčastniť!
+                {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
+                    <a href="{% url 'udalost_create' %}" style="display: inline-block; padding: 10px 15px; background-color: var(--color-orange-link); color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                        + Vytvoriť novú udalosť
                     </a>
                 {% endif %}
-            
             {% endif %}
-
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'udalost_archiv' %}" style="display: inline-block; padding: 10px 15px; background-color: var(--color-border); color: var(--color-text-main); text-decoration: none; border-radius: 4px; font-weight: bold;">
+                    Archív starých udalostí →
+                </a>
+            {% endif %}
         </div>
-    {% empty %}
-        <p style="color: var(--color-text-main); text-align: center;">
-            V zozname nie sú moment=alne žiadne plánované udalosti.
-        </p>
-    {% endfor %}
+        
+        <hr style="border-top: 1px solid var(--color-border);"> 
+        
+        {% for udalost in udalosti %}
+            <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 15px; border-radius: 4px; background-color: var(--color-surface);">
+                
+                <h2 style="margin-top: 0; margin-bottom: 10px;">
+                    <span style="color: var(--color-orange-link);">
+                        {{ udalost.nazov }}
+                    </span>
+                </h2>
+                
+                <p style="font-size: 0.9em; color: var(--color-text-main);">
+                    <strong>Typ:</strong> {{ udalost.get_typ_display }} | 
+                    <strong>Dátum:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}
+                </p>
 
-</div>
+                <hr style="margin: 10px 0; border-color: var(--color-border);">
+                
+                <p style="color: var(--color-text-main);"><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
+                <p style="font-size: 0.9em; color: var(--color-text-secondary);">
+                    {% for ucastnik in udalost.ucastnici.all %}
+                        {{ ucastnik.nickname }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        Zatiaľ nikto.
+                    {% endfor %}
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div style="margin-top: 15px; text-align: right;">
+                        {% if user.profil in udalost.ucastnici.all %}
+                            <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-reject); font-weight: bold; text-decoration: none;">
+                                ❌ Odhlásiť sa z udalosti
+                            </a>
+                        {% else %}
+                            <a href="{% url 'udalost_join' udalost.id %}" style="color: var(--color-success); font-weight: bold; text-decoration: none;">
+                                👉 Chcem sa zúčastniť!
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p style="color: var(--color-text-main); text-align: center;">
+                V zozname sú len budúce udalosti. Žiadne aktívne udalosti nenájdete.
+            </p>
+        {% endfor %}
 
+    </div>
 {% endblock content %}

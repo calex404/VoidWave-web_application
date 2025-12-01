@@ -28,9 +28,6 @@ class Command(BaseCommand):
 
         now = timezone.now()
         
-        # ---------------------------------------------------------
-        # 2. GENERÁCIA MINULOSTI (Archív)
-        # ---------------------------------------------------------
         self.stdout.write('\n--- GENERUJEM MINULOSŤ (Archív) ---')
         for i in range(5): 
             dni_dozadu = random.randint(1, 30)
@@ -42,15 +39,12 @@ class Command(BaseCommand):
 
             self.vytvor_udalost(final_datum, hry, profily)
 
-        # ---------------------------------------------------------
-        # 3. GENERÁCIA BUDÚCNOSTI (Aktuálne)
-        # ---------------------------------------------------------
         self.stdout.write('\n--- GENERUJEM BUDÚCNOSŤ (Aktuálne) ---')
         for i in range(5):
             dni_dopredu = random.randint(1, 30)
             den_udalosti = now + timedelta(days=dni_dopredu)
             
-            # Čas
+
             final_datum = den_udalosti.replace(hour=random.randint(10, 23), minute=0, second=0)
 
             self.vytvor_udalost(final_datum, hry, profily)
@@ -66,8 +60,6 @@ class Command(BaseCommand):
         typ_eventu = random.choice(['match', 'tournament', 'raid', 'duel'])
         male_cislo = random.randint(1, 99)
         
-        # 💥 FINÁLNY ČISTÝ NÁZOV: [SKRATKA] #Číslo 💥
-        # Napr. [FAC] #42
         cisty_nazov = f"[{hra.nazov[:3].upper()}] #{male_cislo}"
 
         nova_udalost = Udalost.objects.create(
@@ -79,7 +71,6 @@ class Command(BaseCommand):
             hra=hra
         )
 
-        # Pridanie účastníkov
         pocet_ludi = random.randint(2, min(5, len(profily)))
         ucastnici = random.sample(profily, k=pocet_ludi)
         for p in ucastnici:

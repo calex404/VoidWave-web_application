@@ -2,75 +2,88 @@
 
 {% block title %}Zoznam Tímov{% endblock %}
 
-
 {% block content %}
     <div style="max-width: 900px; margin: 30px auto; padding: 25px; background-color: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-{% if user.is_authenticated %}
-    {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
-        {% if not user_is_member_of_any_team %}
-            <p onclick="window.location.href='{% url 'tim_create' %}'"
-               style="display: inline-block; 
-                      margin-bottom: 20px; 
-                      padding: 10px 15px; 
-                      background-color: var(--color-success); 
-                      color: var(--color-text-main); 
-                      text-decoration: none; 
-                      border-radius: 5px; 
-                      font-weight: bold; 
-                      cursor: pointer;">
-                + Založiť vlastný tím
-            </p>
-
-                    <hr style="border-color: var(--color-border);">
-                {% else %}
-                     <p style="color: var(--color-reject); font-weight: bold; margin-bottom: 20px;">
-                         Nemôžeš založiť nový tím, pretože si už členom iného tímu.
-                     </p>
-                     <hr style="border-color: var(--color-border);">
-                {% endif %}
-            {% endwith %}
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; font-weight: bold; color: white;
+                            border: 1px solid rgba(255,255,255,0.1);
+                            background-color: {% if message.tags == 'error' or message.tags == 'warning' %}rgba(220, 53, 69, 0.8){% else %}rgba(40, 167, 69, 0.8){% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
-        
+
         <h1 style="color: var(--color-text-main); margin-bottom: 30px;">🛡️ Herné Tímy</h1>
-        
-        {% for tim in timy %}
-            <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 20px; border-radius: 8px; background-color: var(--color-surface);">
-                <h2 style="color: var(--color-accent); margin-top: 0;">{{ tim.nazov }}</h2>
-                <p><strong>Úroveň tímu:</strong> {{ tim.uroven|default:"1" }}</p>
-                <p style="color: var(--color-text-main);">{{ tim.popis|default:"Bez popisu." }}</p>
+
+        {% if user.is_authenticated %}
+            {% with user_is_member_of_any_team=user.profil.timy_clenom_je.exists %}
                 
-                <p><strong>Počet členov:</strong> {{ tim.clenovia.count }}/5</p>
+                {% if not user_is_member_of_any_team or user.is_superuser %}
+                    <p onclick="window.location.href='{% url 'tim_create' %}'"
+                       style="display: inline-block; margin-bottom: 20px; padding: 10px 15px; 
+                              background-color: var(--color-success); color: white; text-decoration: none; 
+                              border-radius: 5px; font-weight: bold; cursor: pointer;">
+                        + Založiť vlastný tím
+                    </p>
+                {% else %}
+                     <div style="background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--color-reject); padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                        <p style="color: var(--color-reject); margin: 0;">
+                            ℹ️ Už si členom tímu. Ak chceš založiť nový, musíš najprv opustiť ten aktuálny.
+                        </p>
+                     </div>
+                {% endif %}
                 
-                <p style="font-size: 0.9em; color: var(--color-text-main);">
-                    Členovia: 
-                    {% for clen in tim.clenovia.all %}
-                        <span style="font-weight: bold; color: var(--color-text-main);">{{ clen.nickname }}</span>{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </p>
-                
-                <div style="margin-top: 15px; border-top: 1px dashed var(--color-border); padding-top: 10px;">
-                    {% if user.is_authenticated %}
-                        {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
+                <hr style="border-color: var(--color-border);">
+
+                {% for tim in timy %}
+                    <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 20px; border-radius: 8px; background-color: var(--color-surface);">
+                        <h2 style="color: var(--color-accent); margin-top: 0;">{{ tim.nazov }}</h2>
+                        <p><strong>Úroveň tímu:</strong> {{ tim.uroven|default:"1" }}</p>
+                        <p style="color: var(--color-text-main);">{{ tim.bio|default:"Bez popisu." }}</p>
+                        
+                        <p><strong>Počet členov:</strong> {{ tim.clenovia.count }}/5</p>
+                        
+                        <p style="font-size: 0.9em; color: var(--color-text-main);">
+                            Členovia: 
+                            {% for clen in tim.clenovia.all %}
+                                <span style="font-weight: bold; color: {% if clen == user.profil %}var(--color-success){% else %}var(--color-text-main){% endif %};">
+                                    {{ clen.nickname }}
+                                </span>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        
+                        <div style="margin-top: 15px; border-top: 1px dashed var(--color-border); padding-top: 10px;">
                             
-                            {% if tim in user.profil.tim_set.all %}
-                                 <span style="color: var(--color-success); font-weight: bold;">✔ Už si členom tohto tímu</span>
-                            {% elif user_is_member_of_any_team %}
-                                 <span style="color: var(--color-reject); font-weight: bold;">❌ Si už v inom tíme.</span>
+                            {% if tim in user.profil.timy_clenom_je.all %}
+                                 <span style="color: var(--color-success); font-weight: bold; margin-right: 15px;">✔ Tvoj tím</span>
+                                 
+                                 <a href="{% url 'tim_leave' tim.id %}" style="color: var(--color-reject); font-weight: bold; text-decoration: none; border: 1px solid var(--color-reject); padding: 5px 10px; border-radius: 4px;">
+                                    ❌ Opustiť tím
+                                 </a>
+                                 
+                            {% elif user_is_member_of_any_team and not user.is_superuser %}
+                                 <span style="color: var(--color-gray); font-style: italic;">
+                                    (Musíš opustiť svoj aktuálny tím, aby si sa mohol pridať sem)
+                                 </span>
+                                 
                             {% elif tim.clenovia.count >= 5 %}
-                                 <span style="color: var(--color-reject); font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
+                                 <span style="color: var(--color-reject); font-weight: bold;">Tím je plný (5/5)</span>
+                                 
                             {% else %}
                                  <a href="{% url 'tim_join' tim.id %}" style="color: var(--color-orange-link); text-decoration: underline;">
-                                    👉 Pridať sa do tohto tímu.
+                                    👉 Pridať sa do tohto tímu
                                 </a>
                             {% endif %}
-    
-                        {% endwith %}
-                    {% endif %}
-                </div>
-            </div>
-        {% empty %}
-            <p style="color: var(--color-text-main);">Zatiaľ neboli založené žiadne tímy.</p>
-        {% endfor %}
+        
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="color: var(--color-text-main);">Zatiaľ neboli založené žiadne tímy.</p>
+                {% endfor %}
+
+            {% endwith %}
+        {% endif %}
     </div>
 {% endblock content %}

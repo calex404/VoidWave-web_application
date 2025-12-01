@@ -27,6 +27,7 @@ urlpatterns = [
     path('timy/', views.tim_list_view, name='tim_list'),
     path('timy/vytvorit/', views.tim_create_view, name='tim_create'),
     path('timy/pridat-sa/<int:tim_id>/', views.tim_join_view, name='tim_join'),
+    path('timy/odist/<int:tim_id>/', views.tim_leave_view, name='tim_leave'),
     
     path('oznamenia/', views.oznamenie_list_view, name='oznamenie_list'),
     path('rebricky/', rebricky_view, name='rebricek_list'),
