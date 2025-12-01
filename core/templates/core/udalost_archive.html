@@ -1,57 +1,79 @@
 {% extends "base.html" %}
 
-{% block title %}Archív Udalostí{% endblock %}
+{% block title %}Archív udalostí{% endblock %}
+
 
 {% block content %}
     <div style="max-width: 900px; margin: 30px auto; padding: 20px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; margin-bottom: 20px;">
-            <h1 style="margin: 0; color: var(--color-text-main);">🗄️ Archív Udalostí</h1>
-            <a href="{% url 'udalost_list' %}" style="text-decoration: none; background-color: var(--color-gray); color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold;">
-                ← Späť na Aktuálne
-            </a>
+            <h1 style="margin: 0; color: var(--color-text-main); font-size: 1.8em">🗄️ Tvoj archív udalostí</h1>
+
         </div>
 
-        <p style="color: var(--color-text-main); font-style: italic;">
-            Tu nájdeš históriu všetkých zápasov a turnajov, ktoré už skončili.
+        <p style="color: var(--color-text-main); font-style: italic; margin-bottom: 30px;">
+            V archíve môžeš pridať hodnotenie pre udalosť, ktorej si sa účastnil/a.  
         </p>
 
-        {% for udalost in archiv %}
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 10px; background-color: {% if message.tags == 'error' %}#901e1e{% else %}#34d668{% endif %}; color: white; font-weight: bold; border-radius: 4px; margin-bottom: 20px;">
+                    {{ message }}
+
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% for item in udalosti %}
             <div style="border: 1px solid var(--color-border); padding: 20px; margin-bottom: 20px; border-radius: 8px; background-color: var(--color-surface);">
                 
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
-                        <h3 style="margin: 0 0 10px 0; color: var(--color-accent);">
-                            {{ udalost.nazov }} 
-                            <span style="font-size: 0.7em; background-color: var(--color-border); padding: 3px 6px; border-radius: 4px; vertical-align: middle; color: var(--color-text-main);">Skončené</span>
+                        <h3 style="margin: 0 0 10px 0; color: var(--color-orange);">
+                            {{ item.udalost.nazov }} 
+                            <span style="font-size: 0.7em; background-color: var(--color-border); padding: 3px 6px; border-radius: 4px; vertical-align: middle; color: var(--color-text-main);">Ukončené</span>
                         </h3>
                         
                         <div style="color: var(--color-text-main); line-height: 1.6;">
-                            <strong>Hra:</strong> {{ udalost.hra.nazov }} <br>
-                            <strong>Dátum:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }} <br>
-                            <strong>Typ:</strong> {{ udalost.typ|capfirst }}
+                            <strong>Hra:</strong> {{ item.udalost.hra.nazov }} <br>
+                            <strong>Dátum a čas:</strong> {{ item.udalost.datum_konania|date:"d.m.Y H:i" }} <br>
+                            <strong>Typ:</strong> {{ item.udalost.get_typ_display }}
+                            
+                            {% if item.priemer %}
+                                <br><span style="color: #ffc107; font-weight: bold;">Priemerné hodnotenie: {{ item.priemer }}/10 ⭐</span>
+                            {% endif %}
+                            
                         </div>
-                    </div>
+                </div>
 
-                    <div>
-                        <a href="{% url 'hodnotenie_create' udalost.id %}" style="display: inline-block; text-decoration: none; background-color: var(--color-success); color: white; padding: 10px 15px; border-radius: 5px; font-weight: bold; text-align: center;">
-                            Hodnotiť udalosť
-                        </a>
-                    </div>
+            <div>
+                 {% if item.uz_som_hodnotil %}
+                 <span style="display: inline-block; background-color: var(--color-surface); color: var(--color-success); padding: 10px 15px; border-radius: 5px; font-weight: bold; text-align: center;">
+                       ✔ Ohodnotené
+                 </span>
+                {% elif user.is_authenticated %}
+                <p onclick="window.location.href='{% url 'hodnotenie_create' item.udalost.id %}'"
+                    style="display: inline-block; background-color: var(--color-success); color: white; padding: 10px 15px; border-radius: 5px; font-weight: bold; text-align: center; cursor: pointer; text-decoration: none;">
+            Hodnotiť udalosť
+        </p>
+    {% endif %}
+            
+        </div>
+                    
                 </div>
 
                 <div style="margin-top: 15px; border-top: 1px solid var(--color-border); padding-top: 10px;">
                     <strong style="font-size: 0.9em; color: var(--color-text-main);">📝 Hodnotenia hráčov:</strong>
                     
                     <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
-                        {% for recenzia in udalost.hodnotenie_set.all %}
-                            <li style="background: var(--color-surface); border: 1px solid var(--color-border); padding: 8px; margin-bottom: 5px; border-radius: 4px; font-size: 0.9em;">
-                                <strong style="color: var(--color-text-main);">{{ recenzia.profil.nickname }}</strong>: 
-                                <span style="color: var(--color-accent); font-weight: bold;">{{ recenzia.hodnotenie }}/10</span>
+                        {% for recenzia in item.vsetky_hodnotenia %}
+                            <li style="background: rgba(0,0,0,0.2); border: 1px solid var(--color-border); padding: 8px; margin-bottom: 5px; border-radius: 4px; font-size: 0.9em;">
+                                <strong style="color: var(--color-orange-link);">{{ recenzia.profil.nickname }}</strong>: 
+                                <span style="color: white; font-weight: bold;">{{ recenzia.hodnotenie }}/10</span>  
                             </li>
                         {% empty %}
                             <li style="color: var(--color-text-main); font-size: 0.8em; font-style: italic;">
-                                Zatiaľ žiadne hodnotenia. Buď prvý!
+                                Zatiaľ nikto nehodnotil. 
                             </li>
                         {% endfor %}
                     </ul>
@@ -60,10 +82,11 @@
             </div>
         {% empty %}
             <div style="text-align: center; padding: 40px; color: var(--color-text-main); border: 2px dashed var(--color-border); border-radius: 8px;">
-                <h3>📭 Archív je prázdny</h3>
-                <p>Spusti simuláciu 'minulost' na vygenerovanie dát.</p>
+                <h3>Archív je prázdny</h3>
+                <p>Žiadne staré udalosti na zobrazenie.</p>
             </div>
         {% endfor %}
 
     </div>
-    {% endblock content %}
+
+{% endblock content %}

@@ -14,11 +14,41 @@
         <form method="post">
             {% csrf_token %}
             
-            <div style="margin-bottom: 15px; color: var(--color-text-main);">
-                {{ form.as_p }}
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--color-text-main);">
+                    Názov:
+                </label>
+                {{ form.nazov }} </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--color-text-main);">
+                    Dátum a čas konania:
+                </label>
+                {{ form.datum_konania }} 
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--color-text-main);">
+                    Popis:
+                </label>
+                {{ form.popis }}
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--color-text-main);">
+                    Hra:
+                </label>
+                {{ form.hra }}
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--color-text-main);">
+                    Typ:
+                </label>
+                {{ form.typ }}
             </div>
             
-            <button type="submit" style="background-color: var(--color-success); color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px;">
+            <button type="submit" style="background-color: var(--color-success); color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px; font-weight: bold">
                 Uložiť udalosť
             </button>
         </form>

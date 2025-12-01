@@ -263,20 +263,43 @@ def udalost_list_view(request):
     return render(request, 'core/udalost_list.html', {'udalosti': udalosti})
 
 
-def udalost_archiv_view(request):
-    """Zobrazuje archív minulých udalostí."""
-    now = timezone.now()
-    
-    archivne_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
-    
-    print(f"\n--- DEBUG ARCHÍV ---")
-    print(f"Aktuálny čas: {now}")
-    print(f"Nájdených udalostí v archíve: {archivne_udalosti.count()}")
-    print("---------------------------\n")
+# core/views.py (Nahraď funkciu udalost_archiv_view)
 
-    context = {
-        'archiv': archivne_udalosti
-    }
+def udalost_archiv_view(request):
+    from django.db.models import Avg 
+    from datetime import datetime
+    
+    now = datetime.now() 
+    archiv_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
+
+    udalosti_s_hodnotenim = []
+    current_profil = request.user.profil if request.user.is_authenticated else None
+    
+    for udalost in archiv_udalosti:
+        # 1. Načítanie všetkých hodnotení
+        vsetky_hodnotenia = Hodnotenie.objects.filter(udalost=udalost).order_by('-datum_hodnotenia') 
+        
+        # Výpočet priemeru (ak sú hodnotenia)
+        if vsetky_hodnotenia.exists():
+            priemer = vsetky_hodnotenia.aggregate(Avg('hodnotenie'))['hodnotenie__avg']
+            priemer_hodnotou = round(priemer, 2)
+        else:
+            priemer_hodnotou = None
+        
+        # 2. 💥 KONTROLA: Už som hodnotil? 💥
+        uz_som_hodnotil = False
+        if current_profil:
+             # Toto vráti True, ak už existuje záznam v DB
+             uz_som_hodnotil = Hodnotenie.objects.filter(profil=current_profil, udalost=udalost).exists()
+        
+        udalosti_s_hodnotenim.append({
+            'udalost': udalost,
+            'uz_som_hodnotil': uz_som_hodnotil, # Posielame True/False do šablóny
+            'priemer': priemer_hodnotou, 
+            'vsetky_hodnotenia': vsetky_hodnotenia,
+        })
+
+    context = {'udalosti': udalosti_s_hodnotenim}
     return render(request, 'core/udalost_archive.html', context)
 
 
