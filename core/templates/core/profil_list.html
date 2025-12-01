@@ -2,14 +2,15 @@
 
 {% block title %}Zoznam Profilov{% endblock %}
 
+
 {% block content %}
-    <div style="max-width: 900px; margin: 30px auto; padding: 20px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+    <div style="max-width: 900px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        <h1 style="margin-top: 0; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; color: var(--color-text-main);">
+        <h1 style="color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; font-size: 1.8em">
             {% if hladame_priatelov %}
                 🔍 Pridať nových priateľov
             {% else %}
-                👥 Zoznam všetkých profilov
+                👥 Zoznam profilov
             {% endif %}
         </h1>
 
@@ -22,14 +23,14 @@
         {% for profil in profily %}
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 10px; border-bottom: 1px solid var(--color-border);">
                 
-                <a href="{% url 'profil_detail' profil.id %}" style="font-size: 1.2em; font-weight: bold; color: var(--color-accent); text-decoration: none;">
+                <a href="{% url 'profil_detail' profil.id %}" style="font-size: 1.1em; font-weight: bold; color: var(--color-orange-link); text-decoration: none;">
                     {{ profil.nickname }}
                 </a>
 
                 {% if hladame_priatelov %}
                     <form method="post" action="{% url 'send_friend_request' profil.id %}">
                         {% csrf_token %}
-                        <button type="submit" style="background-color: var(--color-success); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        <button type="submit" style="background-color: var(--color-success); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em;">
                             + Pridať
                         </button>
                     </form>
@@ -41,4 +42,5 @@
         {% endfor %}
 
     </div>
-    {% endblock content %}
+
+{% endblock content %}

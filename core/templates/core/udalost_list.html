@@ -3,36 +3,46 @@
 {% block title %}Zoznam Udalostí{% endblock %}
 
 {% block content %}
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+
+<div style="max-width: 900px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
 
         {% if user.is_authenticated %}
             {% if user.is_superuser or user.profil.rola.nazov_role == 'Organizátor' %}
-                <a href="{% url 'udalost_create' %}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                <p onclick="window.location.href='{% url 'udalost_create' %}'"
+                   style="display: inline-block; padding: 10px 15px; background-color: var(--color-success); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
                     + Vytvoriť novú udalosť
-                </a>
+                </p>
             {% endif %}
         {% endif %}
         
         {% if user.is_authenticated %}
-            <a href="{% url 'udalost_archiv' %}" style="display: inline-block; padding: 10px 15px; background-color: #555; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            <p onclick="window.location.href='{% url 'udalost_archiv' %}'"
+               style="display: inline-block; padding: 10px 15px; background-color: var(--color-orange); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
                 Archív starých udalostí →
-            </a>
+            </p>
         {% endif %}
+
     </div>
-    
-    <hr>
-    
-    <h1>Aktuálne Udalosti a Turnaje</h1>
-    
+
+    <h1 style="color: var(--color-text-main); margin-bottom: 25px; border-bottom: 2px solid var(--color-border); padding-bottom: 12px; font-size: 1.8em">
+        📅 Aktuálne udalosti
+    </h1>
+
+
     {% for udalost in udalosti %}
-        <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 20px; background-color: var(--color-surface); border-radius: 8px;">
-            <h2>{{ udalost.nazov }}</h2>
+        <div style="border: 1px solid var(--color-border); padding: 20px; margin-bottom: 20px; background-color: var(--color-surface); border-radius: 6px;">
             
+            <h2 style="margin-top: 0; color: var(--color-orange);">
+                {{ udalost.nazov }}
+            </h2>
+
             <p><strong>Typ:</strong> {{ udalost.get_typ_display }}</p>
-            <p><strong>Dátum konania:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}</p>
-            
-            <hr style="border-color: var(--color-border);">
+            <p><strong>Dátum a čas konania:</strong> {{ udalost.datum_konania|date:"d.m.Y H:i" }}</p>
+
+            <hr style="border-color: var(--color-border); margin: 15px 0;">
+
             <p><strong>Účastníci ({{ udalost.ucastnici.count }}):</strong></p>
             <p style="font-size: 0.9em; color: var(--color-text-main);">
                 {% for ucastnik in udalost.ucastnici.all %}
@@ -41,9 +51,9 @@
                     Zatiaľ nikto.
                 {% endfor %}
             </p>
-            
+
             {% if user.is_authenticated %}
-            
+                
                 {% if user.profil in udalost.ucastnici.all %}
                     <br>
                     <a href="{% url 'udalost_withdraw' udalost.id %}" style="color: var(--color-reject); font-weight: bold; text-decoration: underline;">
@@ -57,9 +67,14 @@
                 {% endif %}
             
             {% endif %}
+
         </div>
     {% empty %}
-        <p>V zozname sú len budúce udalosti. Žiadne aktívne udalosti nenájdete.</p>
+        <p style="color: var(--color-text-main); text-align: center;">
+            V zozname nie sú moment=alne žiadne plánované udalosti.
+        </p>
     {% endfor %}
-    
+
+</div>
+
 {% endblock content %}

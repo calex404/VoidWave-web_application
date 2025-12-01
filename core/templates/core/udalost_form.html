@@ -2,12 +2,13 @@
 
 {% block title %}Vytvoriť novú udalosť{% endblock %}
 
+
 {% block content %}
     
     <div style="max-width: 600px; margin: 30px auto; padding: 25px; background-color: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
         
-        <h1 style="color: var(--color-text-main); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 15px;">
-            📅 Vytvoriť novú udalosť
+        <h1 style="color: var(--color-text-main); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 15px; font-size: 1.8em">
+            Vytvoriť novú udalosť
         </h1>
 
         <form method="post">
@@ -22,10 +23,6 @@
             </button>
         </form>
         
-        <br>
-        <a href="{% url 'udalost_list' %}" style="color: var(--color-link); text-decoration: none;">
-            ← Späť na zoznam udalostí
-        </a>
     </div>
 
 {% endblock content %}

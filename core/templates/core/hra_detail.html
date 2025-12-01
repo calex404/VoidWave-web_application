@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}{{ hra.nazov }} - Detail{% endblock %}
+{% block title %}Detail hry - {{ hra.nazov }}{% endblock %}
 
 {% block content %}
-    <div style="max-width: 800px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+    <div style="max-width: 900px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        <a href="{% url 'hra_list' %}" style="color: var(--color-link); text-decoration: none; font-weight: bold;">
-            ← Späť na Katalóg Hier
-        </a>
-        
-        <h1 style="color: var(--color-text-main); margin-top: 15px; border-bottom: 2px solid var(--color-border); padding-bottom: 10px;">
-            🎮 Detail Hry: {{ hra.nazov }}
+        <h1 style="color: var(--color-orange); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; font-size: 1.8em">
+             {{ hra.nazov }}
         </h1>
         
         <p style="color: var(--color-text-main);"><strong>Interné ID:</strong> {{ hra.id }}</p>
-        <p style="color: var(--color-text-main);"><strong>Žáner:</strong> {{ hra.zaner }}</p>
+        <p style="color: var(--color-text-main);"><strong>Žáner:</strong> {{ hra.get_zaner_display }}</p>
+
+        <div style="background-color: var(--color-surface); padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); margin-bottom: 20px;">
+    
+          <h2 style="color: var(--color-text-main); margin-top: 30px; border-bottom: 1px solid var(--color-border); padding-bottom: 5px;">Popis:</h2>
+    
+            <p style="white-space: pre-wrap; color: var(--color-text-main); font-style: italic; margin-bottom: 0;">
+                 {{ hra.bio|default:"Popis zatiaľ nebol pridaný." }}
         
-        <h2 style="color: var(--color-text-main); margin-top: 30px; border-bottom: 1px solid var(--color-border); padding-bottom: 5px;">Popis:</h2>
-        
-        <p style="white-space: pre-wrap; color: var(--color-text-main);">
-            {{ hra.bio|default:"Popis zatiaľ nebol pridaný." }}
-        </p>
+            </p>
+       
+        </div>
         
     </div>
-    {% endblock content %}
+
+{% endblock content %}

@@ -2,33 +2,35 @@
 
 {% block title %}Detail Profilu - {{ profil.nickname }}{% endblock %}
 
+
 {% block content %}
     <div style="max-width: 900px; margin: 30px auto; padding: 20px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
 
         <div style="border-bottom: 2px solid var(--color-border); padding-bottom: 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <h1 style="margin: 0; color: var(--color-text-main);">{{ profil.nickname }}</h1>
+                <h1 style="margin: 0; color: var(--color-orange);">{{ profil.nickname }}</h1>
                 <p style="color: var(--color-text-main); margin: 5px 0;">
                     Členom od: {{ profil.datum_registracie|date:"d.m.Y" }}
-                    {% if profil.rola %} | Rola: <strong style="color: var(--color-accent);">{{ profil.rola.nazov_role }}</strong>{% endif %}
+                    {% if profil.rola %} | Rola: <strong style="fony-size: bold;">{{ profil.rola.nazov_role }}</strong>{% endif %}
                 </p>
             </div>
 
-            {% if request.user.profil == profil %}
-                <div>
-                    <a href="{% url 'dashboard' %}" 
-                       style="text-decoration: none; background-color: var(--color-gray); color: white; padding: 8px 15px; border-radius: 4px; font-size: 0.9em; font-weight: bold;">
-                        ⚙️ Spravovať profil
-                    </a>
-                </div>
-            {% endif %}
+{% if request.user.profil == profil %}
+    <div>
+        <p onclick="window.location.href='{% url 'dashboard' %}'"
+           style="cursor: pointer; text-decoration: none !important; background-color: var(--color-gray); color: white; padding: 8px 15px; border-radius: 4px; font-size: 0.9em; font-weight: bold; display: inline-block; margin: 0;">
+            ⚙️ Spravovať profil
+        </p>
+    </div>
+{% endif %}
+
         </div>
 
         <div style="background-color: var(--color-surface); padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); margin-bottom: 20px;">
             <h3 style="margin-top: 0; color: var(--color-text-main);">📊 Štatistiky</h3>
             <p style="color: var(--color-text-main);"><strong>Úroveň:</strong> {{ profil.uroven }}</p>
             <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 15px 0;">
-            <p style="color: var(--color-text-main);"><strong>Bio:</strong></p>
+            <p style="color: var(--color-text-main);"><strong>O mne:</strong></p>
             <p style="font-style: italic; color: var(--color-text-main);">
                 {% if profil.bio %}{{ profil.bio }}{% else %}Bez popisu.{% endif %}
             </p>
@@ -37,24 +39,31 @@
         <h3 style="border-bottom: 2px solid var(--color-border); padding-bottom: 10px; margin-top: 30px; color: var(--color-text-main);">👥 Priatelia</h3>
         
         {% if priatelia %}
-            <ul style="list-style: none; padding: 0;">
-                {% for p in priatelia %}
-                    <li style="padding: 10px; border-bottom: 1px solid var(--color-border);">
-                        
-                        <a href="{% if p.profil1 == profil %}{% url 'profil_detail' p.profil2.id %}{% else %}{% url 'profil_detail' p.profil1.id %}{% endif %}" 
-                           style="text-decoration: none; font-weight: bold; color: var(--color-accent); font-size: 1.1em;">
-                            {% if p.profil1 == profil %}
-                                {{ p.profil2.nickname }}
-                            {% else %}
-                                {{ p.profil1.nickname }}
-                            {% endif %}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p style="color: var(--color-text-main); padding: 10px 0;">Tento používateľ nemá zatiaľ žiadnych priateľov.</p>
-        {% endif %}
+    <ul style="list-style: none; padding: 0;">
+        {% for p in priatelia %}
+            <li style="padding: 10px; border-bottom: 1px solid var(--color-border);">
+                
+                <span style="text-decoration: none; 
+                             font-weight: bold; 
+                             color: var(--color-main); 
+                             font-size: 1.1em;">
+                    {% if p.profil1 == profil %}
+                        {{ p.profil2.nickname }}
+                    {% else %}
+                        {{ p.profil1.nickname }}
+                    {% endif %}
+                </span>
+
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p style="color: var(--color-text-main); padding: 10px 0;">
+        Tento používateľ nemá zatiaľ žiadnych priateľov.
+    </p>
+{% endif %}
+
 
     </div>
-    {% endblock content %}
+
+{% endblock content %}

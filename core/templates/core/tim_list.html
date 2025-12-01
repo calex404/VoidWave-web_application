@@ -2,15 +2,26 @@
 
 {% block title %}Zoznam Tímov{% endblock %}
 
+
 {% block content %}
     <div style="max-width: 900px; margin: 30px auto; padding: 25px; background-color: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        {% if user.is_authenticated %}
-            {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
-                {% if not user_is_member_of_any_team %}
-                    <a href="{% url 'tim_create' %}" style="display: inline-block; margin-bottom: 20px; padding: 10px 15px; background-color: var(--color-success); color: var(--color-text-main); text-decoration: none; border-radius: 5px; font-weight: bold;">
-                        + Založiť vlastný tím
-                    </a>
+{% if user.is_authenticated %}
+    {% with user_is_member_of_any_team=user.profil.tim_set.exists %}
+        {% if not user_is_member_of_any_team %}
+            <p onclick="window.location.href='{% url 'tim_create' %}'"
+               style="display: inline-block; 
+                      margin-bottom: 20px; 
+                      padding: 10px 15px; 
+                      background-color: var(--color-success); 
+                      color: var(--color-text-main); 
+                      text-decoration: none; 
+                      border-radius: 5px; 
+                      font-weight: bold; 
+                      cursor: pointer;">
+                + Založiť vlastný tím
+            </p>
+
                     <hr style="border-color: var(--color-border);">
                 {% else %}
                      <p style="color: var(--color-reject); font-weight: bold; margin-bottom: 20px;">
@@ -49,8 +60,8 @@
                             {% elif tim.clenovia.count >= 5 %}
                                  <span style="color: var(--color-reject); font-weight: bold;">Tím je plný ({{ tim.clenovia.count }}/5)</span>
                             {% else %}
-                                 <a href="{% url 'tim_join' tim.id %}" style="color: var(--color-link); text-decoration: underline;">
-                                    👉 Pridať sa do tohto tímu
+                                 <a href="{% url 'tim_join' tim.id %}" style="color: var(--color-orange-link); text-decoration: underline;">
+                                    👉 Pridať sa do tohto tímu.
                                 </a>
                             {% endif %}
     

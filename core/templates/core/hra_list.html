@@ -1,34 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Katalóg Hier{% endblock %}
+{% block title %}Zoznam Hier{% endblock %}
 
 {% block content %}
     <div style="max-width: 900px; margin: 30px auto; padding: 25px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
         
-        <h1 style="color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px;">
-            🎮 Katalóg hier
+        <h1 style="color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px; font-size: 1.8em">
+            🎮 Zoznam hier
         </h1>
 
         {% for hra in hry %}
             <div style="border: 1px solid var(--color-border); padding: 15px; margin-bottom: 15px; border-radius: 4px; background-color: var(--color-surface);">
                 
                 <h2 style="margin-top: 0;">
-                    <a href="{% url 'hra_detail' hra.id %}" style="color: var(--color-accent); text-decoration: none;">
+                    <a href="{% url 'hra_detail' hra.id %}" style="color: var(--color-orange-link); text-decoration: none;">
                         {{ hra.nazov }}
                     </a>
                 </h2>
-                <p style="color: var(--color-text-main);">
-                    <strong>Žáner:</strong> {{ hra.zaner }}
-                </p>
-                <p style="color: var(--color-text-main);">
-                    {{ hra.popis|default:"Popis nie je k dispozícii." }}
-                </p>
+
             </div>
         {% empty %}
             <p style="color: var(--color-text-main); text-align: center;">
-                V katalógu zatiaľ nie sú žiadne hry. Pridajte ich v Admin rozhraní!
+                V katalógu zatiaľ nie sú žiadne hry. 
             </p>
         {% endfor %}
 
     </div>
-    {% endblock content %}
+    
+{% endblock content %}
