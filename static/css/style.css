@@ -10,7 +10,7 @@
     --color-orange-link: #c2582b;   
     --color-reject: #901e1e;        
     --color-success: #34d668; 
-    --color-accent: #e9703c;    
+
 }
 
 body {
@@ -37,17 +37,16 @@ body {
 .nav_bar {
     background-color: rgba(20, 20, 20, 0.75) !important; 
     backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
-    
+    -webkit-backdrop-filter: blur(10px); 
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-    
+
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
-    
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -59,7 +58,7 @@ body {
 .nav_bar-brand a {
     font-size: 1.3em;
     font-weight: 800;
-    color: var(--color-accent); 
+    color: var(--color-orange); 
     text-transform: uppercase;
     letter-spacing: 1px;
     text-decoration: none;
@@ -81,7 +80,7 @@ body {
 
 .nav_bar-links a:hover {
     color: var(--color-text-main);
-    text-shadow: 0 0 8px var(--color-accent);
+    text-shadow: 0 0 8px var(--color-orange);
 }
 
 .nav_bar-user {
@@ -91,7 +90,7 @@ body {
 }
 
 .user-nickname-link {
-    color: var(--color-accent) !important;
+    color: var(--color-orange) !important;
     font-weight: bold;
     text-decoration: none;
 }
@@ -166,8 +165,8 @@ input[type="datetime-local"] {
 }
 
 select option {
-    background-color: #1e1e1e;
-    color: #aaaaaa;
+    background-color: var(--color-background);
+    color: var(--color-text-main);
 }
 
 a { color: var(--color-orange-link); text-decoration: none; }

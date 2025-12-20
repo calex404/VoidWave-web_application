@@ -10,7 +10,7 @@
         </h1>
 
         {% if ziadosti %}
-            <div style="background-color: var(--color-accent); border: 1px solid var(--color-link); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <div style="background-color: var(--color-orange); border: 1px solid var(--color-link); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
                 <h3 style="margin-top: 0; color: var(--color-text-main);">👋 Nové žiadosti o priateľstvo</h3>
                 
                 {% for ziadost in ziadosti %}
@@ -29,7 +29,7 @@
         {% endif %}
 
         {% if moje_urgentne %}
-            <div style="background-color: var(--color-surface); border: 1px solid var(--color-accent); padding: 20px; border-radius: 8px;">
+            <div style="background-color: var(--color-surface); border: 1px solid var(--color-orange); padding: 20px; border-radius: 8px;">
                 <h3 style="margin-top: 0; color: var(--color-link);">⚠️ Tvoje akcie (Najbližších 24h)</h3>
                 
                 {% for ud in moje_urgentne %}
@@ -38,7 +38,7 @@
                             <strong>{{ ud.datum_konania|date:"H:i" }}</strong> – {{ ud.nazov }}
                             <span style="font-size: 0.9em; color: var(--color-text-main);">({{ ud.hra.nazov }})</span>
                         </div>
-                        <a href="{% url 'hodnotenie_create' ud.id %}" style="color: var(--color-accent); text-decoration: underline;">Detail</a>
+                        <a href="{% url 'hodnotenie_create' ud.id %}" style="color: var(--color-orange); text-decoration: underline;">Detail</a>
                     </div>
                 {% endfor %}
             </div>
