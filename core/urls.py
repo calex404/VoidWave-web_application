@@ -10,8 +10,8 @@ urlpatterns = [
     path('profily/', views.profil_list_view, name='profil_list'),
     path('profily/hladat/', views.find_priatelov_view, name='find_priatelov'),
     path('profily/<int:profil_id>/', views.profil_detail_view, name='profil_detail'),
-
     path('profil/edit/', views.profil_edit_view, name='profil_edit'),
+    
     path('accounts/register/', views.register_view, name='user_register'),
     
     path('hry/', views.hra_list_view, name='hra_list'),
@@ -30,7 +30,9 @@ urlpatterns = [
     path('timy/odist/<int:tim_id>/', views.tim_leave_view, name='tim_leave'),
     
     path('oznamenia/', views.oznamenie_list_view, name='oznamenie_list'),
+
     path('rebricky/', rebricky_view, name='rebricek_list'),
+
     path('dashboard/', views.dashboard_view, name='dashboard'),
 
     path('priatelstvo/send/<int:profil_id>/', views.send_friend_request, name='send_friend_request'),

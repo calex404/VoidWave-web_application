@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import login
@@ -14,14 +14,8 @@ from .forms import (
 )
 
 
-MAX_TEAM_SIZE = 5
-
-
 def home_view(request):
-    """
-    Domovská stránka. Slúži ako login pre neprihlásených a welcome screen pre prihlásených.
-    Spracováva POST požiadavky na prihlásenie (LoginView je presunutý sem).
-    """
+    
     form = AuthenticationForm()
 
     if request.method == 'POST':
@@ -41,7 +35,7 @@ def home_view(request):
 
 
 def register_view(request):
-    """Spracováva registráciu nového používateľa a automaticky vytvára profil."""
+
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -61,12 +55,12 @@ def register_view(request):
 
 
 def dashboard_view(request):
-    """Zobrazí súkromný ovládací panel (Dashboard)."""
+
     if not request.user.is_authenticated:
         return redirect('login')
     
     profil = request.user.profil
-    
+
     context = {
         'profil': profil,
     }
@@ -74,7 +68,7 @@ def dashboard_view(request):
 
 
 def profil_list_view(request):
-    """Zobrazí čistý zoznam profilov (Directory)."""
+
     profily = Profil.objects.all()
     context = {
         'profily': profily,
@@ -84,10 +78,7 @@ def profil_list_view(request):
 
 
 def find_priatelov_view(request):
-    """
-    Zobrazí zoznam profilov s tlačidlami 'Pridať'.
-    Vylučuje mňa a všetkých, s ktorými už mám potvrdené priateľstvo.
-    """
+
     if not request.user.is_authenticated:
         return redirect('login')
 
@@ -115,20 +106,13 @@ def find_priatelov_view(request):
 
 
 def profil_detail_view(request, profil_id):
-    """
-    Zobrazí verejný detail profilu (Read-Only).
-    """
+ 
     profil = get_object_or_404(Profil, id=profil_id)
     
     priatelia = Priatelstvo.objects.filter(
         Q(profil1=profil) | Q(profil2=profil),
         stav='accepted'
     )
-
-    print(f"\n--- ZOBRAZENIE PRIATEĽOV ---")
-    print(f"Hľadaný profil: {profil.nickname}")
-    print(f"NAŠLO V DB (prijatých): {priatelia.count()}")
-    print("---------------------------\n")
 
     context = {
         'profil': profil,
@@ -138,7 +122,6 @@ def profil_detail_view(request, profil_id):
 
 
 def profil_edit_view(request):
-    """Umožňuje prihlásenému používateľovi editovať vlastný profil."""
     
     if not request.user.is_authenticated:
         return redirect('login')
@@ -162,9 +145,7 @@ def profil_edit_view(request):
 
 
 def send_friend_request(request, profil_id):
-    """
-    Odošle žiadosť (vytvorí FriendRequest) a vytvorí záznam v Priatelstvo s pending statusom.
-    """
+
     if not request.user.is_authenticated: return redirect('login')
 
     from_profil = request.user.profil
@@ -196,7 +177,7 @@ def send_friend_request(request, profil_id):
 
 
 def accept_friend_request(request, request_id):
-    """Prijme žiadosť, nájde existujúci Priatelstvo záznam a zmení stav na 'accepted'."""
+    
     if not request.user.is_authenticated: return redirect('login')
     
     ziadost = get_object_or_404(FriendRequest, id=request_id)
@@ -219,7 +200,7 @@ def accept_friend_request(request, request_id):
 
 
 def reject_friend_request(request, request_id):
-    """Zamietne žiadosť a vyčistí všetky súvisiace záznamy."""
+
     if not request.user.is_authenticated: return redirect('login')
     
     old_friendship = get_object_or_404(Priatelstvo, id=request_id)
@@ -242,21 +223,21 @@ def reject_friend_request(request, request_id):
 
 
 def hra_list_view(request):
-    """Zobrazí katalóg všetkých hier."""
+
     vsetky_hry = Hra.objects.all()
     context = { 'hry': vsetky_hry, 'nadpis': 'Katalóg hier', }
     return render(request, 'core/hra_list.html', context)
 
 
 def hra_detail_view(request, hra_id):
-    """Zobrazí detail konkrétnej hry."""
+
     hra = get_object_or_404(Hra, id=hra_id)
     context = {'hra': hra}
     return render(request, 'core/hra_detail.html', context)
 
 
 def udalost_list_view(request):
-    """Zobrazuje LEN budúce udalosti (odteraz dopredu)"""
+
     now = timezone.now()
     udalosti = Udalost.objects.filter(datum_konania__gte=now).order_by('datum_konania')
     
@@ -264,10 +245,8 @@ def udalost_list_view(request):
 
 
 def udalost_archiv_view(request):
-    from django.db.models import Avg 
-    from datetime import datetime
     
-    now = datetime.now() 
+    now = timezone.now() 
     archiv_udalosti = Udalost.objects.filter(datum_konania__lt=now).order_by('-datum_konania')
 
     udalosti_s_hodnotenim = []
@@ -299,7 +278,7 @@ def udalost_archiv_view(request):
 
 
 def udalost_create_view(request):
-    """Vytvorenie novej udalosti (len pre organizátorov)."""
+
     if not request.user.is_authenticated: return redirect('login')
     if not (request.user.is_superuser or Rola.objects.filter(profil=request.user.profil, nazov_role='Organizátor').exists()):
         return redirect('udalost_list')
@@ -317,7 +296,7 @@ def udalost_create_view(request):
 
 
 def udalost_join_view(request, udalost_id):
-    """Prihlásenie na udalosť."""
+
     if not request.user.is_authenticated: return redirect('login')
     udalost = get_object_or_404(Udalost, id=udalost_id)
     profil = request.user.profil
@@ -326,7 +305,7 @@ def udalost_join_view(request, udalost_id):
 
 
 def udalost_withdraw_view(request, udalost_id):
-    """Odhlásenie z udalosti."""
+
     if not request.user.is_authenticated: return redirect('login')
     udalost = get_object_or_404(Udalost, id=udalost_id)
     profil = request.user.profil
@@ -335,8 +314,6 @@ def udalost_withdraw_view(request, udalost_id):
 
 
 def hodnotenie_create_view(request, udalost_id):
-    """Spracuje odoslanie hodnotenia k danej udalosti s kontrolou účasti."""
-    from django.contrib import messages
     
     if not request.user.is_authenticated:
         return redirect('login')
@@ -372,18 +349,21 @@ def hodnotenie_create_view(request, udalost_id):
 
 
 def tim_list_view(request):
-    """Zobrazí zoznam všetkých tímov."""
+ 
     vsetky_timy = Tim.objects.all()
     context = {'timy': vsetky_timy}
     return render(request, 'core/tim_list.html', context)
 
 
 def tim_list_view(request):
+
     vsetky_timy = Tim.objects.all()
     context = {'timy': vsetky_timy}
     return render(request, 'core/tim_list.html', context)
 
+
 def tim_create_view(request):
+
     if not request.user.is_authenticated: return redirect('login')
 
     if not request.user.is_superuser:
@@ -405,7 +385,11 @@ def tim_create_view(request):
     context = { 'form': form, 'nadpis': 'Založiť nový tím' }
     return render(request, 'core/tim_form.html', context)
 
+
 def tim_join_view(request, tim_id):
+
+    MAX_TEAM_SIZE = 5
+
     if not request.user.is_authenticated: return redirect('login')
     tim = get_object_or_404(Tim, id=tim_id)
     profil = request.user.profil
@@ -422,7 +406,9 @@ def tim_join_view(request, tim_id):
     messages.success(request, f"Vitaj v tíme {tim.nazov}!")
     return redirect('tim_list')
 
+
 def tim_leave_view(request, tim_id):
+
     if not request.user.is_authenticated: return redirect('login')
     tim = get_object_or_404(Tim, id=tim_id)
     profil = request.user.profil
@@ -435,7 +421,7 @@ def tim_leave_view(request, tim_id):
 
 
 def rebricky_view(request):
-    """Zobrazí tri rebríčky (Denný, Týždenný, Mesačný) podľa aktivity."""
+
     now = timezone.now()
 
     denny_limit = now - timedelta(days=1)
@@ -463,7 +449,7 @@ def rebricky_view(request):
 
 
 def oznamenie_list_view(request):
-    """Zobrazí len relevantné notifikácie a vynuluje počítadlo zvončeka."""
+
     if not request.user.is_authenticated: return redirect('login')
     
     profil = request.user.profil
@@ -485,4 +471,5 @@ def oznamenie_list_view(request):
         'moje_urgentne': moje_urgentne,
         'ziadosti': ziadosti,
     }
+
     return render(request, 'core/oznamenie_list.html', context)

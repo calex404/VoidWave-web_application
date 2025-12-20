@@ -1,5 +1,4 @@
 from pathlib import Path
-import os 
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,7 +9,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'core', 
-    
+
     'django.contrib.admin', 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -35,7 +34,7 @@ WSGI_APPLICATION = 'platform_config.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        
+
         'DIRS': [BASE_DIR / 'templates'],
         
         'APP_DIRS': True, 
@@ -52,12 +51,6 @@ TEMPLATES = [
     },
 ]
 
-STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), 
-]
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,33 +59,27 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+LANGUAGE_CODE = 'sk'
+TIME_ZONE = 'Europe/Bratislava'
+USE_I18N = True
+USE_TZ = True
+
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static', 
+]
 
 LOGIN_REDIRECT_URL = '/' 
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = 'home'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'support@tvojaplatforma.sk'
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-USE_TZ = True
+DEFAULT_FROM_EMAIL = 'support@voidwave.sk'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

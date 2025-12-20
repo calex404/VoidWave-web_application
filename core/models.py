@@ -6,9 +6,8 @@ from django.db.models import Q
 
 User = get_user_model()
 
-
 class Rola(models.Model):
-    """Definuje roly používateľov (napr. Organizátor, Admin)."""
+
     nazov_role = models.CharField(max_length=64, unique=True)
     
     def __str__(self):
@@ -16,12 +15,11 @@ class Rola(models.Model):
 
 
 class Profil(models.Model):
-    """Rozšírenie Django User modelu o herné a komunitné informácie."""
+
     nickname = models.CharField(max_length=64, unique=True) 
     bio = models.TextField(null=True, blank=True) 
     uroven = models.IntegerField(default=1)
     datum_registracie = models.DateField(auto_now_add=True) 
-    
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     rola = models.ForeignKey(Rola, on_delete=models.SET_NULL, null=True, blank=True) 
     
@@ -30,7 +28,7 @@ class Profil(models.Model):
 
 
 class FriendRequest(models.Model):
-    """Model pre dočasné uloženie PENDING žiadostí (pre notifikačný zvonček)."""
+
     od_koho = models.ForeignKey(Profil, related_name='odoslane_ziadosti', on_delete=models.CASCADE)
     pre_koho = models.ForeignKey(Profil, related_name='prijate_ziadosti', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -40,10 +38,7 @@ class FriendRequest(models.Model):
 
 
 class Priatelstvo(models.Model):
-    """
-    Model pre existujúce priateľstvá s ochranou proti duplicitám.
-    Vždy uloží profil s menším ID ako profil1.
-    """
+
     profil1 = models.ForeignKey(Profil, related_name='priatelstva_1', on_delete=models.CASCADE)
     profil2 = models.ForeignKey(Profil, related_name='priatelstva_2', on_delete=models.CASCADE)
     stav = models.CharField(max_length=20, choices=[
@@ -65,7 +60,7 @@ class Priatelstvo(models.Model):
 
 
 class Hra(models.Model):
-    """Katalóg hier."""
+
     nazov = models.CharField(max_length=64, unique=True) 
     
     ZANER_CHOICES = [
@@ -85,11 +80,10 @@ class Hra(models.Model):
 
 
 class Tim(models.Model):
-    """Základný model pre herné tímy."""
+
     nazov = models.CharField(max_length=64, unique=True) 
     bio = models.TextField(null=True, blank=True) 
-    uroven = models.IntegerField(default=1) 
-    
+    uroven = models.IntegerField(default=1)     
     clenovia = models.ManyToManyField(Profil, related_name='timy_clenom_je')
     
     def __str__(self):
@@ -97,12 +91,10 @@ class Tim(models.Model):
 
 
 class Udalost(models.Model):
-    """Hlavný model pre herné akcie, turnaje a pod."""
+
     nazov = models.CharField(max_length=64) 
-    datum_konania = models.DateTimeField() 
-    
+    datum_konania = models.DateTimeField()     
     popis = models.TextField(null=True, blank=True)
-    
     ucastnici = models.ManyToManyField('Profil', related_name='prihlasene_udalosti', blank=True)
     
     TYP_CHOICES = [
@@ -121,10 +113,9 @@ class Udalost(models.Model):
 
 
 class Hodnotenie(models.Model):
-    """Hodnotenie Udalosti alebo Hry."""
+
     hodnotenie = models.IntegerField() 
-    datum_hodnotenia = models.DateField(auto_now_add=True) 
-    
+    datum_hodnotenia = models.DateField(auto_now_add=True)     
     profil = models.ForeignKey(Profil, on_delete=models.CASCADE) 
     hra = models.ForeignKey(Hra, on_delete=models.SET_NULL, null=True, blank=True)
     udalost = models.ForeignKey(Udalost, on_delete=models.SET_NULL, null=True, blank=True)
@@ -142,35 +133,8 @@ class Hodnotenie(models.Model):
         return f"Hodnotenie {self.hodnotenie}/10 pre {objekt_nazov}"
 
 
-class Rebricek(models.Model):
-    """Model pre dynamicky počítané rebríčky (historické snapshoty)."""
-    TYP_CHOICES = [
-        ('denny', 'Denný'), ('tyzdenny', 'Týždenný'), ('mesacny', 'Mesačný'), 
-    ]
-    typ = models.CharField(max_length=64, choices=TYP_CHOICES) 
-    datum_aktualizacie = models.DateField() 
-    
-    def __str__(self):
-        return f"Rebríček: {self.typ}"
-
-
-class Umiestnenie(models.Model):
-    """Umiestnenie tímu v danom rebríčku."""
-    tim = models.ForeignKey(Tim, on_delete=models.CASCADE) 
-    rebricek = models.ForeignKey(Rebricek, on_delete=models.CASCADE)
-    
-    pozicia = models.IntegerField() 
-    body = models.IntegerField() 
-    
-    class Meta:
-        unique_together = ('tim', 'rebricek')
-        
-    def __str__(self):
-        return f"{self.tim.nazov} v {self.rebricek.typ} na {self.pozicia}. mieste"
-
-
 class Oznamenie(models.Model):
-    """Obsah notifikácie (text správy)."""
+
     nazov = models.CharField(max_length=255, default='Systémová správa') 
     TYP_CHOICES = [('pozvanka', 'Pozvánka'), ('upozornenie', 'Upozornenie'), ('sprava', 'Správa')]
     typ = models.CharField(max_length=15, choices=TYP_CHOICES, default='sprava') 
@@ -181,10 +145,9 @@ class Oznamenie(models.Model):
         return f"{self.nazov} ({self.typ})"
 
 class Odoslanie(models.Model):
-    """Záznam o odoslanej notifikácii konkrétnemu príjemcovi."""
+
     oznamenie = models.ForeignKey(Oznamenie, on_delete=models.CASCADE)
-    prijemca = models.ForeignKey(Profil, on_delete=models.CASCADE, related_name='prijate_oznamenia')
-    
+    prijemca = models.ForeignKey(Profil, on_delete=models.CASCADE, related_name='prijate_oznamenia')    
     datum_odoslania = models.DateTimeField(auto_now_add=True) 
     datum_precitania = models.DateTimeField(null=True, blank=True)
     

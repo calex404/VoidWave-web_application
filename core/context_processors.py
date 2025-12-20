@@ -4,11 +4,6 @@ from .models import Udalost, FriendRequest, Profil
 
 
 def notifikacie_processor(request):
-    """
-    Vypočítava počet NOVÝCH (nezhliadnutých) notifikácií pre červený odznak.
-    
-    Obsah badge count: Žiadosti o priateľstvo + Urgentné udalosti (do 24h).
-    """
     
     realny_pocet_aktualny = 0
     
@@ -32,7 +27,6 @@ def notifikacie_processor(request):
             
         except Exception:
             realny_pocet_aktualny = 0
-
 
     videny_pocet = request.session.get('videny_pocet_notifikacii', 0)
     
