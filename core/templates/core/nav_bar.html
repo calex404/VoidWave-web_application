@@ -1,122 +1,34 @@
-<style>
-    .nav_bar {
-        display: flex;
-        justify-content: space-between;
-        padding: 0 20px; 
-        background-color: var(--color-background); 
-        color: white;
-        align-items: center; 
-        height: 50px; 
-        margin-bottom: 20px;
-        
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1000;
-        box-sizing: border-box;
-        border-bottom: 1px solid var(--color-border);
-    }
-
-    .nav_bar-left {
-        display: flex;
-    }
-
-    .nav_bar a {
-        color: white;
-        text-decoration: none;
-        padding: 14px 16px;
-        font-size: 18px;
-    }
-
-    .nav_bar a:hover {
-        background-color: var(--color-gray);
-    }
-
-    .user-nickname-link {
-        margin-right: 15px;
-        font-weight: bold;
-        color: var(--color-orange) !important; 
-        text-decoration: none !important;
-        padding: 8px 0;
-    }
-
-    .nav_bar-right {
-        display: flex;
-        align-items: center;
-        color: white;
-    }
-
-    .bell-icon {
-        margin-right: 20px; 
-        font-size: 1.7em; 
-        cursor: pointer;
-        position: relative;
-        padding: 0 !important;
-    }
-    
-    .badge {
-        position: absolute;
-        top: 0px;
-        right: -5px;
-        background-color: ar(--color-reject);
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-        padding: 2px 5px;
-        border-radius: 50%;
-        line-height: 1;
-    }
-
-    .logout-button {
-        background-color: var(--color-reject); 
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        cursor: pointer;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: bold;
-        margin-left: 10px;
-    }
-</style>
-
 <div class="nav_bar">
-    
     <div class="nav_bar-left">
-        <a href="{% url 'profil_list' %}">👥 Profily</a> 
-        <a href="{% url 'hra_list' %}">🎮 Hry</a>
-        <a href="{% url 'udalost_list' %}">📅 Udalosti</a>
-        <a href="{% url 'tim_list' %}">🛡️ Tímy</a>
-        <a href="{% url 'rebricek_list' %}">🏆 Rebríčky</a>
-        
+        <a href="{% url 'profil_list' %}"><button type="button" class="nav-ghost-btn">👥 Profily</button></a> 
+        <a href="{% url 'hra_list' %}"><button type="button" class="nav-ghost-btn">🎮 Hry</button></a>
+        <a href="{% url 'udalost_list' %}"><button type="button" class="nav-ghost-btn">📅 Udalosti</button></a>
+        <a href="{% url 'tim_list' %}"><button type="button" class="nav-ghost-btn">🛡️ Tímy</button></a>
+        <a href="{% url 'rebricek_list' %}"><button type="button" class="nav-ghost-btn">🏆 Rebríčky</button></a>
+
         {% if user.is_superuser %}
-            <a href="/admin/" >⚙️ Admin</a>
+            <a href="/admin/" target="_blank">
+                <button type="button" class="nav-ghost-btn" style="color: #ffffffff !important; font-weight: bold;">
+                    ⚙️ Admin
+                </button>
+            </a>
         {% endif %}
     </div>
 
     <div class="nav_bar-right">
         {% if user.is_authenticated %}
+            <a href="{% url 'oznamenie_list' %}"><button type="button" class="nav-ghost-btn">🔔</button></a>
             
-            <a href="{% url 'oznamenie_list' %}" class="bell-icon">
-                🔔
-                {% if badge_num > 0 %}
-                    <span class="badge">{{ badge_num }}</span>
-                {% endif %}
+            <a href="{% url 'dashboard' %}">
+                <button type="button" class="nav-ghost-btn nick-btn">
+                    {{ user.profil.nickname|default:user.username }}
+                </button>
             </a>
             
-            <a href="{% url 'dashboard' %}" class="user-nickname-link">
-                 {{ user.profil.nickname|default:user.username }}
-            </a>
-            
-            <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+            <form method="post" action="{% url 'logout' %}" style="display: inline; margin: 0;">
                 {% csrf_token %}
                 <button type="submit" class="logout-button">Odhlásiť sa</button>
             </form>
-            
-        {% else %}
-            <a href="{% url 'login' %}">Prihlásiť sa</a>
         {% endif %}
     </div>
-
 </div>

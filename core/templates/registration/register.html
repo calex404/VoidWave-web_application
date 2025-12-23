@@ -3,68 +3,99 @@
 {% block title %}Registrácia{% endblock %}
 
 {% block background_loop %}{% endblock %}
-
 {% block nav_bar %}{% endblock %}
 
-
 {% block content %}
+    <div class="reg-container">
+        <div class="auth-card">
+            <h2 class="auth-title">Registrácia</h2>
 
-    <div style="display: flex; justify-content: center; align-items: center; max-height: 80vh; padding: 20px;">
-        
-        <div style="max-width: 400px; width: 100%; padding: 40px; background-color: var(--color-surface); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0); border: 1px solid var(--color-border);">
-
-            <h2 style="text-align: center; color: var(--color-orange); margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; margin-bottom: 15px;">
-                Registrácia
-            </h2>
-
-<form method="post">
+            <form method="post" id="register-form">
                 {% csrf_token %}
 
                 {% if form.errors %}
-                    <div style="background-color: var(--color-reject); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 1em; text-align: center;">
+                    <div class="form-error-box">
                         <p style="margin: 0; font-weight: bold;">⚠️ Chyba v údajoch.</p>
                     </div>
                 {% endif %}
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Meno:</label>
+                <div class="form-group">
+                    <label>Meno:</label>
                     {{ form.username }}
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Email:</label>
+                <div class="form-group">
+                    <label>Email:</label>
                     {{ form.email }}
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Prezývka:</label>
+                <div class="form-group">
+                    <label>Prezývka:</label>
                     {{ form.nickname }}
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="field-label" style="display: block; >color: var(--color-text-main); margin-bottom: 5px;">
-                        Popis: <span style="font-weight:normal; font-size:0.8em; color: var(--color-gray);">(max 100 slov)</span>
-                    </label>
+                <div class="form-group">
+                    <label>Popis: <span class="field-help" id="bio-limit">(max 100 slov)</span></label>
                     {{ form.bio }}
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Heslo:</label>
+                <div class="form-group">
+                    <label>Heslo:</label>
                     {{ form.password1 }} 
                 </div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="field-label" style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Potvrdenie hesla:</label>
+                <div class="form-group">
+                    <label>Potvrdenie hesla:</label>
                     {{ form.password2 }}
                 </div>
 
-                    <button type="submit" style="width: 100%; padding: 12px; background-color: var(--color-orange); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1em;">
-                        Zaregistrovať sa
-                    </button>
+                <div class="login-checkbox-group">
+                    <input type="checkbox" id="show-password-reg"> 
+                    <label for="show-password-reg">Zobraziť heslá</label>
+                </div>
 
+                <button type="submit" class="btn-auth">Zaregistrovať sa</button>
             </form>
-            
         </div>
     </div>
-
 {% endblock content %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bioArea = document.querySelector('textarea[name="bio"]');
+        const wordHint = document.getElementById('bio-limit');
+
+        if (bioArea) {
+            const checkWords = function() {
+                const text = bioArea.value.trim();
+                const words = text.split(/\s+/).filter(w => w.length > 0);
+                const count = words.length;
+
+                if (count > 100) {
+                    const trimmedText = words.slice(0, 100).join(' ');
+                    bioArea.value = trimmedText;
+                    wordHint.style.color = "#901e1e"; 
+                    wordHint.innerText = '(Limit 100 slov dosiahnutý!)';
+                } else {
+                    wordHint.style.color = ''; 
+                    wordHint.innerText = `(Zostáva slov: ${100 - count})`;
+                }
+            };
+            bioArea.addEventListener('input', checkWords);
+        }
+
+        const checkbox = document.getElementById('show-password-reg');
+        const pass1 = document.getElementById('id_password1');
+        const pass2 = document.getElementById('id_password2');
+
+        if (checkbox && pass1 && pass2) {
+            checkbox.addEventListener('change', function() {
+                const type = checkbox.checked ? 'text' : 'password';
+                pass1.type = type;
+                pass2.type = type;
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}VoidWave{% endblock %}</title>
     
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
     
     {% block extra_head %}{% endblock %} 
 </head>
@@ -32,7 +32,18 @@
         {% include 'core/nav_bar.html' %} 
     {% endblock %}
 
-    <main style="padding-top: 70px;"> 
+    {% if messages %}
+    <div class="messages-container" style="position: fixed; top: 80px; width: 100%; z-index: 1000;">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <span style="cursor:pointer; float:right;" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main style="padding-top: 15px;"> 
         <div style="min-height: 80vh;"> 
             {% block content %}
             {% endblock %}

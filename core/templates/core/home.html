@@ -4,85 +4,70 @@
 
 {% block background_loop %}
     {% if user.is_authenticated %}
-        {{ block.super }} {% else %}
-        {% endif %}
+        {{ block.super }} 
+    {% endif %}
 {% endblock %}
 
 {% block nav_bar %}
     {% if user.is_authenticated %}
-        {{ block.super }} {% else %}
-        {% endif %}
+        {{ block.super }}
+    {% endif %}
 {% endblock %}
 
-
 {% block content %}
-    
     {% if user.is_authenticated %}
-        
-        <div style="text-align: center; margin-top: 250px;">
-            <h1 style="color: white; font-size: 3em; text-shadow: 0 0 30px #0000cd;">
-                Vitaj, {{ user.profil.nickname|default:user.username }}!
-            </h1>
-        </div>
-    
+    <div class="welcome-container">
+        <h1 class="welcome-title">
+            Vitaj, {{ user.profil.nickname|default:user.username }}!
+        </h1>
+    </div>
     {% else %}
-
-        <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
-           
-            <div style="max-width: 400px; width: 100%; padding: 40px; background: var(--color-surface); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0); border: 1px solid var(--color-border);">
-                
-                <h2 style="color: var(--color-orange); text-align: center; margin-top: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; margin-bottom: 20px;">
-                    Prihlásenie
-                </h2>
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2 class="auth-title">Prihlásenie</h2>
               
-                <form method="post">
+                <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     
                     {% if form.errors %}
-                        <div style="background-color: var(--color-reject); color: white; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 1em; text-align: center;">
+                        <div class="form-error-box">
                             ⚠️ Nesprávne meno alebo heslo.
                         </div>
                     {% endif %}
 
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Meno:</label>
+                    <div class="form-group">
+                        <label>Meno:</label>
                         {{ form.username }} 
                     </div>
                     
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; color: var(--color-text-main); margin-bottom: 5px;">Heslo:</label>
+                    <div class="form-group">
+                        <label>Heslo:</label>
                         {{ form.password }}
                     </div>
                     
-                    <div style="margin-bottom: 20px;">
+                    <div class="login-checkbox-group">
                         <input type="checkbox" id="show-password-login"> 
-                        <label for="show-password-login" style="color: var(--color-text-main); font-weight: normal; font-size: 1em;">Zobraziť heslo</label>
+                        <label for="show-password-login">Zobraziť heslo</label>
                     </div>
                     
-                    <button type="submit" style="width: 100%; padding: 12px; background-color: var(--color-orange); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.1em;">
-                        Prihlásiť sa
-                    </button>
+                    <button type="submit" class="btn-auth">Prihlásiť sa</button>
                     
                     <input type="hidden" name="next" value="{{ request.path }}">
                 </form>
                 
-                <hr style="border-color: var(--color-border); margin: 25px 0;">
+                <hr>
                 
-                <p style="color: var(--color-text-main); text-align: center;">
-                    Nemáš účet? <a href="{% url 'user_register' %}" style="color: var(--color-success); font-weight: normal; ">Zaregistruj sa!</a>
-                </p>
-                <p style="color: var(--color-text-main); text-align: center; font-size: 1em; margin-top: 10px;">
-                    <a href="{% url 'password_reset' %}" style="color: var(--color-gray);">Zabudol/a si heslo?</a>
-                </p>
+                <div class="login-footer">
+                    <p>
+                        Nemáš účet? <a href="{% url 'user_register' %}" class="link-success">Zaregistruj sa!</a>
+                    </p>
+                    <p>
+                        <a href="{% url 'password_reset' %}" class="link-gray">Zabudol/a si heslo?</a>
+                    </p>
+                </div>
             </div>
         </div>
-
     {% endif %}
-  
-    
 {% endblock content %}
 
 {% block scripts %}

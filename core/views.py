@@ -43,7 +43,7 @@ def register_view(request):
             
             Profil.objects.get_or_create(user=user, defaults={'nickname': user.username})
             
-            messages.success(request, "Registrácia bola úspešná! Teraz sa môžeš prihlásiť.")
+            messages.success(request, "✅ Registrácia bola úspešná! Teraz sa môžeš prihlásiť.")
             
             return redirect('home') 
             
@@ -346,13 +346,6 @@ def hodnotenie_create_view(request, udalost_id):
         'profil': profil,
     }
     return render(request, 'core/hodnotenie_create.html', context)
-
-
-def tim_list_view(request):
- 
-    vsetky_timy = Tim.objects.all()
-    context = {'timy': vsetky_timy}
-    return render(request, 'core/tim_list.html', context)
 
 
 def tim_list_view(request):

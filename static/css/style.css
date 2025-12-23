@@ -1,6 +1,8 @@
+/* =========================================
+   1. GLOBÁLNE NASTAVENIA
+   ========================================= */
 :root {
     color-scheme: dark; 
-
     --color-background: #1e1e1e;
     --color-surface: rgba(45, 45, 48, 0.90); 
     --color-text-main: #aaaaaa;  
@@ -10,164 +12,241 @@
     --color-orange-link: #c2582b;   
     --color-reject: #901e1e;        
     --color-success: #34d668; 
-
 }
 
-body {
-    background-color: var(--color-background);
+html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important; /* Priehľadnosť pre video */
     color: var(--color-text-main);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
 }
 
 #video-background {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 140vh; 
+    top: 0; left: 0; width: 100%; height: 140vh; 
     object-fit: cover;
-    object-position: top center; 
     z-index: -100;
     filter: brightness(40%) contrast(1.1); 
 }
 
+/* =========================================
+   2. NAVIGÁCIA
+   ========================================= */
 .nav_bar {
-    background-color: rgba(20, 20, 20, 0.75) !important; 
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 30px;
-    height: 60px;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 30px !important;
+    height: 65px !important;
+    background-color: rgba(15, 15, 15, 0.9) !important;
+    backdrop-filter: blur(15px);
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
     box-sizing: border-box;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.nav_bar-brand a {
-    font-size: 1.3em;
-    font-weight: 800;
-    color: var(--color-orange); 
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-decoration: none;
+.nav_bar-left, .nav_bar-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
 }
 
-.nav_bar-links {
-    display: flex;
-    gap: 20px;
+.nav-ghost-btn {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    padding: 8px 14px !important;
+    font-size: 1.2em !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    text-decoration: none !important;
 }
 
-.nav_bar-links a {
-    color: var(--color-text-main);
-    font-weight: 500;
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 0.9em;
-    transition: color 0.3s;
+.nav-ghost-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    text-shadow: 0 0 10px var(--color-orange) !important;
 }
 
-.nav_bar-links a:hover {
-    color: var(--color-text-main);
-    text-shadow: 0 0 8px var(--color-orange);
-}
-
-.nav_bar-user {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.user-nickname-link {
+.nick-btn {
     color: var(--color-orange) !important;
-    font-weight: bold;
-    text-decoration: none;
+    font-weight: 800 !important;
 }
 
 .logout-button {
-    background-color: transparent; 
-    border: 1px solid var(--color-reject);
-    color: var(--color-reject);
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9em;
-    transition: all 0.3s;
+    background-color: var(--color-reject) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 18px !important;
+    border-radius: 6px !important;
+    font-size: 0.95em !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
 }
 
-.logout-button:hover {
-    background-color: var(--color-reject);
-    color: white;
+/* =========================================
+   3. UVÍTACIA OBRAZOVKA
+   ========================================= */
+.welcome-container {
+    display: flex !important; 
+    justify-content: center !important;
+    align-items: center !important; 
+    height: 85vh !important; 
+    text-align: center !important;
 }
 
-.bell-icon {
-    font-size: 1.2em;
-    position: relative;
-    text-decoration: none;
-    color: var(--color-text-main);
+.welcome-title {
+    color: white !important;
+    font-size: 3em !important; 
+    font-weight: 800 !important;
+    text-shadow: 0 0 15px rgba(0, 0, 255, 0.7) !important; 
 }
 
-.badge {
-    position: absolute;
-    top: -5px;
-    right: -8px;
-    background-color: var(--color-reject);
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 2px 5px;
-    border-radius: 50%;
+/* =========================================
+   4. PRIHLÁSENIE A REGISTRÁCIA (AUTH)
+   ========================================= */
+.auth-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding-top: 160px !important;
+    min-height: 100vh !important;
+    width: 100% !important;
 }
 
-.container, .stats-box, .box {
+.reg-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important; /* Karta začne hore a scrolluješ dole */
+    padding-top: 50px !important;      /* Medzera od navbaru */
+    padding-bottom: 80px !important;   /* TOTO JE TEN PRIESTOR pod kartou, ktorý si chcela */
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    margin-bottom: 20px !important;       /* Priznaný, funkčný scrollbar */
+}
+
+.auth-card {
+    max-width: 380px !important;
+    width: 95% !important;
+    padding: 25px 40px !important;
     background-color: var(--color-surface) !important;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(4px);
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+}
+
+.auth-title {
+    text-align: center !important;
+    color: var(--color-orange) !important;
+    font-weight: 800 !important;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+/* Štýl pre inštrukcie v kartách (napr. obnova hesla) */
+.auth-instruction-text {
     color: var(--color-text-main) !important;
+    margin-bottom: 20px !important;
+    font-size: 0.95em !important;
+    text-align: center !important;
+    opacity: 0.8;
+}
+
+/* FIX: Zjednotenie päty (login aj register) */
+.login-footer, .auth-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+
+.link-success {
+    color: var(--color-success) !important;
+    font-weight: 800 !important;
+}
+
+/* FIX: Error box podľa tvojho HTML */
+.form-error-box {
+    background: rgba(144, 30, 30, 0.3) !important;
+    border: 1px solid var(--color-reject) !important;
+    color: white !important;
+    padding: 12px !important;
     border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
 }
 
-input[type="text"], textarea, input[type="password"], select, input[type="email"] {
-    background-color: rgba(0, 0, 0, 0.3) !important; 
+/* Formuláre */
+.form-group { margin-bottom: 15px !important; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--color-text-main); font-weight: 600; }
+
+input[type="text"], input[type="password"], input[type="email"], select, textarea {
+    background-color: rgba(0, 0, 0, 0.4) !important;
     color: white !important;
     border: 1px solid var(--color-border) !important;
-    padding: 5px;
-    border-radius: 4px;
-    width: 100%; 
+    padding: 12px !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.btn-auth {
+    display: block !important;
+    width: 100% !important;
+    padding: 14px !important;
+    background-color: var(--color-orange) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+    text-transform: uppercase;
+    margin-bottom: 15px !important;
+}
+
+/* Odkazy */
+a { text-decoration: none; color: var(--color-orange-link); transition: 0.2s; }
+a:hover { color: var(--color-orange); }
+
+/* Checkbox fix pre login */
+.login-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+.login-checkbox-group input { width: auto !important; }
+
+/* Zelená verzia tvojho error boxu pre úspešné správy */
+.alert-success {
+    background: rgba(52, 214, 104, 0.2) !important; /* Priesvitná zelená */
+    border: 1px solid var(--color-success) !important; /* Tvoja definovaná zelená */
+    color: white !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    width: 100%; /* Aby vyplnil šírku kontajnera */
+    max-width: 400px;
     box-sizing: border-box;
 }
 
-input[type="datetime-local"] {
-    background-color: rgba(0, 0, 0, 0.3) !important; 
-    color: white !important;
-    border: 1px solid var(--color-border) !important;
-    padding: 5px;
-    border-radius: 4px;
-    width: 100%; 
-    box-sizing: border-box;
+/* Toto drží ten zelený box v strede pod navbarom */
+.messages-container {
+    position: fixed;
+    top: 75px !important;
+    width: 100%;
+    z-index: 1100;
+    display: flex;
+    justify-content: center;
+    pointer-events: none; /* Aby si mohla klikať "cez" neviditeľný obal */
 }
 
-::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
+.alert-success * {
+    pointer-events: auto; /* Aby fungovalo tlačidlo zavrieť */
 }
-
-select option {
-    background-color: var(--color-background);
-    color: var(--color-text-main);
-}
-
-a { color: var(--color-orange-link); text-decoration: none; }
-hr { border-color: rgba(255, 255, 255, 0.1) !important; }
