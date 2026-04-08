@@ -68,40 +68,67 @@ def dashboard_view(request):
 
 
 def profil_list_view(request):
+    hladame_priatelov = 'hladat' in request.path
 
-    profily = Profil.objects.all()
+    profily_qs = Profil.objects.all()
+    if hladame_priatelov:
+        profily_qs = profily_qs.exclude(user=request.user)
+
+    profily = list(profily_qs)
+
+    if request.user.is_authenticated:
+        try:
+            moj_profil = request.user.profil
+        except AttributeError:
+            moj_profil = request.user.profile
+
+        for p in profily:
+            p.ziadost_odoslana = FriendRequest.objects.filter(
+                od_koho=moj_profil,
+                pre_koho=p
+            ).exists()
+
+            p.sme_kamosi = False
+
     context = {
         'profily': profily,
-        'hladame_priatelov': False  
+        'hladame_priatelov': hladame_priatelov
     }
     return render(request, 'core/profil_list.html', context)
 
 
 def find_priatelov_view(request):
+    hladame_priatelov = True
+    try:
+        moj_profil = request.user.profil
+    except AttributeError:
+        moj_profil = request.user.profile
 
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    hladany_profil = request.user.profil
-    
-    priatelia_vztahy = Priatelstvo.objects.filter(
-        Q(profil1=hladany_profil) | Q(profil2=hladany_profil),
-        stav='accepted'
+    # 1. NÁJDEME VŠETKY ID, KTORÉ CHCEME SCHOVAŤ (lotricek a spol.)
+    # Hľadáme všetky žiadosti, kde figuruješ ty
+    moje_vztahy = FriendRequest.objects.filter(
+        Q(od_koho=moj_profil) | Q(pre_koho=moj_profil)
     )
-    
-    priatelia_ids = [hladany_profil.id]
-    for vztah in priatelia_vztahy:
-        if vztah.profil1 == hladany_profil:
-            priatelia_ids.append(vztah.profil2.id)
-        else:
-            priatelia_ids.append(vztah.profil1.id)
-            
-    profily = Profil.objects.all().exclude(id__in=priatelia_ids)
-    
+
+    vylucit_ids = set()
+    for vztah in moje_vztahy:
+        vylucit_ids.add(vztah.od_koho.id)
+        vylucit_ids.add(vztah.pre_koho.id)
+
+    # 2. FILTER: Ukáž mi len tých, čo nie sú JA a nie sú vo "vylucit_ids"
+    # Týmto lotricek definitívne zmizne, ak s ním existuje záznam.
+    profily = Profil.objects.all().exclude(
+        user=request.user
+    ).exclude(
+        id__in=list(vylucit_ids)
+    )
+
     context = {
         'profily': profily,
-        'hladame_priatelov': True,  
+        'hladame_priatelov': hladame_priatelov  
     }
+    
+    # FIX CESTY: 'core/profil_list.html'
     return render(request, 'core/profil_list.html', context)
 
 
@@ -145,46 +172,43 @@ def profil_edit_view(request):
 
 
 def send_friend_request(request, profil_id):
+    if request.method == "POST" and request.user.is_authenticated:
+        od_koho = request.user.profil
+        pre_koho = get_object_or_404(Profil, id=profil_id)
 
-    if not request.user.is_authenticated: return redirect('login')
+        if od_koho == pre_koho:
+            return redirect(request.META.get("HTTP_REFERER", "profil_list"))
 
-    from_profil = request.user.profil
-    to_profil = get_object_or_404(Profil, id=profil_id)
-    
-    if request.method == 'POST':
-        if from_profil == to_profil:
-            return redirect('profil_detail', profil_id=from_profil.id)
+        fr, created = FriendRequest.objects.get_or_create(
+            od_koho=od_koho,
+            pre_koho=pre_koho
+        )
 
-        friendship_exists = Priatelstvo.objects.filter(
-            Q(profil1=from_profil, profil2=to_profil) | 
-            Q(profil1=to_profil, profil2=from_profil)
-        ).exists()
-        
-        if not friendship_exists:
-            Priatelstvo.objects.create(profil1=from_profil, profil2=to_profil, stav='pending')
-            
-            FriendRequest.objects.get_or_create(od_koho=from_profil, pre_koho=to_profil)
+        p1, p2 = sorted([od_koho, pre_koho], key=lambda x: x.id)
 
-            oznamenie = Oznamenie.objects.create(
-                nazov='Nová žiadosť o priateľstvo', typ='sprava',
-                obsah=f"{request.user.profil.nickname} ti poslal/a žiadosť o priateľstvo."
-            )
-            Odoslanie.objects.create(oznamenie=oznamenie, prijemca=to_profil)
-            
-            messages.success(request, f"Žiadosť pre {to_profil.nickname} bola odoslaná!")
+        Priatelstvo.objects.get_or_create(
+            profil1=p1,
+            profil2=p2,
+            defaults={"stav": "pending"}
+        )
 
-    return redirect('find_priatelov')
+        messages.success(request, "Žiadosť bola odoslaná")
+
+    return redirect(request.META.get("HTTP_REFERER", "profil_list"))
+
 
 
 def accept_friend_request(request, request_id):
-    
-    if not request.user.is_authenticated: return redirect('login')
-    
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     ziadost = get_object_or_404(FriendRequest, id=request_id)
-    
+
     if ziadost.pre_koho == request.user.profil:
-        
-        p1, p2 = sorted([ziadost.od_koho, ziadost.pre_koho], key=lambda x: x.id)
+        p1, p2 = sorted(
+            [ziadost.od_koho, ziadost.pre_koho],
+            key=lambda x: x.id
+        )
 
         Priatelstvo.objects.filter(
             profil1=p1,
@@ -194,7 +218,10 @@ def accept_friend_request(request, request_id):
 
         ziadost.delete()
 
-        messages.success(request, f"Teraz si priateľ s {ziadost.od_koho.nickname}!")
+        messages.success(
+            request,
+            f"Teraz si priateľ s {ziadost.od_koho.nickname}!"
+        )
 
     return redirect('oznamenie_list')
 

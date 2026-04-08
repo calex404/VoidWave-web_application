@@ -1,32 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Môj Dashboard{% endblock %}
-
 {% block content %}
-    <div class="container" style="max-width: 800px; margin: 40px auto; padding: 30px; background: var(--color-surface); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+<div class="page-wrapper" style="padding-top: 150px !important; display: flex; justify-content: center;">
+    <div class="glass-card" style="max-width: 480px !important; width: 95% !important; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 16px; padding: 40px;">
         
-        <h1 style="text-align: center; color: var(--color-text-main); margin-bottom: 30px; border-bottom: 2px solid var(--color-border); padding-bottom: 15px;">
-            ⚙️ Dashboard: {{ user.profil.nickname }}
+        <h1 style="text-align: center; color: white; margin-bottom: 30px; border-bottom: 1px solid var(--color-border); padding-bottom: 20px; font-weight: 800; text-transform: uppercase;">
+            ⚙️ Ovládací panel
         </h1>
 
-        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            
-            <a href="{% url 'find_priatelov' %}" 
-               style="text-decoration: none; padding: 15px 25px; border-radius: 5px; font-weight: bold; color: white; background-color: var(--color-link);">
-                🔍 Nájsť priateľov
-            </a>
-            
-            <a href="{% url 'profil_edit' %}" 
-               style="text-decoration: none; padding: 15px 25px; border-radius: 5px; font-weight: bold; color: white; background-color: var(--color-gray);">
-                ✏️ Upraviť profil
-            </a>
-            
-            <a href="{% url 'profil_detail' user.profil.id %}" 
-               style="text-decoration: none; padding: 15px 25px; border-radius: 5px; font-weight: bold; color: white; background-color: var(--color-orange);">
-                👁️ Môj verejný profil
-            </a>
-
+        <div class="dashboard-btn-container">
+            <a href="{% url 'find_priatelov' %}" class="dash-btn-base btn-neon-blue">🔍 Nájsť priateľov</a>
+            <a href="{% url 'profil_edit' %}" class="dash-btn-base btn-neon-pink">✏️ Upraviť profil</a>
+            <a href="{% url 'profil_detail' user.profil.id %}" class="dash-btn-base btn-neon-orange">👁️ Môj verejný profil</a>
         </div>
         
     </div>
-    {% endblock content %}
+</div>
+{% endblock %}
