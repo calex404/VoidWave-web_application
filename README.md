@@ -1,8 +1,8 @@
-# ! Currently not working properly due to harsh refactoring 🛠️ !
+# Currently not working properly due to harsh refactoring !
 
-## To-be-fixed after my graduation (expected in June 2026).
+## To-be-fixed after my graduation
 
-# VoidWave (Gaming Platform) 🌅
+# VoidWave (Gaming Platform) 
 
 This project was created for the Process Management Database course at the Faculty of Mechanical Engineering Brno University of Technology (FME BUT). This course is part of the winterr semester for 3rd-year students in the Applied Computer Science and Control program. 
 
